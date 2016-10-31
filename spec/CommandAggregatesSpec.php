@@ -130,9 +130,11 @@ class CommandAggregatesSpec {
             }
         }');
 
-        $this->events->append(new Event($this->id('ApplyEvents'), 'That', ['one' => 'And', 'two' => 'This']), $this->id('ApplyEvents'));
+        $this->events->append(new Event($this->id('baz'), 'That', ['one' => 'And', 'two' => 'This']), $this->id('baz'));
 
-        $this->handle('ApplyEvents', 'Foo');
+        $this->handle('ApplyEvents', 'Foo', [
+            CommandAction::AGGREGATE_IDENTIFIER_KEY => 'baz'
+        ]);
 
         $assert($this->recordedEvents()[1]->getName(), 'Applied');
         $assert($this->recordedEvents()[1]->getArguments(), ['ThatAndThis']);

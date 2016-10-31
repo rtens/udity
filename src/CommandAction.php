@@ -11,8 +11,9 @@ use watoki\reflect\type\StringType;
 
 class CommandAction implements Action {
     const AGGREGATE_IDENTIFIER_KEY = 'target';
+
     /**
-     * @var \ReflectionMethod
+     * @var \ReflectionMethod|null
      */
     private $method;
     /**
@@ -35,11 +36,11 @@ class CommandAction implements Action {
     /**
      * @param Application $app
      * @param string $commandName
-     * @param \ReflectionMethod $method
+     * @param \ReflectionMethod|null $method
      * @param TypeFactory $types
      * @param CommentParser $parser
      */
-    public function __construct(Application $app, $commandName, \ReflectionMethod $method, TypeFactory $types, CommentParser $parser) {
+    public function __construct(Application $app, $commandName, \ReflectionMethod $method = null, TypeFactory $types, CommentParser $parser) {
         $this->app = $app;
         $this->commandName = $commandName;
         $this->method = $method;
@@ -79,8 +80,12 @@ class CommandAction implements Action {
         $analyzer = new MethodAnalyzer($this->method);
         $parameters = [];
 
-        if (!$this->method->getDeclaringClass()->isSubclassOf(SingletonAggregateRoot::class)) {
-            $identifierClass = $this->method->getDeclaringClass()->getName() . 'Identifier';
+        $class = $this->method->getDeclaringClass();
+
+        if ($class->isSubclassOf(SingletonAggregateRoot::class)) {
+        } else if ($class->isSubclassOf(DomainObject::class) && $this->commandName == 'create') {
+        } else {
+            $identifierClass = $class->getName() . 'Identifier';
             if (class_exists($identifierClass) && is_subclass_of($identifierClass, AggregateIdentifier::class)) {
                 $parameters[] = new Parameter(self::AGGREGATE_IDENTIFIER_KEY, new ClassType($identifierClass), true);
             } else {
@@ -118,15 +123,17 @@ class CommandAction implements Action {
      */
     public function execute(array $parameters) {
         $class = $this->method->getDeclaringClass();
-        if (array_key_exists(self::AGGREGATE_IDENTIFIER_KEY, $parameters)) {
-            $key = $parameters[self::AGGREGATE_IDENTIFIER_KEY];
-            if (is_string($key)) {
-                $identifier = new GenericAggregateIdentifier($class->getName(), $key);
+
+        if ($this->method->getDeclaringClass()->isSubclassOf(SingletonAggregateRoot::class)) {
+            $identifier = new GenericAggregateIdentifier($class->getName(), $class->getShortName());
+        } else if (array_key_exists(self::AGGREGATE_IDENTIFIER_KEY, $parameters)) {
+            if (is_string($parameters[self::AGGREGATE_IDENTIFIER_KEY])) {
+                $identifier = new GenericAggregateIdentifier($class->getName(), $parameters[self::AGGREGATE_IDENTIFIER_KEY]);
             } else {
-                $identifier = $key;
+                $identifier = $parameters[self::AGGREGATE_IDENTIFIER_KEY];
             }
         } else {
-            $identifier = new GenericAggregateIdentifier($class->getName(), $class->getShortName());
+            $identifier = new GenericAggregateIdentifier($class->getName(), uniqid($class->getShortName()));
         }
 
         $this->app->handle(new Command($this->commandName, $identifier, $parameters));

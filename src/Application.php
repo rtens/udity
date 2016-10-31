@@ -24,25 +24,29 @@ class Application implements AggregateFactory, ProjectionFactory {
     public function run(WebApplication $domin) {
         $domin->types = new DefaultTypeFactory();
 
+        foreach ($this->findSubClasses(Projecting::class) as $projection) {
+            $id = $projection->getShortName();
+            $domin->actions->add($id,
+                new QueryAction($this, $projection->getName(), $domin->types, $domin->parser));
+            $domin->groups->put($id, 'Show');
+        }
+
         foreach ($this->findSubClasses(AggregateRoot::class) as $root) {
             foreach ($this->findCommandMethods($root) as $command => $method) {
-                $domin->actions->add($root->getShortName() . '$' . $command, new CommandAction(
-                    $this,
-                    $command,
-                    $method,
-                    $domin->types,
-                    $domin->parser
-                ));
+                $id = $root->getShortName() . '$' . $command;
+                $domin->actions->add($id,
+                    new CommandAction($this, $command, $method, $domin->types, $domin->parser));
+                $domin->groups->put($id, $root->getShortName());
             }
         }
 
-        foreach ($this->findSubClasses(Projecting::class) as $projection) {
-            $domin->actions->add($projection->getShortName(), new QueryAction(
-                $this,
-                $projection->getName(),
-                $domin->types,
-                $domin->parser
-            ));
+        foreach ($this->findSubClasses(DomainObject::class) as $object) {
+            if ($object->hasMethod('create')) {
+                $id = $object->getShortName() . '$create';
+                $domin->actions->add($id,
+                    new CommandAction($this, 'create', $object->getMethod('create'), $domin->types, $domin->parser));
+                $domin->groups->put($id, $object->getShortName());
+            }
         }
     }
 
