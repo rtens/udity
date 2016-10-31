@@ -4,6 +4,7 @@ namespace rtens\proto;
 abstract class SingletonAggregateRoot extends AggregateRoot {
 
     public function __construct() {
-        parent::__construct(new GenericAggregateIdentifier(get_class($this), (new \ReflectionClass($this))->getShortName()));
+        $identifier = get_class($this) . 'Identifier';
+        parent::__construct(new $identifier((new \ReflectionClass($this))->getShortName()));
     }
 }

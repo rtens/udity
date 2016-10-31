@@ -5,7 +5,7 @@ use rtens\domin\Parameter;
 use rtens\proto\DomainObject;
 use rtens\proto\Event;
 use rtens\scrut\Assert;
-use watoki\reflect\type\StringType;
+use watoki\reflect\type\ClassType;
 
 class ProjectDomainObjectsSpec extends Specification {
 
@@ -13,11 +13,11 @@ class ProjectDomainObjectsSpec extends Specification {
         $class = $this->define('SomeEmptyObject', DomainObject::class);
 
         $object = $this->execute('SomeEmptyObject$read', [
-            'identifier' => 'foo'
+            'identifier' => $this->id('SomeEmptyObject', 'foo')
         ]);
 
         $assert($this->domin->actions->getAction('SomeEmptyObject$read')->parameters(), [
-            new Parameter('identifier', new StringType(), true)
+            new Parameter('identifier', new ClassType($class . 'Identifier'), true)
         ]);
 
         $assert(is_object($object));
@@ -37,7 +37,7 @@ class ProjectDomainObjectsSpec extends Specification {
         ]), $this->id('WithCreatedArguments', 'foo'));
 
         $object = $this->execute('WithCreatedArguments$read', [
-            'identifier' => 'foo'
+            'identifier' => $this->id('WithCreatedArguments', 'foo')
         ]);
         $assert($object->createdWith, 'BarBaz');
     }

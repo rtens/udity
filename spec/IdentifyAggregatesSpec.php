@@ -9,23 +9,22 @@ use rtens\proto\Event;
 use rtens\proto\SingletonAggregateRoot;
 use rtens\scrut\Assert;
 use watoki\reflect\type\ClassType;
-use watoki\reflect\type\StringType;
 
 class IdentifyAggregatesSpec extends Specification {
 
     function addIdentifierProperty(Assert $assert) {
-        $this->define('AddIdentifierProperty', AggregateRoot::class, '
+        $class = $this->define('AddIdentifierProperty', AggregateRoot::class, '
             function handleFoo() {
                 $this->recordThat("This happened", [$this->identifier]);
             }
         ');
 
         $this->execute('AddIdentifierProperty$Foo', [
-            CommandAction::AGGREGATE_IDENTIFIER_KEY => 'baz'
+            CommandAction::IDENTIFIER_KEY => $this->id('AddIdentifierProperty', 'baz')
         ]);
 
         $assert($this->domin->actions->getAction('AddIdentifierProperty$Foo')->parameters(), [
-            new Parameter(CommandAction::AGGREGATE_IDENTIFIER_KEY, new StringType(), true)
+            new Parameter(CommandAction::IDENTIFIER_KEY, new ClassType($class . 'Identifier'), true)
         ]);
 
         $assert($this->recordedEvents(), [
@@ -45,7 +44,9 @@ class IdentifyAggregatesSpec extends Specification {
             }
         ');
 
-        $this->execute('Singleton$Foo');
+        $this->execute('Singleton$Foo', [
+            CommandAction::IDENTIFIER_KEY => $this->id('Singleton', 'baz')
+        ]);
 
         $assert($this->domin->actions->getAction('Singleton$Foo')->parameters(), []);
         $assert($this->recordedEvents(), [
@@ -66,11 +67,11 @@ class IdentifyAggregatesSpec extends Specification {
         $identifierClass = $this->define('StaticIdentifierIdentifier', AggregateIdentifier::class);
 
         $this->execute('StaticIdentifier$Foo', [
-            CommandAction::AGGREGATE_IDENTIFIER_KEY => new $identifierClass('bar')
+            CommandAction::IDENTIFIER_KEY => new $identifierClass('bar')
         ]);
 
         $assert($this->domin->actions->getAction('StaticIdentifier$Foo')->parameters(), [
-            new Parameter(CommandAction::AGGREGATE_IDENTIFIER_KEY, new ClassType($identifierClass), true)
+            new Parameter(CommandAction::IDENTIFIER_KEY, new ClassType($identifierClass), true)
         ]);
 
         $assert(get_class($this->recordedEvents()[0]->getAggregateIdentifier()),

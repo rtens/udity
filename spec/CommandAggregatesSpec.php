@@ -4,6 +4,7 @@ namespace spec\rtens\proto;
 use rtens\proto\AggregateRoot;
 use rtens\proto\CommandAction;
 use rtens\proto\Event;
+use rtens\proto\SingletonAggregateRoot;
 use rtens\scrut\Assert;
 
 class CommandAggregatesSpec extends Specification {
@@ -33,7 +34,18 @@ class CommandAggregatesSpec extends Specification {
             function handleFoo() {}
         ');
 
-        $this->execute('Nothing$Foo');
+        $this->execute('Nothing$Foo', [
+            CommandAction::IDENTIFIER_KEY => $this->id('Nothing', 'baz')
+        ]);
+        $assert($this->recordedEvents(), []);
+    }
+
+    function singleton(Assert $assert) {
+        $this->define('SingletonAggregate', SingletonAggregateRoot::class, '
+            function handleFoo() {}
+        ');
+
+        $this->execute('SingletonAggregate$Foo');
         $assert($this->recordedEvents(), []);
     }
 
@@ -45,7 +57,7 @@ class CommandAggregatesSpec extends Specification {
         ');
 
         $this->execute('AppendEvents$Foo', [
-            CommandAction::AGGREGATE_IDENTIFIER_KEY => 'baz'
+            CommandAction::IDENTIFIER_KEY => $this->id('AppendEvents', 'baz')
         ]);
 
         $assert($this->recordedEvents(), [
@@ -63,7 +75,11 @@ class CommandAggregatesSpec extends Specification {
             }
         ');
 
-        $this->execute('WithArguments$Foo', ['one' => 'And', 'two' => 'That']);
+        $this->execute('WithArguments$Foo', [
+            CommandAction::IDENTIFIER_KEY => $this->id('WithArguments', 'baz'),
+            'one' => 'And',
+            'two' => 'That'
+        ]);
 
         $assert($this->recordedEvents()[0]->getArguments(), ['this' => 'AndThat']);
     }
@@ -81,7 +97,7 @@ class CommandAggregatesSpec extends Specification {
         $this->events->append(new Event($this->id('baz'), 'That', ['one' => 'And', 'two' => 'This']), $this->id('baz'));
 
         $this->execute('ApplyEvents$Foo', [
-            CommandAction::AGGREGATE_IDENTIFIER_KEY => 'baz'
+            CommandAction::IDENTIFIER_KEY => $this->id('ApplyEvents', 'baz')
         ]);
 
         $assert($this->recordedEvents()[1]->getName(), 'Applied');

@@ -2,17 +2,19 @@
 namespace spec\rtens\proto;
 
 use rtens\domin\delivery\web\WebApplication;
+use rtens\proto\AggregateIdentifier;
 use rtens\proto\Application;
 use rtens\proto\Event;
-use rtens\proto\GenericAggregateIdentifier;
 use rtens\proto\Time;
 use watoki\factory\Factory;
 use watoki\karma\stores\EventStore;
 use watoki\karma\stores\MemoryEventStore;
 
 abstract class Specification {
-    private $uniqid;
-
+    /**
+     * @var string
+     */
+    private $namespace;
     /**
      * @var EventStore
      */
@@ -24,7 +26,7 @@ abstract class Specification {
 
     public function before() {
         Time::freeze();
-        $this->uniqid = uniqid('_');
+        $this->namespace = uniqid('_');
 
         $this->events = new MemoryEventStore();
         $this->domin = (new Factory())->getInstance(WebApplication::class);
@@ -41,7 +43,13 @@ abstract class Specification {
     }
 
     protected function id($aggregate, $key = null) {
-        return new GenericAggregateIdentifier('proto\\' . $this->uniqid . '\domain\\' . $aggregate, $key ?: $aggregate);
+        $short = $aggregate . 'Identifier';
+        $class = $this->namespace . '\\' . $short;
+        if (!class_exists($class)) {
+            eval("namespace $this->namespace; 
+            class $short extends \\" . AggregateIdentifier::class . " {}");
+        }
+        return new $class($key ?: $aggregate);
     }
 
     /**
@@ -54,12 +62,11 @@ abstract class Specification {
     protected function define($className, $extends, $body = '', $implements = null) {
         $implements = $implements ? ' implements \\' . $implements : '';
 
-        $namespace = "proto\\" . $this->uniqid . "\\domain";
-        eval("namespace $namespace;
+        eval("namespace $this->namespace;
         class $className extends \\" . $extends . $implements . " {
             $body
         }");
 
-        return $namespace . '\\' . $className;
+        return $this->namespace . '\\' . $className;
     }
 }

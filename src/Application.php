@@ -31,6 +31,13 @@ class Application implements AggregateFactory, ProjectionFactory {
         }
 
         foreach ($this->findSubClasses(AggregateRoot::class) as $root) {
+            if (!class_exists($root->getName() . 'Identifier')) {
+                $parts = explode('\\', $root->getName());
+                $shortName = array_pop($parts) . 'Identifier';
+                $nameSpace = implode('\\', $parts);
+
+                eval("namespace $nameSpace; class $shortName extends \\" . AggregateIdentifier::class . " {}");
+            }
             foreach ($this->findCommandMethods($root) as $command => $method) {
                 $this->addAction($domin, $root->getShortName() . '$' . $command, $root->getShortName(),
                     new CommandAction($this, $command, $method, $domin->types, $domin->parser));
