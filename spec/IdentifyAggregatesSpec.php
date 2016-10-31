@@ -14,12 +14,11 @@ use watoki\reflect\type\StringType;
 class IdentifyAggregatesSpec extends Specification {
 
     function addIdentifierProperty(Assert $assert) {
-        eval('namespace proto\test\domain;
-        class AddIdentifierProperty extends \\' . AggregateRoot::class . ' {
+        $this->define('AddIdentifierProperty', AggregateRoot::class, '
             function handleFoo() {
                 $this->recordThat("This happened", [$this->identifier]);
             }
-        }');
+        ');
 
         $this->execute('AddIdentifierProperty$Foo', [
             CommandAction::AGGREGATE_IDENTIFIER_KEY => 'baz'
@@ -40,12 +39,11 @@ class IdentifyAggregatesSpec extends Specification {
 
 
     function singletonAggregate(Assert $assert) {
-        eval('namespace proto\test\domain;
-        class Singleton extends \\' . SingletonAggregateRoot::class . ' {
+        $this->define('Singleton', SingletonAggregateRoot::class, '
             function handleFoo() {
                 $this->recordThat("This happened", [$this->identifier]);
             }
-        }');
+        ');
 
         $this->execute('Singleton$Foo');
 
@@ -60,16 +58,12 @@ class IdentifyAggregatesSpec extends Specification {
     }
 
     function staticIdentifier(Assert $assert) {
-        $identifierClass = 'proto\test\domain\StaticIdentifierIdentifier';
-        eval('namespace proto\test\domain;
-        class StaticIdentifier extends \\' . AggregateRoot::class . ' {
+        $this->define('StaticIdentifier', AggregateRoot::class, '
             function handleFoo() {
                 $this->recordThat("This happened", [$this->identifier]);
             }
-        }
-        
-        class StaticIdentifierIdentifier extends \\' . AggregateIdentifier::class . ' {
-        }');
+        ');
+        $identifierClass = $this->define('StaticIdentifierIdentifier', AggregateIdentifier::class);
 
         $this->execute('StaticIdentifier$Foo', [
             CommandAction::AGGREGATE_IDENTIFIER_KEY => new $identifierClass('bar')

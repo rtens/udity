@@ -18,9 +18,7 @@ class CommandAggregatesSpec extends Specification {
     }
 
     function noMethods(Assert $assert) {
-        eval('namespace proto\test\domain;
-        class NoMethods extends \\' . AggregateRoot::class . ' {
-        }');
+        $this->define('NoMethods', AggregateRoot::class);
 
         try {
             $this->execute('NoMethods');
@@ -31,22 +29,20 @@ class CommandAggregatesSpec extends Specification {
     }
 
     function nothingHappens(Assert $assert) {
-        eval('namespace proto\test\domain;
-        class Nothing extends \\' . AggregateRoot::class . ' {
+        $this->define('Nothing', AggregateRoot::class, '
             function handleFoo() {}
-        }');
+        ');
 
         $this->execute('Nothing$Foo');
         $assert($this->recordedEvents(), []);
     }
 
     function appendEvents(Assert $assert) {
-        eval('namespace proto\test\domain;
-        class AppendEvents extends \\' . AggregateRoot::class . ' {
+        $this->define('AppendEvents', AggregateRoot::class, '
             function handleFoo() {
                 $this->recordThat("This happened");
             }
-        }');
+        ');
 
         $this->execute('AppendEvents$Foo', [
             CommandAction::AGGREGATE_IDENTIFIER_KEY => 'baz'
@@ -61,12 +57,11 @@ class CommandAggregatesSpec extends Specification {
     }
 
     function withArguments(Assert $assert) {
-        eval('namespace proto\test\domain;
-        class WithArguments extends \\' . AggregateRoot::class . ' {
+        $this->define('WithArguments', AggregateRoot::class, '
             function handleFoo($two, $one) {
                 $this->recordThat("This happened", ["this" => $one . $two]);
             }
-        }');
+        ');
 
         $this->execute('WithArguments$Foo', ['one' => 'And', 'two' => 'That']);
 
@@ -74,15 +69,14 @@ class CommandAggregatesSpec extends Specification {
     }
 
     function applyEvents(Assert $assert) {
-        eval('namespace proto\test\domain;
-        class ApplyEvents extends \\' . AggregateRoot::class . ' {
+        $this->define('ApplyEvents', AggregateRoot::class, '
             function applyThat($two, \\' . Event::class . ' $e, $one) {
                 $this->applied = $e->getName() . $one . $two;
             }
             function handleFoo() {
                 $this->recordThat("Applied", [$this->applied]);
             }
-        }');
+        ');
 
         $this->events->append(new Event($this->id('baz'), 'That', ['one' => 'And', 'two' => 'This']), $this->id('baz'));
 

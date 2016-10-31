@@ -8,11 +8,10 @@ use rtens\scrut\Assert;
 class CommandDomainObjectsSpec extends Specification {
 
     function create(Assert $assert) {
-        eval('namespace proto\test\domainObject;
-        class EmptyObject extends \\' . DomainObject::class . ' {
+        $this->define('EmptyObject', DomainObject::class, '
             function create() {}
-        }');
-        $objectClass = 'proto\test\domainObject\EmptyObject';
+        ');
+        $objectClass = 'proto\test\domain\EmptyObject';
 
         $this->execute('EmptyObject$create');
 

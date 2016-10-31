@@ -21,8 +21,7 @@ class ProjectEventsSpec extends Specification  {
     }
 
     function emptyProjection(Assert $assert) {
-        eval('namespace proto\test\domain;
-        class EmptyProjection extends \\' . Projection::class . ' {}');
+        $this->define('EmptyProjection', Projection::class);
 
         $result = $this->execute('EmptyProjection');
         $assert(is_object($result));
@@ -30,12 +29,11 @@ class ProjectEventsSpec extends Specification  {
     }
 
     function applyEvents(Assert $assert) {
-        eval('namespace proto\test\domain;
-        class ProjectEvents extends \\' . Projection::class . ' {
+        $this->define('ProjectEvents', Projection::class, '
             function applyThat($two, \rtens\proto\Event $e, $one) {
                 $this->applied = $e->getName() . $one . $two;
             }
-        }');
+        ');
 
         $this->events->append(new Event($this->id('foo'), 'NotThis'), $this->id('foo'));
         $this->events->append(new Event($this->id('foo'), 'That', ['one' => 'And', 'two' => 'This']), $this->id('foo'));
@@ -45,12 +43,11 @@ class ProjectEventsSpec extends Specification  {
     }
 
     function passArguments(Assert $assert) {
-        eval('namespace proto\test\domain;
-        class PassArguments extends \\' . Projection::class . ' {
+        $this->define('PassArguments', Projection::class, '
             function __construct($one, $two) {
                 $this->passed = $one . $two;
             }
-        }');
+        ');
 
         $result = $this->execute('PassArguments', [
             'two' => 'Bar',
@@ -65,12 +62,11 @@ class ProjectEventsSpec extends Specification  {
     }
 
     function aggregateAsProjection(Assert $assert) {
-        eval('namespace proto\test\domain;
-        class AggregateAsProjection extends \\' . SingletonAggregateRoot::class . ' implements \\' . Projecting::class . ' {
+        $this->define('AggregateAsProjection', SingletonAggregateRoot::class, '
             function applyThat() {
                 $this->applied = true;
             }
-        }');
+        ', Projecting::class);
 
         $this->events->append(new Event($this->id('foo'), 'That'), $this->id('foo'));
 

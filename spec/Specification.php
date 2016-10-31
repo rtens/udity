@@ -47,4 +47,15 @@ abstract class Specification {
     protected function recordedEvents() {
         return $this->events->allEvents();
     }
+
+    protected function define($className, $extends, $body = '', $implements = null) {
+        $implements = $implements ? ' implements \\' . $implements : '';
+
+        eval("namespace proto\\test\\domain;
+        class $className extends \\" . $extends . $implements . " {
+            $body
+        }");
+
+        return 'proto\\test\\domain\\' . $className;
+    }
 }
