@@ -51,7 +51,7 @@ class CommandAction implements Action {
      * @return string
      */
     public function caption() {
-        return $this->unCamelize($this->commandName) . ' ' . $this->unCamelize($this->method->getDeclaringClass()->getShortName());
+        return $this->unCamelize($this->commandName);
     }
 
     private function unCamelize($camel) {
