@@ -41,4 +41,30 @@ class ProjectDomainObjectsSpec extends Specification {
         ]);
         $assert($object->createdWith, 'BarBaz');
     }
+
+    function projectAll(Assert $assert) {
+        $this->define('ProjectAll', DomainObject::class, '
+            function created($name) {
+                $this->name = $name;
+            }
+        ');
+
+        $this->events->append(new Event($this->id('ProjectAll', 'one'), 'Created', ['name' => 'One']),
+            $this->id('ProjectAll', 'one'));
+        $this->events->append(new Event($this->id('ProjectAll', 'two'), 'Created', ['name' => 'Two']),
+            $this->id('ProjectAll', 'two'));
+        $this->events->append(new Event($this->id('ProjectAll', 'three'), 'Created', ['name' => 'Three']),
+            $this->id('ProjectAll', 'three'));
+
+        $this->events->append(new Event($this->id('Wrong', 'three'), 'Created'),
+            $this->id('Wrong', 'three'));
+
+        $objects = $this->execute('ProjectAll$all');
+
+        $assert(count($objects->getAll()), 3);
+        $assert(is_object($objects->getAll()[0]));
+        $assert($objects->getAll()[0]->name, 'One');
+        $assert($objects->getAll()[1]->name, 'Two');
+        $assert($objects->getAll()[2]->name, 'Three');
+    }
 }

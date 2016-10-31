@@ -44,6 +44,18 @@ class Application implements AggregateFactory, ProjectionFactory {
             }
             $this->addAction($domin, $object->getShortName() . '$read', $object->getShortName(),
                 new QueryAction($this, $object->getName(), $domin->types, $domin->parser));
+
+            $listClass = $object->getName() . 'List';
+            if (!class_exists($listClass)) {
+                $parts = explode('\\', $listClass);
+                $shortName = array_pop($parts);
+                $nameSpace = implode('\\', $parts);
+
+                eval("namespace $nameSpace; class $shortName extends \\" . DomainObjectList::class . " {}");
+            }
+
+            $this->addAction($domin, $object->getShortName() . '$all', $object->getShortName(),
+                new QueryAction($this, $listClass, $domin->types, $domin->parser));
         }
     }
 
