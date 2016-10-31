@@ -6,6 +6,7 @@ use rtens\domin\Parameter;
 use rtens\domin\reflection\CommentParser;
 use rtens\domin\reflection\types\TypeFactory;
 use watoki\reflect\PropertyReader;
+use watoki\reflect\type\StringType;
 
 class QueryAction implements Action {
     /**
@@ -82,7 +83,12 @@ class QueryAction implements Action {
         $parameters = [];
         foreach ($this->reader->readInterface() as $property) {
             if ($property->canSet()) {
-                $parameters[] = (new Parameter($property->name(), $property->type(), $property->isRequired()))
+                $type = $property->type();
+                if ($property->name() == 'identifier') {
+                    $type = new StringType();
+                }
+
+                $parameters[] = (new Parameter($property->name(), $type, $property->isRequired()))
                     ->setDescription($this->parser->parse($property->comment()));
             }
         }
@@ -102,6 +108,9 @@ class QueryAction implements Action {
      * @throws \Exception if Action cannot be executed
      */
     public function execute(array $parameters) {
+        if (array_key_exists('identifier', $parameters) && is_string($parameters['identifier'])) {
+            $parameters['identifier'] = new GenericAggregateIdentifier($this->class->getName(), $parameters['identifier']);
+        }
         return $this->app->handle(new Query($this->class->getName(), $parameters));
     }
 }

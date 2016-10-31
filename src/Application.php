@@ -1,6 +1,7 @@
 <?php
 namespace rtens\proto;
 
+use rtens\domin\Action;
 use rtens\domin\delivery\web\WebApplication;
 use watoki\karma\Application as Karma;
 use watoki\karma\command\AggregateFactory;
@@ -25,26 +26,24 @@ class Application implements AggregateFactory, ProjectionFactory {
         $domin->types = new DefaultTypeFactory();
 
         foreach ($this->findSubClasses(Projecting::class) as $projection) {
-            $id = $projection->getShortName();
-            $domin->actions->add($id,
+            $this->addAction($domin, $projection->getShortName(), 'Show',
                 new QueryAction($this, $projection->getName(), $domin->types, $domin->parser));
-            $domin->groups->put($id, 'Show');
         }
 
         foreach ($this->findSubClasses(AggregateRoot::class) as $root) {
             foreach ($this->findCommandMethods($root) as $command => $method) {
-                $id = $root->getShortName() . '$' . $command;
-                $domin->actions->add($id,
+                $this->addAction($domin, $root->getShortName() . '$' . $command, $root->getShortName(),
                     new CommandAction($this, $command, $method, $domin->types, $domin->parser));
-                $domin->groups->put($id, $root->getShortName());
             }
         }
 
         foreach ($this->findSubClasses(DomainObject::class) as $object) {
-            $id = $object->getShortName() . '$create';
-            $domin->actions->add($id,
-                new CreateObjectAction($this, $object, $domin->types, $domin->parser));
-            $domin->groups->put($id, $object->getShortName());
+            if ($object->hasMethod('created')) {
+                $this->addAction($domin, $object->getShortName() . '$create', $object->getShortName(),
+                    new CommandAction($this, 'create', $object->getMethod('created'), $domin->types, $domin->parser));
+            }
+            $this->addAction($domin, $object->getShortName() . '$read', $object->getShortName(),
+                new QueryAction($this, $object->getName(), $domin->types, $domin->parser));
         }
     }
 
@@ -140,5 +139,10 @@ class Application implements AggregateFactory, ProjectionFactory {
         }
 
         return $class->newInstanceArgs($arguments);
+    }
+
+    private function addAction(WebApplication $domin, $id, $group, Action $action) {
+        $domin->actions->add($id, $action);
+        $domin->groups->put($id, $group);
     }
 }

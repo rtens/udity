@@ -11,6 +11,8 @@ use watoki\karma\stores\EventStore;
 use watoki\karma\stores\MemoryEventStore;
 
 abstract class Specification {
+    private $uniqid;
+
     /**
      * @var EventStore
      */
@@ -22,6 +24,7 @@ abstract class Specification {
 
     public function before() {
         Time::freeze();
+        $this->uniqid = uniqid('_');
 
         $this->events = new MemoryEventStore();
         $this->domin = (new Factory())->getInstance(WebApplication::class);
@@ -38,7 +41,7 @@ abstract class Specification {
     }
 
     protected function id($aggregate, $key = null) {
-        return new GenericAggregateIdentifier('proto\test\domain\\' . $aggregate, $key ?: $aggregate);
+        return new GenericAggregateIdentifier('proto\\' . $this->uniqid . '\domain\\' . $aggregate, $key ?: $aggregate);
     }
 
     /**
@@ -51,11 +54,12 @@ abstract class Specification {
     protected function define($className, $extends, $body = '', $implements = null) {
         $implements = $implements ? ' implements \\' . $implements : '';
 
-        eval("namespace proto\\test\\domain;
+        $namespace = "proto\\" . $this->uniqid . "\\domain";
+        eval("namespace $namespace;
         class $className extends \\" . $extends . $implements . " {
             $body
         }");
 
-        return 'proto\\test\\domain\\' . $className;
+        return $namespace . '\\' . $className;
     }
 }

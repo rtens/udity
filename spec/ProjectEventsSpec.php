@@ -25,7 +25,7 @@ class ProjectEventsSpec extends Specification  {
 
         $result = $this->execute('EmptyProjection');
         $assert(is_object($result));
-        $assert(get_class($result), 'proto\test\domain\EmptyProjection');
+        $assert(substr(get_class($result), -strlen('EmptyProjection')), 'EmptyProjection');
     }
 
     function applyEvents(Assert $assert) {
