@@ -82,9 +82,7 @@ class CommandAction implements Action {
 
         $class = $this->method->getDeclaringClass();
 
-        if ($class->isSubclassOf(SingletonAggregateRoot::class)) {
-        } else if ($class->isSubclassOf(DomainObject::class) && $this->commandName == 'create') {
-        } else {
+        if (!$class->isSubclassOf(SingletonAggregateRoot::class)) {
             $identifierClass = $class->getName() . 'Identifier';
             if (class_exists($identifierClass) && is_subclass_of($identifierClass, AggregateIdentifier::class)) {
                 $parameters[] = new Parameter(self::AGGREGATE_IDENTIFIER_KEY, new ClassType($identifierClass), true);

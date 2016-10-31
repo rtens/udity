@@ -41,12 +41,10 @@ class Application implements AggregateFactory, ProjectionFactory {
         }
 
         foreach ($this->findSubClasses(DomainObject::class) as $object) {
-            if ($object->hasMethod('create')) {
-                $id = $object->getShortName() . '$create';
-                $domin->actions->add($id,
-                    new CommandAction($this, 'create', $object->getMethod('create'), $domin->types, $domin->parser));
-                $domin->groups->put($id, $object->getShortName());
-            }
+            $id = $object->getShortName() . '$create';
+            $domin->actions->add($id,
+                new CreateObjectAction($this, $object, $domin->types, $domin->parser));
+            $domin->groups->put($id, $object->getShortName());
         }
     }
 
@@ -114,6 +112,11 @@ class Application implements AggregateFactory, ProjectionFactory {
      */
     public function buildAggregateRoot($command) {
         $class = new \ReflectionClass($command->getAggregateIdentifier()->getAggregateName());
+
+        if ($class->isSubclassOf(DomainObject::class)) {
+            return $class->newInstanceArgs(array_merge([$command->getAggregateIdentifier()], $command->getArguments()));
+        }
+
         return $class->newInstance($command->getAggregateIdentifier());
     }
 
