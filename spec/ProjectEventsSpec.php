@@ -12,7 +12,7 @@ use watoki\factory\Factory;
 use watoki\karma\stores\EventStore;
 use watoki\karma\stores\MemoryEventStore;
 
-class FindAndExecuteProjectionsSpec {
+class ProjectEventsSpec {
 
     /**
      * @var EventStore

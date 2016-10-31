@@ -6,6 +6,7 @@ use rtens\domin\Parameter;
 use rtens\domin\reflection\CommentParser;
 use rtens\domin\reflection\types\TypeFactory;
 use watoki\reflect\MethodAnalyzer;
+use watoki\reflect\type\ClassType;
 use watoki\reflect\type\StringType;
 
 class CommandAction implements Action {
@@ -79,7 +80,12 @@ class CommandAction implements Action {
         $parameters = [];
 
         if (!$this->method->getDeclaringClass()->isSubclassOf(SingletonAggregateRoot::class)) {
-            $parameters[] = new Parameter(self::AGGREGATE_IDENTIFIER_KEY, new StringType(), true);
+            $identifierClass = $this->method->getDeclaringClass()->getName() . 'Identifier';
+            if (class_exists($identifierClass) && is_subclass_of($identifierClass, AggregateIdentifier::class)) {
+                $parameters[] = new Parameter(self::AGGREGATE_IDENTIFIER_KEY, new ClassType($identifierClass), true);
+            } else {
+                $parameters[] = new Parameter(self::AGGREGATE_IDENTIFIER_KEY, new StringType(), true);
+            }
         }
 
         foreach ($this->method->getParameters() as $parameter) {
@@ -113,7 +119,12 @@ class CommandAction implements Action {
     public function execute(array $parameters) {
         $class = $this->method->getDeclaringClass();
         if (array_key_exists(self::AGGREGATE_IDENTIFIER_KEY, $parameters)) {
-            $identifier = new GenericAggregateIdentifier($class->getName(), $parameters[self::AGGREGATE_IDENTIFIER_KEY]);
+            $key = $parameters[self::AGGREGATE_IDENTIFIER_KEY];
+            if (is_string($key)) {
+                $identifier = new GenericAggregateIdentifier($class->getName(), $key);
+            } else {
+                $identifier = $key;
+            }
         } else {
             $identifier = new GenericAggregateIdentifier($class->getName(), $class->getShortName());
         }

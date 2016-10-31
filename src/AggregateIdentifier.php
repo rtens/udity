@@ -18,7 +18,7 @@ abstract class AggregateIdentifier {
      * @return string
      */
     public function getAggregateName() {
-        throw new \RuntimeException('Not implement');
+        return substr(get_class($this), 0, -strlen('Identifier'));
     }
 
     function __toString() {

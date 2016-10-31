@@ -2,21 +2,18 @@
 namespace spec\rtens\proto;
 
 use rtens\domin\delivery\web\WebApplication;
-use rtens\domin\Parameter;
 use rtens\proto\AggregateRoot;
 use rtens\proto\Application;
 use rtens\proto\CommandAction;
 use rtens\proto\Event;
 use rtens\proto\GenericAggregateIdentifier;
-use rtens\proto\SingletonAggregateRoot;
 use rtens\proto\Time;
 use rtens\scrut\Assert;
 use watoki\factory\Factory;
 use watoki\karma\stores\EventStore;
 use watoki\karma\stores\MemoryEventStore;
-use watoki\reflect\type\StringType;
 
-class FindAndHandleCommandsSpec {
+class CommandAggregatesSpec {
 
     /**
      * @var EventStore
@@ -62,7 +59,7 @@ class FindAndHandleCommandsSpec {
             $this->handle('Foo', 'Bar');
             $assert->fail();
         } catch (\Exception $exception) {
-            $assert($exception->getMessage(), 'Action [Foo$Bar] is not registered.');
+            $assert->pass();
         }
     }
 
@@ -71,8 +68,12 @@ class FindAndHandleCommandsSpec {
         class NoMethods extends \\' . AggregateRoot::class . ' {
         }');
 
-        $this->runApp();
-        $assert($this->domin->actions->getAllActions(), []);
+        try {
+            $this->handle('NoMethods', '');
+            $assert->fail();
+        } catch (\Exception $exception) {
+            $assert->pass();
+        }
     }
 
     function nothingHappens(Assert $assert) {
@@ -135,52 +136,5 @@ class FindAndHandleCommandsSpec {
 
         $assert($this->recordedEvents()[1]->getName(), 'Applied');
         $assert($this->recordedEvents()[1]->getArguments(), ['ThatAndThis']);
-    }
-
-
-    function addIdentifierProperty(Assert $assert) {
-        eval('namespace proto\test\domain;
-        class AddIdentifierProperty extends \\' . AggregateRoot::class . ' {
-            function handleFoo() {
-                $this->recordThat("This happened", [$this->identifier]);
-            }
-        }');
-
-        $this->handle('AddIdentifierProperty', 'Foo', [
-            CommandAction::AGGREGATE_IDENTIFIER_KEY => 'baz'
-        ]);
-
-        $assert($this->domin->actions->getAction('AddIdentifierProperty$Foo')->parameters(), [
-            new Parameter(CommandAction::AGGREGATE_IDENTIFIER_KEY, new StringType(), true)
-        ]);
-
-        $assert($this->recordedEvents(), [
-            new Event(
-                $this->id('AddIdentifierProperty', 'baz'),
-                'This happened',
-                [$this->id('AddIdentifierProperty', 'baz')]
-            )
-        ]);
-    }
-
-
-    function singletonAggregate(Assert $assert) {
-        eval('namespace proto\test\domain;
-        class Singleton extends \\' . SingletonAggregateRoot::class . ' {
-            function handleFoo() {
-                $this->recordThat("This happened", [$this->identifier]);
-            }
-        }');
-
-        $this->handle('Singleton', 'Foo');
-
-        $assert($this->domin->actions->getAction('Singleton$Foo')->parameters(), []);
-        $assert($this->recordedEvents(), [
-            new Event(
-                $this->id('Singleton'),
-                'This happened',
-                [$this->id('Singleton')]
-            )
-        ]);
     }
 }
