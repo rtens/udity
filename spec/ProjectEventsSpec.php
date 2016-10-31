@@ -3,12 +3,12 @@ namespace spec\rtens\proto;
 
 use rtens\domin\delivery\web\WebApplication;
 use rtens\domin\Parameter;
-use rtens\proto\AggregateRoot;
 use rtens\proto\Application;
 use rtens\proto\Event;
 use rtens\proto\GenericAggregateIdentifier;
 use rtens\proto\Projecting;
 use rtens\proto\Projection;
+use rtens\proto\SingletonAggregateRoot;
 use rtens\proto\Time;
 use rtens\scrut\Assert;
 use watoki\factory\Factory;
@@ -105,7 +105,7 @@ class ProjectEventsSpec {
 
     function aggregateAsProjection(Assert $assert) {
         eval('namespace proto\test\domain;
-        class AggregateAsProjection extends \\' . AggregateRoot::class . ' implements \\' . Projecting::class . ' {
+        class AggregateAsProjection extends \\' . SingletonAggregateRoot::class . ' implements \\' . Projecting::class . ' {
             function applyThat() {
                 $this->applied = true;
             }
@@ -113,9 +113,7 @@ class ProjectEventsSpec {
 
         $this->events->append(new Event($this->id('foo'), 'That'), $this->id('foo'));
 
-        $result = $this->project('AggregateAsProjection', [
-            'identifier' => $this->id('AggregateAsProjection')
-        ]);
+        $result = $this->project('AggregateAsProjection');
         $assert($result->applied, true);
     }
 }
