@@ -1,62 +1,16 @@
 <?php
 namespace spec\rtens\proto;
 
-use rtens\domin\delivery\web\WebApplication;
 use rtens\proto\AggregateRoot;
-use rtens\proto\Application;
 use rtens\proto\CommandAction;
 use rtens\proto\Event;
-use rtens\proto\GenericAggregateIdentifier;
-use rtens\proto\Time;
 use rtens\scrut\Assert;
-use watoki\factory\Factory;
-use watoki\karma\stores\EventStore;
-use watoki\karma\stores\MemoryEventStore;
 
-class CommandAggregatesSpec {
-
-    /**
-     * @var EventStore
-     */
-    private $events;
-    /**
-     * @var WebApplication
-     */
-    private $domin;
-
-    public function before() {
-        Time::freeze();
-
-        $this->events = new MemoryEventStore();
-        $this->domin = (new Factory())->getInstance(WebApplication::class);
-    }
-
-    /**
-     * @return mixed|Event[]
-     */
-    private function recordedEvents() {
-        return $this->events->allEvents();
-    }
-
-    private function handle($aggregate, $command, $arguments = []) {
-        $this->runApp();
-        $this->domin->actions->getAction($aggregate . '$' . $command)->execute($arguments);
-    }
-
-    private function runApp() {
-        $app = new Application($this->events);
-        $app->run($this->domin);
-    }
-
-    private function id($aggregate, $key = null) {
-        return new GenericAggregateIdentifier('proto\test\domain\\' . $aggregate, $key ?: $aggregate);
-    }
-
-    #################################################################################################
+class CommandAggregatesSpec extends Specification {
 
     function aggregateDoesNotExist(Assert $assert) {
         try {
-            $this->handle('Foo', 'Bar');
+            $this->execute('Foo$Bar');
             $assert->fail();
         } catch (\Exception $exception) {
             $assert->pass();
@@ -69,7 +23,7 @@ class CommandAggregatesSpec {
         }');
 
         try {
-            $this->handle('NoMethods', '');
+            $this->execute('NoMethods');
             $assert->fail();
         } catch (\Exception $exception) {
             $assert->pass();
@@ -82,7 +36,7 @@ class CommandAggregatesSpec {
             function handleFoo() {}
         }');
 
-        $this->handle('Nothing', 'Foo');
+        $this->execute('Nothing$Foo');
         $assert($this->recordedEvents(), []);
     }
 
@@ -94,7 +48,7 @@ class CommandAggregatesSpec {
             }
         }');
 
-        $this->handle('AppendEvents', 'Foo', [
+        $this->execute('AppendEvents$Foo', [
             CommandAction::AGGREGATE_IDENTIFIER_KEY => 'baz'
         ]);
 
@@ -114,7 +68,7 @@ class CommandAggregatesSpec {
             }
         }');
 
-        $this->handle('WithArguments', 'Foo', ['one' => 'And', 'two' => 'That']);
+        $this->execute('WithArguments$Foo', ['one' => 'And', 'two' => 'That']);
 
         $assert($this->recordedEvents()[0]->getArguments(), ['this' => 'AndThat']);
     }
@@ -132,7 +86,7 @@ class CommandAggregatesSpec {
 
         $this->events->append(new Event($this->id('baz'), 'That', ['one' => 'And', 'two' => 'This']), $this->id('baz'));
 
-        $this->handle('ApplyEvents', 'Foo', [
+        $this->execute('ApplyEvents$Foo', [
             CommandAction::AGGREGATE_IDENTIFIER_KEY => 'baz'
         ]);
 

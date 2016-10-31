@@ -1,63 +1,17 @@
 <?php
 namespace spec\rtens\proto;
 
-use rtens\domin\delivery\web\WebApplication;
 use rtens\domin\Parameter;
 use rtens\proto\AggregateIdentifier;
 use rtens\proto\AggregateRoot;
-use rtens\proto\Application;
 use rtens\proto\CommandAction;
 use rtens\proto\Event;
-use rtens\proto\GenericAggregateIdentifier;
 use rtens\proto\SingletonAggregateRoot;
-use rtens\proto\Time;
 use rtens\scrut\Assert;
-use watoki\factory\Factory;
-use watoki\karma\stores\EventStore;
-use watoki\karma\stores\MemoryEventStore;
 use watoki\reflect\type\ClassType;
 use watoki\reflect\type\StringType;
 
-class IdentifyAggregatesSpec {
-
-    /**
-     * @var EventStore
-     */
-    private $events;
-    /**
-     * @var WebApplication
-     */
-    private $domin;
-
-    public function before() {
-        Time::freeze();
-
-        $this->events = new MemoryEventStore();
-        $this->domin = (new Factory())->getInstance(WebApplication::class);
-    }
-
-    /**
-     * @return mixed|Event[]
-     */
-    private function recordedEvents() {
-        return $this->events->allEvents();
-    }
-
-    private function handle($aggregate, $command, $arguments = []) {
-        $this->runApp();
-        $this->domin->actions->getAction($aggregate . '$' . $command)->execute($arguments);
-    }
-
-    private function runApp() {
-        $app = new Application($this->events);
-        $app->run($this->domin);
-    }
-
-    private function id($aggregate, $key = null) {
-        return new GenericAggregateIdentifier('proto\test\domain\\' . $aggregate, $key ?: $aggregate);
-    }
-
-    #################################################################################################
+class IdentifyAggregatesSpec extends Specification {
 
     function addIdentifierProperty(Assert $assert) {
         eval('namespace proto\test\domain;
@@ -67,7 +21,7 @@ class IdentifyAggregatesSpec {
             }
         }');
 
-        $this->handle('AddIdentifierProperty', 'Foo', [
+        $this->execute('AddIdentifierProperty$Foo', [
             CommandAction::AGGREGATE_IDENTIFIER_KEY => 'baz'
         ]);
 
@@ -93,7 +47,7 @@ class IdentifyAggregatesSpec {
             }
         }');
 
-        $this->handle('Singleton', 'Foo');
+        $this->execute('Singleton$Foo');
 
         $assert($this->domin->actions->getAction('Singleton$Foo')->parameters(), []);
         $assert($this->recordedEvents(), [
@@ -117,7 +71,7 @@ class IdentifyAggregatesSpec {
         class StaticIdentifierIdentifier extends \\' . AggregateIdentifier::class . ' {
         }');
 
-        $this->handle('StaticIdentifier', 'Foo', [
+        $this->execute('StaticIdentifier$Foo', [
             CommandAction::AGGREGATE_IDENTIFIER_KEY => new $identifierClass('bar')
         ]);
 

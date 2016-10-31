@@ -1,58 +1,19 @@
 <?php
 namespace spec\rtens\proto;
 
-use rtens\domin\delivery\web\WebApplication;
 use rtens\domin\Parameter;
-use rtens\proto\Application;
 use rtens\proto\Event;
-use rtens\proto\GenericAggregateIdentifier;
 use rtens\proto\Projecting;
 use rtens\proto\Projection;
 use rtens\proto\SingletonAggregateRoot;
-use rtens\proto\Time;
 use rtens\scrut\Assert;
-use watoki\factory\Factory;
-use watoki\karma\stores\EventStore;
-use watoki\karma\stores\MemoryEventStore;
 use watoki\reflect\type\StringType;
 
-class ProjectEventsSpec {
-
-    /**
-     * @var EventStore
-     */
-    private $events;
-    /**
-     * @var WebApplication
-     */
-    private $domin;
-
-    public function before() {
-        Time::freeze();
-
-        $this->events = new MemoryEventStore();
-        $this->domin = (new Factory())->getInstance(WebApplication::class);
-    }
-
-    private function runApp() {
-        $app = new Application($this->events);
-        $app->run($this->domin);
-    }
-
-    private function project($projection, $arguments = []) {
-        $this->runApp();
-        return $this->domin->actions->getAction($projection)->execute($arguments);
-    }
-
-    private function id($aggregate, $key = null) {
-        return new GenericAggregateIdentifier('proto\test\domain\\' . $aggregate, $key ?: $aggregate);
-    }
-
-    #########################################################################################
+class ProjectEventsSpec extends Specification  {
 
     function projectionDoesNotExist(Assert $assert) {
         try {
-            $this->project('Foo');
+            $this->execute('Foo');
             $assert->fail();
         } catch (\Exception $exception) {
             $assert->pass();
@@ -63,7 +24,7 @@ class ProjectEventsSpec {
         eval('namespace proto\test\domain;
         class EmptyProjection extends \\' . Projection::class . ' {}');
 
-        $result = $this->project('EmptyProjection');
+        $result = $this->execute('EmptyProjection');
         $assert(is_object($result));
         $assert(get_class($result), 'proto\test\domain\EmptyProjection');
     }
@@ -79,7 +40,7 @@ class ProjectEventsSpec {
         $this->events->append(new Event($this->id('foo'), 'NotThis'), $this->id('foo'));
         $this->events->append(new Event($this->id('foo'), 'That', ['one' => 'And', 'two' => 'This']), $this->id('foo'));
 
-        $result = $this->project('ProjectEvents');
+        $result = $this->execute('ProjectEvents');
         $assert($result->applied, 'ThatAndThis');
     }
 
@@ -91,7 +52,7 @@ class ProjectEventsSpec {
             }
         }');
 
-        $result = $this->project('PassArguments', [
+        $result = $this->execute('PassArguments', [
             'two' => 'Bar',
             'one' => 'Foo',
         ]);
@@ -113,7 +74,7 @@ class ProjectEventsSpec {
 
         $this->events->append(new Event($this->id('foo'), 'That'), $this->id('foo'));
 
-        $result = $this->project('AggregateAsProjection');
+        $result = $this->execute('AggregateAsProjection');
         $assert($result->applied, true);
     }
 }
