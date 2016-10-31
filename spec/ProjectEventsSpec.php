@@ -2,6 +2,7 @@
 namespace spec\rtens\proto;
 
 use rtens\domin\delivery\web\WebApplication;
+use rtens\domin\Parameter;
 use rtens\proto\Application;
 use rtens\proto\Event;
 use rtens\proto\GenericAggregateIdentifier;
@@ -11,6 +12,7 @@ use rtens\scrut\Assert;
 use watoki\factory\Factory;
 use watoki\karma\stores\EventStore;
 use watoki\karma\stores\MemoryEventStore;
+use watoki\reflect\type\StringType;
 
 class ProjectEventsSpec {
 
@@ -77,5 +79,25 @@ class ProjectEventsSpec {
 
         $result = $this->project('ProjectEvents');
         $assert($result->applied, 'ThatAndThis');
+    }
+
+    function passArguments(Assert $assert) {
+        eval('namespace proto\test\domain;
+        class PassArguments extends \\' . Projection::class . ' {
+            function __construct($one, $two) {
+                $this->passed = $one . $two;
+            }
+        }');
+
+        $result = $this->project('PassArguments', [
+            'two' => 'Bar',
+            'one' => 'Foo',
+        ]);
+
+        $assert($this->domin->actions->getAction('PassArguments')->parameters(), [
+            new Parameter('one', new StringType(), true),
+            new Parameter('two', new StringType(), true),
+        ]);
+        $assert($result->passed, 'FooBar');
     }
 }

@@ -7,6 +7,7 @@ use watoki\karma\command\AggregateFactory;
 use watoki\karma\implementations\GenericApplication;
 use watoki\karma\query\ProjectionFactory;
 use watoki\karma\stores\EventStore;
+use watoki\reflect\MethodAnalyzer;
 
 class Application implements AggregateFactory, ProjectionFactory {
 
@@ -117,7 +118,20 @@ class Application implements AggregateFactory, ProjectionFactory {
      * @return object|Projection
      */
     public function buildProjection($query = null) {
+        $injector = function () {
+        };
+        $filter = function () {
+            return true;
+        };
+
         $class = new \ReflectionClass($query->getName());
-        return $class->newInstanceArgs($query->getArguments());
+        $arguments = $query->getArguments();
+
+        if ($class->getConstructor()) {
+            $analyzer = new MethodAnalyzer($class->getConstructor());
+            $arguments = $analyzer->fillParameters($arguments, $injector, $filter);
+        }
+
+        return $class->newInstanceArgs($arguments);
     }
 }
