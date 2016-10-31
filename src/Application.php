@@ -36,7 +36,7 @@ class Application implements AggregateFactory, ProjectionFactory {
             }
         }
 
-        foreach ($this->findSubClasses(Projection::class) as $projection) {
+        foreach ($this->findSubClasses(Projecting::class) as $projection) {
             $domin->actions->add($projection->getShortName(), new QueryAction(
                 $this,
                 $projection->getName(),

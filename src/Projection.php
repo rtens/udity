@@ -3,7 +3,7 @@ namespace rtens\proto;
 
 use watoki\reflect\MethodAnalyzer;
 
-class Projection {
+class Projection implements Projecting {
 
     /**
      * @param Event $event

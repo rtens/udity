@@ -3,9 +3,11 @@ namespace spec\rtens\proto;
 
 use rtens\domin\delivery\web\WebApplication;
 use rtens\domin\Parameter;
+use rtens\proto\AggregateRoot;
 use rtens\proto\Application;
 use rtens\proto\Event;
 use rtens\proto\GenericAggregateIdentifier;
+use rtens\proto\Projecting;
 use rtens\proto\Projection;
 use rtens\proto\Time;
 use rtens\scrut\Assert;
@@ -99,5 +101,21 @@ class ProjectEventsSpec {
             new Parameter('two', new StringType(), true),
         ]);
         $assert($result->passed, 'FooBar');
+    }
+
+    function aggregateAsProjection(Assert $assert) {
+        eval('namespace proto\test\domain;
+        class AggregateAsProjection extends \\' . AggregateRoot::class . ' implements \\' . Projecting::class . ' {
+            function applyThat() {
+                $this->applied = true;
+            }
+        }');
+
+        $this->events->append(new Event($this->id('foo'), 'That'), $this->id('foo'));
+
+        $result = $this->project('AggregateAsProjection', [
+            'identifier' => $this->id('AggregateAsProjection')
+        ]);
+        $assert($result->applied, true);
     }
 }
