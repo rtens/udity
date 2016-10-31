@@ -1,0 +1,30 @@
+{
+  "name": "rtens/proto",
+  "description": "Framework for prototyping event sourced web applications",
+  "minimum-stability": "dev",
+  "license": "LGPLv3",
+  "authors": [
+    {
+      "name": "Nikolas Martens",
+      "email": "Nikolas.M@rtens.org"
+    }
+  ],
+  "require": {
+    "rtens/domin": "*",
+    "watoki/curir": "*",
+    "watoki/karma": "*"
+  },
+  "require-dev": {
+    "rtens/scrut": "*"
+  },
+  "autoload": {
+    "psr-4": {
+      "rtens\\proto\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "spec\\rtens\\proto\\": "spec/"
+    }
+  }
+}
