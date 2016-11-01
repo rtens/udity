@@ -8,8 +8,10 @@ use watoki\karma\command\AggregateFactory;
 use watoki\karma\implementations\GenericApplication;
 use watoki\karma\query\ProjectionFactory;
 use watoki\karma\stores\EventStore;
-use watoki\reflect\MethodAnalyzer;
 
+/**
+ * Registers all actions and forwards them to karma.
+ */
 class Application implements AggregateFactory, ProjectionFactory {
 
     /** @var Karma */
@@ -22,74 +24,16 @@ class Application implements AggregateFactory, ProjectionFactory {
         });
     }
 
+    /**
+     * @param WebApplication $domin
+     * @return void
+     */
     public function run(WebApplication $domin) {
         $domin->types = new DefaultTypeFactory();
 
-        foreach ($this->findSubClasses(Projecting::class) as $projection) {
-            $this->addAction($domin, $projection->getShortName(), 'Show',
-                new QueryAction($this, $projection->getName(), $domin->types, $domin->parser));
-        }
-
-        foreach ($this->findSubClasses(AggregateRoot::class) as $root) {
-            if (!class_exists($root->getName() . 'Identifier')) {
-                $parts = explode('\\', $root->getName());
-                $shortName = array_pop($parts) . 'Identifier';
-                $nameSpace = implode('\\', $parts);
-
-                eval("namespace $nameSpace; class $shortName extends \\" . AggregateIdentifier::class . " {}");
-            }
-            foreach ($this->findCommandMethods($root) as $command => $method) {
-                $this->addAction($domin, $root->getShortName() . '$' . $command, $root->getShortName(),
-                    new CommandAction($this, $command, $method, $domin->types, $domin->parser));
-            }
-        }
-
-        foreach ($this->findSubClasses(DomainObject::class) as $object) {
-            if ($object->hasMethod('created')) {
-                $this->addAction($domin, $object->getShortName() . '$create', $object->getShortName(),
-                    new CommandAction($this, 'create', $object->getMethod('created'), $domin->types, $domin->parser));
-            }
-            $this->addAction($domin, $object->getShortName() . '$read', $object->getShortName(),
-                new QueryAction($this, $object->getName(), $domin->types, $domin->parser));
-
-            $listClass = $object->getName() . 'List';
-            if (!class_exists($listClass)) {
-                $parts = explode('\\', $listClass);
-                $shortName = array_pop($parts);
-                $nameSpace = implode('\\', $parts);
-
-                eval("namespace $nameSpace; class $shortName extends \\" . DomainObjectList::class . " {}");
-            }
-
-            $this->addAction($domin, $object->getShortName() . '$all', $object->getShortName(),
-                new QueryAction($this, $listClass, $domin->types, $domin->parser));
-        }
-    }
-
-    /**
-     * @param string $baseClass
-     * @return \Generator|\ReflectionClass[]
-     */
-    private function findSubClasses($baseClass) {
-        foreach (get_declared_classes() as $class) {
-            if (is_subclass_of($class, $baseClass)) {
-                yield new \ReflectionClass($class);
-            }
-        }
-    }
-
-    /**
-     * @param \ReflectionClass $rootClass
-     * @return \ReflectionMethod[]
-     */
-    private function findCommandMethods(\ReflectionClass $rootClass) {
-        $commandMethods = [];
-        foreach ($rootClass->getMethods() as $method) {
-            if ($method->getName() != 'handle' && substr($method->getName(), 0, strlen('handle')) == 'handle') {
-                $commandMethods[substr($method->getName(), strlen('handle'))] = $method;
-            }
-        }
-        return $commandMethods;
+        $this->registerProjections($domin);
+        $this->registerAggregates($domin);
+        $this->registerDomainObjects($domin);
     }
 
     /**
@@ -143,18 +87,11 @@ class Application implements AggregateFactory, ProjectionFactory {
      * @return object|Projection
      */
     public function buildProjection($query = null) {
-        $injector = function () {
-        };
-        $filter = function () {
-            return true;
-        };
-
         $class = new \ReflectionClass($query->getName());
-        $arguments = $query->getArguments();
 
+        $arguments = $query->getArguments();
         if ($class->getConstructor()) {
-            $analyzer = new MethodAnalyzer($class->getConstructor());
-            $arguments = $analyzer->fillParameters($arguments, $injector, $filter);
+            $arguments = (new ArgumentFiller($class->getConstructor()))->fill($arguments);
         }
 
         return $class->newInstanceArgs($arguments);
@@ -163,5 +100,69 @@ class Application implements AggregateFactory, ProjectionFactory {
     private function addAction(WebApplication $domin, $id, $group, Action $action) {
         $domin->actions->add($id, $action);
         $domin->groups->put($id, $group);
+    }
+
+    private function registerProjections(WebApplication $domin) {
+        foreach ($this->findSubClasses(Projecting::class) as $projection) {
+            $this->addAction($domin, $projection->getShortName(), 'Show',
+                new QueryAction($this, $projection->getName(), $domin->types, $domin->parser));
+        }
+    }
+
+    private function registerAggregates(WebApplication $domin) {
+        foreach ($this->findSubClasses(AggregateRoot::class) as $root) {
+            $this->defineClassIfNotExists($root->getName() . 'Identifier', AggregateIdentifier::class);
+
+            foreach ($this->findCommandMethods($root) as $command => $method) {
+                $this->addAction($domin, $root->getShortName() . '$' . $command, $root->getShortName(),
+                    new CommandAction($this, $command, $method, $domin->types, $domin->parser));
+            }
+        }
+    }
+
+    private function registerDomainObjects(WebApplication $domin) {
+        foreach ($this->findSubClasses(DomainObject::class) as $object) {
+            if ($object->hasMethod('created')) {
+                $this->addAction($domin, $object->getShortName() . '$create', $object->getShortName(),
+                    new CommandAction($this, 'create', $object->getMethod('created'), $domin->types, $domin->parser));
+            }
+
+            $this->addAction($domin, $object->getShortName() . '$read', $object->getShortName(),
+                new QueryAction($this, $object->getName(), $domin->types, $domin->parser));
+
+            $this->defineClassIfNotExists($object->getName() . 'List', AggregateList::class);
+            $this->addAction($domin, $object->getShortName() . '$all', $object->getShortName(),
+                new QueryAction($this, $object->getName() . 'List', $domin->types, $domin->parser));
+        }
+    }
+
+    private function findSubClasses($baseClass) {
+        foreach (get_declared_classes() as $class) {
+            if (is_subclass_of($class, $baseClass)) {
+                yield new \ReflectionClass($class);
+            }
+        }
+    }
+
+    private function findCommandMethods(\ReflectionClass $rootClass) {
+        $commandMethods = [];
+        foreach ($rootClass->getMethods() as $method) {
+            if ($method->getName() != 'handle' && substr($method->getName(), 0, strlen('handle')) == 'handle') {
+                $commandMethods[substr($method->getName(), strlen('handle'))] = $method;
+            }
+        }
+        return $commandMethods;
+    }
+
+    private function defineClassIfNotExists($fullName, $baseClass) {
+        if (class_exists($fullName)) {
+            return;
+        }
+
+        $parts = explode('\\', $fullName);
+        $shortName = array_pop($parts);
+        $nameSpace = implode('\\', $parts);
+
+        eval("namespace $nameSpace; class $shortName extends \\" . $baseClass . " {}");
     }
 }

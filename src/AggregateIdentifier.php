@@ -1,6 +1,9 @@
 <?php
 namespace rtens\proto;
 
+/**
+ * Identifies an aggregate by its name and a unique key
+ */
 abstract class AggregateIdentifier {
     /**
      * @var string

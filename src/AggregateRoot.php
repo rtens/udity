@@ -1,10 +1,13 @@
 <?php
 namespace rtens\proto;
 
-use watoki\reflect\MethodAnalyzer;
-
+/**
+ * Root of all the objects of an aggregate.
+ *
+ * An aggregate protects invariants and consistency of its objects. All changes to any object in an aggregate
+ * must go through the root, hence only the root must be referenced from outside the aggregate.
+ */
 abstract class AggregateRoot {
-
     /**
      * @var AggregateIdentifier
      */
@@ -18,6 +21,10 @@ abstract class AggregateRoot {
         $this->identifier = $identifier;
     }
 
+    /**
+     * @param string $eventName
+     * @param array $arguments
+     */
     protected function recordThat($eventName, array $arguments = []) {
         $this->recordedEvents[] = new Event($this->identifier, $eventName, $arguments);
     }
@@ -32,7 +39,10 @@ abstract class AggregateRoot {
         if (!method_exists($this, $method)) {
             throw new \Exception("Missing method " . get_class($this) . '::' . $method . '()');
         }
-        $this->invoke($method, $command->getArguments());
+
+        ArgumentFiller::from($this, $method)
+            ->invoke($this, $command->getArguments());
+
         return $this->recordedEvents;
     }
 
@@ -45,25 +55,9 @@ abstract class AggregateRoot {
         if (!method_exists($this, $method)) {
             return;
         }
-        $this->invoke($method, $event->getArguments(), [
-            Event::class => $event
-        ]);
-    }
 
-    private function invoke($method, $arguments, $injected = []) {
-        $injector = function ($class) use ($injected) {
-            if (array_key_exists($class, $injected)) {
-                return $injected[$class];
-            }
-            return null;
-        };
-        $filter = function () {
-            return true;
-        };
-
-        $analyzer = new MethodAnalyzer(new \ReflectionMethod($this, $method));
-        $arguments = $analyzer->fillParameters($arguments, $injector, $filter);
-
-        call_user_func_array([$this, $method], $arguments);
+        ArgumentFiller::from($this, $method)
+            ->inject(Event::class, $event)
+            ->invoke($this, $event->getArguments());
     }
 }

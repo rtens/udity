@@ -9,6 +9,9 @@ use watoki\reflect\MethodAnalyzer;
 use watoki\reflect\type\ClassType;
 use watoki\reflect\type\StringType;
 
+/**
+ * Builds a Command from an AggregateRoot's method.
+ */
 class CommandAction implements Action {
     const IDENTIFIER_KEY = 'target';
 

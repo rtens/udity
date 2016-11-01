@@ -5,9 +5,17 @@ namespace rtens\proto;
  * Commands are always executed by an AggregateRoot and return nothing
  */
 class Command implements Request {
-
+    /**
+     * @var string
+     */
     private $name;
+    /**
+     * @var AggregateIdentifier
+     */
     private $aggregateIdentifier;
+    /**
+     * @var array
+     */
     private $arguments;
 
     public function __construct($name, AggregateIdentifier $aggregateIdentifier, array $arguments = []) {

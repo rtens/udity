@@ -8,6 +8,9 @@ use rtens\domin\reflection\types\TypeFactory;
 use watoki\reflect\PropertyReader;
 use watoki\reflect\type\ClassType;
 
+/**
+ * Builds a Query from an Projection.
+ */
 class QueryAction implements Action {
     /**
      * @var Application

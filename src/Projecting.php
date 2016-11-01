@@ -1,6 +1,9 @@
 <?php
 namespace rtens\proto;
 
+/**
+ * Can apply Events.
+ */
 interface Projecting {
 
     /**

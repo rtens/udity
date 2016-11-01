@@ -2,7 +2,7 @@
 namespace rtens\proto;
 
 /**
- * Queries return a value as response
+ * Queries return a value as response.
  */
 class Query implements Request {
 

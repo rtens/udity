@@ -1,6 +1,9 @@
 <?php
 namespace rtens\proto;
 
+/**
+ * A singleton has no unique identity.
+ */
 abstract class SingletonAggregateRoot extends AggregateRoot {
 
     public function __construct() {
