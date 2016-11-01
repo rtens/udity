@@ -59,7 +59,7 @@ class ProjectDomainObjectsSpec extends Specification {
         $this->events->append(new Event($this->id('Wrong', 'three'), 'Created'),
             $this->id('Wrong', 'three'));
 
-        $objects = $this->execute('ProjectAll$all');
+        $objects = $this->execute('ProjectAllList$all');
 
         $assert(count($objects->getAll()), 3);
         $assert(is_object($objects->getAll()[0]));

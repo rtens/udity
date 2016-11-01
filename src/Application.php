@@ -3,24 +3,28 @@ namespace rtens\proto;
 
 use rtens\domin\delivery\web\WebApplication;
 use watoki\karma\Application as Karma;
-use watoki\karma\command\AggregateFactory;
+use watoki\karma\implementations\aggregates\GenericAggregateFactory;
 use watoki\karma\implementations\GenericApplication;
-use watoki\karma\query\ProjectionFactory;
+use watoki\karma\implementations\projections\GenericProjectionFactory;
 use watoki\karma\stores\EventStore;
 
 /**
  * Registers all actions and forwards them to karma.
  */
-class Application implements AggregateFactory, ProjectionFactory {
-
-    /** @var Karma */
+class Application {
+    /**
+     * @var Karma
+     */
     private $karma;
 
     public function __construct(EventStore $eventStore) {
-        $this->karma = new GenericApplication($eventStore, $this, $this);
-        $this->karma->setCommandCondition(function ($request) {
-            return $request instanceof Command;
-        });
+        $aggregates = (new GenericAggregateFactory([$this, 'buildAggregateRoot']))
+            ->setGetAggregateIdentifierCallback([$this, 'getAggregateIdentifier']);
+
+        $projections = new GenericProjectionFactory([$this, 'buildProjection']);
+
+        $this->karma = (new GenericApplication($eventStore, $aggregates, $projections))
+            ->setCommandCondition([$this, 'isCommand']);
     }
 
     /**
@@ -40,26 +44,18 @@ class Application implements AggregateFactory, ProjectionFactory {
     }
 
     /**
-     * @param mixed $command
-     * @return string
+     * @param Request $request
+     * @return bool
      */
-    public function handleMethod($command) {
-        return 'handle';
-    }
-
-    /**
-     * @param mixed $event
-     * @return string
-     */
-    public function applyMethod($event) {
-        return 'apply';
+    public function isCommand(Request $request) {
+        return $request instanceof Command;
     }
 
     /**
      * @param Command $command
      * @return AggregateIdentifier
      */
-    public function getAggregateIdentifier($command) {
+    public function getAggregateIdentifier(Command $command) {
         return $command->getAggregateIdentifier();
     }
 
@@ -67,7 +63,7 @@ class Application implements AggregateFactory, ProjectionFactory {
      * @param Command $command
      * @return object|AggregateRoot
      */
-    public function buildAggregateRoot($command) {
+    public function buildAggregateRoot(Command $command) {
         $class = new \ReflectionClass($command->getAggregateIdentifier()->getAggregateName());
 
         if ($class->isSubclassOf(DomainObject::class)) {

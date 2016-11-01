@@ -29,8 +29,7 @@ class WebInterface {
 
     private function registerProjections() {
         foreach ($this->findSubClasses(Projecting::class) as $projection) {
-            $this->addAction($projection->getShortName(), 'Show',
-                new QueryAction($this->app, $projection->getName(), $this->ui->types, $this->ui->parser));
+            $this->addQueryAction('Show', $projection);
         }
     }
 
@@ -39,8 +38,7 @@ class WebInterface {
             $this->defineClassIfNotExists($root->getName() . 'Identifier', AggregateIdentifier::class);
 
             foreach ($this->findCommandMethods($root) as $command => $method) {
-                $this->addAction($root->getShortName() . '$' . $command, $root->getShortName(),
-                    new CommandAction($this->app, $command, $method, $this->ui->types, $this->ui->parser));
+                $this->addCommandAction($command, $method);
             }
         }
     }
@@ -48,19 +46,20 @@ class WebInterface {
     private function registerDomainObjects() {
         foreach ($this->findSubClasses(DomainObject::class) as $object) {
             if ($object->hasMethod('created')) {
-                $this->addAction($object->getShortName() . '$create', $object->getShortName(),
-                    new CommandAction($this->app, 'create', $object->getMethod('created'), $this->ui->types, $this->ui->parser));
+                $this->addCommandAction('create', $object->getMethod('created'));
             }
 
-            $this->addAction($object->getShortName() . '$read', $object->getShortName(),
-                new QueryAction($this->app, $object->getName(), $this->ui->types, $this->ui->parser));
+            $this->addQueryAction($object->getShortName(), $object, 'read');
 
             $this->defineClassIfNotExists($object->getName() . 'List', AggregateList::class);
-            $this->addAction($object->getShortName() . '$all', $object->getShortName(),
-                new QueryAction($this->app, $object->getName() . 'List', $this->ui->types, $this->ui->parser));
+            $this->addQueryAction($object->getShortName(), new \ReflectionClass($object->getName() . 'List'), 'all');
         }
     }
 
+    /**
+     * @param $baseClass
+     * @return \Generator|\ReflectionClass[]
+     */
     private function findSubClasses($baseClass) {
         foreach (get_declared_classes() as $class) {
             if (is_subclass_of($class, $baseClass)) {
@@ -69,6 +68,10 @@ class WebInterface {
         }
     }
 
+    /**
+     * @param \ReflectionClass $rootClass
+     * @return \ReflectionMethod[]
+     */
     private function findCommandMethods(\ReflectionClass $rootClass) {
         $commandMethods = [];
         foreach ($rootClass->getMethods() as $method) {
@@ -77,11 +80,6 @@ class WebInterface {
             }
         }
         return $commandMethods;
-    }
-
-    private function addAction($id, $group, Action $action) {
-        $this->ui->actions->add($id, $action);
-        $this->ui->groups->put($id, $group);
     }
 
     private function defineClassIfNotExists($fullName, $baseClass) {
@@ -94,5 +92,21 @@ class WebInterface {
         $nameSpace = implode('\\', $parts);
 
         eval("namespace $nameSpace; class $shortName extends \\" . $baseClass . " {}");
+    }
+
+    private function addCommandAction($command, \ReflectionMethod $method) {
+        $class = $method->getDeclaringClass();
+        $this->addAction($class->getShortName() . '$' . $command, $class->getShortName(),
+            new CommandAction($this->app, $command, $method, $this->ui->types, $this->ui->parser));
+    }
+
+    private function addQueryAction($group, \ReflectionClass $class, $command = null) {
+        $this->addAction($class->getShortName() . ($command ? '$' . $command : ''), $group,
+            new QueryAction($this->app, $class->getName(), $this->ui->types, $this->ui->parser));
+    }
+
+    private function addAction($id, $group, Action $action) {
+        $this->ui->actions->add($id, $action);
+        $this->ui->groups->put($id, $group);
     }
 }
