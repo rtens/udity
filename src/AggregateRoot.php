@@ -11,7 +11,7 @@ abstract class AggregateRoot {
     /**
      * @var AggregateIdentifier
      */
-    protected $identifier;
+    private $identifier;
     /**
      * @var Event[]
      */
@@ -19,6 +19,10 @@ abstract class AggregateRoot {
 
     public function __construct(AggregateIdentifier $identifier) {
         $this->identifier = $identifier;
+    }
+
+    protected function getIdentifier() {
+        return $this->identifier;
     }
 
     /**

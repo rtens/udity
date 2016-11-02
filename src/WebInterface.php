@@ -49,7 +49,7 @@ class WebInterface {
                 $this->addCommandAction('create', $object->getMethod('created'));
             }
 
-            $this->addQueryAction($object->getShortName(), $object, 'read');
+            $this->addQueryAction($object->getShortName(), $object);
 
             $this->defineClassIfNotExists($object->getName() . 'List', AggregateList::class);
             $this->addQueryAction($object->getShortName(), new \ReflectionClass($object->getName() . 'List'), 'all');

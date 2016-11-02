@@ -10,7 +10,7 @@ class DomainObject extends AggregateRoot {
      * @return AggregateIdentifier
      */
     public function getIdentifier() {
-        return $this->identifier;
+        return parent::getIdentifier();
     }
 
     public function handle(Command $command) {
@@ -22,6 +22,10 @@ class DomainObject extends AggregateRoot {
     }
 
     public function apply(Event $event) {
+        if ($event->getAggregateIdentifier() != $this->getIdentifier()) {
+            return;
+        }
+
         if ($event->getName() == 'Created') {
             ArgumentFiller::from($this, 'created')
                 ->inject(Event::class, $event)

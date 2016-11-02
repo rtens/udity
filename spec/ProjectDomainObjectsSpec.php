@@ -11,11 +11,11 @@ class ProjectDomainObjectsSpec extends Specification {
     function emptyObject() {
         $class = $this->define('SomeEmptyObject', DomainObject::class);
 
-        $object = $this->execute('SomeEmptyObject$read', [
+        $object = $this->execute('SomeEmptyObject', [
             'identifier' => $this->id('SomeEmptyObject', 'foo')
         ]);
 
-        $this->assert($this->domin->actions->getAction('SomeEmptyObject$read')->parameters(), [
+        $this->assert($this->domin->actions->getAction('SomeEmptyObject')->parameters(), [
             new Parameter('identifier', new ClassType($class . 'Identifier'), true)
         ]);
 
@@ -35,7 +35,10 @@ class ProjectDomainObjectsSpec extends Specification {
             'two' => 'Baz'
         ]), $this->id('WithCreatedArguments', 'foo'));
 
-        $object = $this->execute('WithCreatedArguments$read', [
+        $this->events->append(new Event($this->id('Wrong', 'foo'), 'Created'),
+            $this->id('Wrong', 'foo'));
+
+        $object = $this->execute('WithCreatedArguments', [
             'identifier' => $this->id('WithCreatedArguments', 'foo')
         ]);
         $this->assert($object->createdWith, 'BarBaz');

@@ -14,7 +14,7 @@ class IdentifyAggregatesSpec extends Specification {
     function addIdentifierProperty() {
         $class = $this->define('AddIdentifierProperty', AggregateRoot::class, '
             function handleFoo() {
-                $this->recordThat("This happened", [$this->identifier]);
+                $this->recordThat("This happened", [$this->getIdentifier()]);
             }
         ');
 
@@ -39,7 +39,7 @@ class IdentifyAggregatesSpec extends Specification {
     function singletonAggregate() {
         $this->define('Singleton', SingletonAggregateRoot::class, '
             function handleFoo() {
-                $this->recordThat("This happened", [$this->identifier]);
+                $this->recordThat("This happened", [$this->getIdentifier()]);
             }
         ');
 
@@ -60,7 +60,7 @@ class IdentifyAggregatesSpec extends Specification {
     function staticIdentifier() {
         $this->define('StaticIdentifier', AggregateRoot::class, '
             function handleFoo() {
-                $this->recordThat("This happened", [$this->identifier]);
+                $this->recordThat("This happened", [$this->getIdentifier()]);
             }
         ');
         $identifierClass = $this->define('StaticIdentifierIdentifier', AggregateIdentifier::class);
