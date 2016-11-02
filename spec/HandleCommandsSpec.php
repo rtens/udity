@@ -6,7 +6,7 @@ use rtens\proto\CommandAction;
 use rtens\proto\Event;
 use rtens\proto\SingletonAggregateRoot;
 
-class CommandAggregatesSpec extends Specification {
+class HandleCommandsSpec extends Specification {
 
     function aggregateDoesNotExist() {
         try {
