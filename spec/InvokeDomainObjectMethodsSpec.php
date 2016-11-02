@@ -9,12 +9,18 @@ class InvokeDomainObjectMethodsSpec extends Specification {
 
     function invalidMethodName() {
         $this->define('Foo', DomainObject::class, '
-            function do() {}
             function did() {}
         ');
 
+        if (version_compare(PHP_VERSION, '7.0.0') >= 0) {
+            $this->define('Bar', DomainObject::class, '
+                function do() {}
+            ');
+        }
+
         $this->runApp();
         $this->assert->not()->contains(array_keys($this->domin->actions->getAllActions()), 'Foo$do');
+        $this->assert->not()->contains(array_keys($this->domin->actions->getAllActions()), 'Bar$do');
     }
 
     function handleCommand() {
