@@ -12,10 +12,11 @@ class CreateDomainObjectsSpec extends Specification {
 
         try {
             $this->execute('NoArguments$create');
-            $this->assert->fail();
         } catch (\Exception $exception) {
             $this->assert->pass();
+            return;
         }
+        $this->assert->fail();
     }
 
     function noArguments() {

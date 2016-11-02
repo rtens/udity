@@ -11,10 +11,11 @@ class HandleCommandsSpec extends Specification {
     function aggregateDoesNotExist() {
         try {
             $this->execute('Foo$Bar');
-            $this->assert->fail();
         } catch (\Exception $exception) {
             $this->assert->pass();
+            return;
         }
+        $this->assert->fail();
     }
 
     function noMethods() {

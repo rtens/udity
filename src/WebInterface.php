@@ -79,6 +79,13 @@ class WebInterface {
                             return $parameters;
                         });
                     }
+                } else if (substr($method->getName(), 0, 2) == 'do') {
+                    $this->addCommandAction($group, $method, $method->getName());
+                } else if (substr($method->getName(), 0, 3) == 'did') {
+                    $command = 'do' . substr($method->getName(), 3);
+                    if (!array_key_exists($object->getShortName() . '$' . $command, $this->ui->actions->getAllActions())) {
+                        $this->addCommandAction($group, $method, $command);
+                    }
                 }
             }
         }

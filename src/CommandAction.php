@@ -155,9 +155,11 @@ class CommandAction implements Action {
             $identifier = new $identifierClass(uniqid($class->getShortName()));
         } else if ($class->isSubclassOf(SingletonAggregateRoot::class)) {
             $identifier = new $identifierClass($class->getShortName());
-        } else {
+        } else if (array_key_exists(self::IDENTIFIER_KEY, $parameters)) {
             $identifier = $parameters[self::IDENTIFIER_KEY];
             unset($parameters[self::IDENTIFIER_KEY]);
+        } else {
+            throw new \Exception('Missing identifier for this command');
         }
 
         $parameters = call_user_func($this->transformParameters, $parameters);

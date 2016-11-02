@@ -13,10 +13,11 @@ class ProjectEventsSpec extends Specification {
     function projectionDoesNotExist() {
         try {
             $this->execute('Foo');
-            $this->assert->fail();
         } catch (\Exception $exception) {
             $this->assert->pass();
+            return;
         }
+        $this->assert->fail();
     }
 
     function emptyProjection() {
