@@ -43,21 +43,44 @@ class WebInterface {
             $this->defineClassIfNotExists($root->getName() . 'Identifier', AggregateIdentifier::class);
 
             foreach ($this->findCommandMethods($root) as $command => $method) {
-                $this->addCommandAction($command, $method);
+                $this->addCommandAction($root->getShortName(), $method, $command);
             }
         }
     }
 
     private function registerDomainObjects() {
         foreach ($this->findSubClasses(DomainObject::class) as $object) {
+            $group = $object->getShortName();
+
             if ($object->hasMethod('created')) {
-                $this->addCommandAction('create', $object->getMethod('created'));
+                $this->addCommandAction($group, $object->getMethod('created'), 'create');
             }
 
-            $this->addQueryAction($object->getShortName(), $object);
+            $this->addQueryAction($group, $object);
 
             $this->defineClassIfNotExists($object->getName() . 'List', AggregateList::class);
-            $this->addQueryAction($object->getShortName(), new \ReflectionClass($object->getName() . 'List'), 'all');
+            $this->addQueryAction($group, new \ReflectionClass($object->getName() . 'List'), 'all');
+
+            foreach ($object->getMethods() as $method) {
+                if (substr($method->getName(), 0, 3) == 'set' && $method->getNumberOfParameters() == 1) {
+                    $propertyName = substr($method->getName(), 3);
+                    $action = $this->addCommandAction($group, $method, 'change' . $propertyName);
+
+                    $getter = 'get' . $propertyName;
+                    if ($object->hasMethod($getter)) {
+                        $action->setPostFill(function ($parameters) use ($object, $method, $getter) {
+                            if (array_key_exists(CommandAction::IDENTIFIER_KEY, $parameters)) {
+                                $projection = $this->app->handle(new Query($object->getName(), [
+                                    'identifier' => $parameters[CommandAction::IDENTIFIER_KEY]
+                                ]));
+
+                                $parameters[$method->getParameters()[0]->getName()] = $object->getMethod($getter)->invoke($projection);
+                            }
+                            return $parameters;
+                        });
+                    }
+                }
+            }
         }
     }
 
@@ -99,19 +122,25 @@ class WebInterface {
         eval("namespace $nameSpace; class $shortName extends \\" . $baseClass . " {}");
     }
 
-    private function addCommandAction($command, \ReflectionMethod $method) {
+    private function addCommandAction($group, \ReflectionMethod $method, $command = null) {
         $class = $method->getDeclaringClass();
-        $this->addAction($class->getShortName() . '$' . $command, $class->getShortName(),
-            new CommandAction($this->app, $command, $method, $this->ui->types, $this->ui->parser));
+        $action = new CommandAction($this->app, $command, $method, $this->ui->types, $this->ui->parser);
+        $this->addAction($this->makeActionId($class, $command), $group, $action);
+
+        return $action;
     }
 
     private function addQueryAction($group, \ReflectionClass $class, $command = null) {
-        $this->addAction($class->getShortName() . ($command ? '$' . $command : ''), $group,
+        $this->addAction($this->makeActionId($class, $command), $group,
             new QueryAction($this->app, $class->getName(), $this->ui->types, $this->ui->parser));
     }
 
     private function addAction($id, $group, Action $action) {
         $this->ui->actions->add($id, $action);
         $this->ui->groups->put($id, $group);
+    }
+
+    private function makeActionId(\ReflectionClass $class, $command) {
+        return $class->getShortName() . ($command ? '$' . $command : '');
     }
 }

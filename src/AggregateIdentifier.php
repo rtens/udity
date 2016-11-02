@@ -24,6 +24,13 @@ abstract class AggregateIdentifier {
         return substr(get_class($this), 0, -strlen('Identifier'));
     }
 
+    /**
+     * @return string
+     */
+    public function getKey() {
+        return $this->key;
+    }
+
     function __toString() {
         return $this->key;
     }

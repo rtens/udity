@@ -65,6 +65,11 @@ abstract class Specification {
         return new $class($key ?: $aggregate);
     }
 
+    protected function recordThat($aggregate, $key, $event, $arguments = []) {
+        $this->events->append(new Event($this->id($aggregate, $key), $event, $arguments),
+            $this->id($aggregate, $key));
+    }
+
     /**
      * @return mixed|Event[]
      */
@@ -82,7 +87,6 @@ abstract class Specification {
 
         $fullName = $this->namespace . '\\' . $className;
         $this->knownClasses[] = $fullName;
-
         return $fullName;
     }
 }

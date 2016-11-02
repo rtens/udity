@@ -35,6 +35,14 @@ class CommandAction implements Action {
      * @var string
      */
     private $commandName;
+    /**
+     * @var callable
+     */
+    private $postFill;
+    /**
+     * @var callable
+     */
+    private $transformParameters;
 
     /**
      * @param Application $app
@@ -49,6 +57,23 @@ class CommandAction implements Action {
         $this->method = $method;
         $this->types = $types;
         $this->parser = $parser;
+
+        $this->postFill = function ($parameters) {
+            return $parameters;
+        };
+        $this->transformParameters = function ($parameters) {
+            return $parameters;
+        };
+    }
+
+    public function setPostFill(callable $fill) {
+        $this->postFill = $fill;
+        return $this;
+    }
+
+    public function setTransformParameters(callable $transformer) {
+        $this->transformParameters = $transformer;
+        return $this;
     }
 
     /**
@@ -114,7 +139,7 @@ class CommandAction implements Action {
                 $parameters[$parameter->name] = $parameter->getDefaultValue();
             }
         }
-        return $parameters;
+        return call_user_func($this->postFill, $parameters);
     }
 
     /**
@@ -132,8 +157,10 @@ class CommandAction implements Action {
             $identifier = new $identifierClass($class->getShortName());
         } else {
             $identifier = $parameters[self::IDENTIFIER_KEY];
+            unset($parameters[self::IDENTIFIER_KEY]);
         }
 
+        $parameters = call_user_func($this->transformParameters, $parameters);
         $this->app->handle(new Command($this->commandName, $identifier, $parameters));
     }
 
