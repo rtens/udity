@@ -5,31 +5,30 @@ use rtens\proto\AggregateRoot;
 use rtens\proto\CommandAction;
 use rtens\proto\Event;
 use rtens\proto\SingletonAggregateRoot;
-use rtens\scrut\Assert;
 
 class CommandAggregatesSpec extends Specification {
 
-    function aggregateDoesNotExist(Assert $assert) {
+    function aggregateDoesNotExist() {
         try {
             $this->execute('Foo$Bar');
-            $assert->fail();
+            $this->assert->fail();
         } catch (\Exception $exception) {
-            $assert->pass();
+            $this->assert->pass();
         }
     }
 
-    function noMethods(Assert $assert) {
+    function noMethods() {
         $this->define('NoMethods', AggregateRoot::class);
 
         try {
             $this->execute('NoMethods');
-            $assert->fail();
+            $this->assert->fail();
         } catch (\Exception $exception) {
-            $assert->pass();
+            $this->assert->pass();
         }
     }
 
-    function nothingHappens(Assert $assert) {
+    function nothingHappens() {
         $this->define('Nothing', AggregateRoot::class, '
             function handleFoo() {}
         ');
@@ -37,19 +36,19 @@ class CommandAggregatesSpec extends Specification {
         $this->execute('Nothing$Foo', [
             CommandAction::IDENTIFIER_KEY => $this->id('Nothing', 'baz')
         ]);
-        $assert($this->recordedEvents(), []);
+        $this->assert($this->recordedEvents(), []);
     }
 
-    function singleton(Assert $assert) {
+    function singleton() {
         $this->define('SingletonAggregate', SingletonAggregateRoot::class, '
             function handleFoo() {}
         ');
 
         $this->execute('SingletonAggregate$Foo');
-        $assert($this->recordedEvents(), []);
+        $this->assert($this->recordedEvents(), []);
     }
 
-    function appendEvents(Assert $assert) {
+    function appendEvents() {
         $this->define('AppendEvents', AggregateRoot::class, '
             function handleFoo() {
                 $this->recordThat("This happened");
@@ -60,7 +59,7 @@ class CommandAggregatesSpec extends Specification {
             CommandAction::IDENTIFIER_KEY => $this->id('AppendEvents', 'baz')
         ]);
 
-        $assert($this->recordedEvents(), [
+        $this->assert($this->recordedEvents(), [
             new Event(
                 $this->id('AppendEvents', 'baz'),
                 'This happened'
@@ -68,7 +67,7 @@ class CommandAggregatesSpec extends Specification {
         ]);
     }
 
-    function withArguments(Assert $assert) {
+    function withArguments() {
         $this->define('WithArguments', AggregateRoot::class, '
             function handleFoo($two, $one) {
                 $this->recordThat("This happened", ["this" => $one . $two]);
@@ -81,10 +80,10 @@ class CommandAggregatesSpec extends Specification {
             'two' => 'That'
         ]);
 
-        $assert($this->recordedEvents()[0]->getArguments(), ['this' => 'AndThat']);
+        $this->assert($this->recordedEvents()[0]->getArguments(), ['this' => 'AndThat']);
     }
 
-    function applyEvents(Assert $assert) {
+    function applyEvents() {
         $this->define('ApplyEvents', AggregateRoot::class, '
             function applyThat($two, \\' . Event::class . ' $e, $one) {
                 $this->applied = $e->getName() . $one . $two;
@@ -100,7 +99,7 @@ class CommandAggregatesSpec extends Specification {
             CommandAction::IDENTIFIER_KEY => $this->id('ApplyEvents', 'baz')
         ]);
 
-        $assert($this->recordedEvents()[1]->getName(), 'Applied');
-        $assert($this->recordedEvents()[1]->getArguments(), ['ThatAndThis']);
+        $this->assert($this->recordedEvents()[1]->getName(), 'Applied');
+        $this->assert($this->recordedEvents()[1]->getArguments(), ['ThatAndThis']);
     }
 }

@@ -6,29 +6,28 @@ use rtens\proto\Event;
 use rtens\proto\Projecting;
 use rtens\proto\Projection;
 use rtens\proto\SingletonAggregateRoot;
-use rtens\scrut\Assert;
 use watoki\reflect\type\StringType;
 
 class ProjectEventsSpec extends Specification  {
 
-    function projectionDoesNotExist(Assert $assert) {
+    function projectionDoesNotExist() {
         try {
             $this->execute('Foo');
-            $assert->fail();
+            $this->assert->fail();
         } catch (\Exception $exception) {
-            $assert->pass();
+            $this->assert->pass();
         }
     }
 
-    function emptyProjection(Assert $assert) {
+    function emptyProjection() {
         $this->define('EmptyProjection', Projection::class);
 
         $result = $this->execute('EmptyProjection');
-        $assert(is_object($result));
-        $assert(substr(get_class($result), -strlen('EmptyProjection')), 'EmptyProjection');
+        $this->assert(is_object($result));
+        $this->assert(substr(get_class($result), -strlen('EmptyProjection')), 'EmptyProjection');
     }
 
-    function applyEvents(Assert $assert) {
+    function applyEvents() {
         $this->define('ProjectEvents', Projection::class, '
             function applyThat($two, \rtens\proto\Event $e, $one) {
                 $this->applied = $e->getName() . $one . $two;
@@ -39,10 +38,10 @@ class ProjectEventsSpec extends Specification  {
         $this->events->append(new Event($this->id('foo'), 'That', ['one' => 'And', 'two' => 'This']), $this->id('foo'));
 
         $result = $this->execute('ProjectEvents');
-        $assert($result->applied, 'ThatAndThis');
+        $this->assert($result->applied, 'ThatAndThis');
     }
 
-    function passArguments(Assert $assert) {
+    function passArguments() {
         $this->define('PassArguments', Projection::class, '
             function __construct($one, $two) {
                 $this->passed = $one . $two;
@@ -54,14 +53,14 @@ class ProjectEventsSpec extends Specification  {
             'one' => 'Foo',
         ]);
 
-        $assert($this->domin->actions->getAction('PassArguments')->parameters(), [
+        $this->assert($this->domin->actions->getAction('PassArguments')->parameters(), [
             new Parameter('one', new StringType(), true),
             new Parameter('two', new StringType(), true),
         ]);
-        $assert($result->passed, 'FooBar');
+        $this->assert($result->passed, 'FooBar');
     }
 
-    function aggregateAsProjection(Assert $assert) {
+    function aggregateAsProjection() {
         $this->define('AggregateAsProjection', SingletonAggregateRoot::class, '
             function applyThat() {
                 $this->applied = true;
@@ -71,6 +70,6 @@ class ProjectEventsSpec extends Specification  {
         $this->events->append(new Event($this->id('foo'), 'That'), $this->id('foo'));
 
         $result = $this->execute('AggregateAsProjection');
-        $assert($result->applied, true);
+        $this->assert($result->applied, true);
     }
 }

@@ -6,11 +6,16 @@ use rtens\proto\AggregateIdentifier;
 use rtens\proto\Application;
 use rtens\proto\Event;
 use rtens\proto\Time;
+use rtens\scrut\Assert;
 use watoki\factory\Factory;
 use watoki\karma\stores\EventStore;
 use watoki\karma\stores\MemoryEventStore;
 
 abstract class Specification {
+    /**
+     * @var Assert <-
+     */
+    protected $assert;
     /**
      * @var string
      */
@@ -30,6 +35,10 @@ abstract class Specification {
 
         $this->events = new MemoryEventStore();
         $this->domin = (new Factory())->getInstance(WebApplication::class);
+    }
+
+    protected function assert($value, $equals = true) {
+        $this->assert->__invoke($value, $equals);
     }
 
     protected function runApp() {

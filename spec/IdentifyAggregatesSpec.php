@@ -7,12 +7,11 @@ use rtens\proto\AggregateRoot;
 use rtens\proto\CommandAction;
 use rtens\proto\Event;
 use rtens\proto\SingletonAggregateRoot;
-use rtens\scrut\Assert;
 use watoki\reflect\type\ClassType;
 
 class IdentifyAggregatesSpec extends Specification {
 
-    function addIdentifierProperty(Assert $assert) {
+    function addIdentifierProperty() {
         $class = $this->define('AddIdentifierProperty', AggregateRoot::class, '
             function handleFoo() {
                 $this->recordThat("This happened", [$this->identifier]);
@@ -23,11 +22,11 @@ class IdentifyAggregatesSpec extends Specification {
             CommandAction::IDENTIFIER_KEY => $this->id('AddIdentifierProperty', 'baz')
         ]);
 
-        $assert($this->domin->actions->getAction('AddIdentifierProperty$Foo')->parameters(), [
+        $this->assert($this->domin->actions->getAction('AddIdentifierProperty$Foo')->parameters(), [
             new Parameter(CommandAction::IDENTIFIER_KEY, new ClassType($class . 'Identifier'), true)
         ]);
 
-        $assert($this->recordedEvents(), [
+        $this->assert($this->recordedEvents(), [
             new Event(
                 $this->id('AddIdentifierProperty', 'baz'),
                 'This happened',
@@ -37,7 +36,7 @@ class IdentifyAggregatesSpec extends Specification {
     }
 
 
-    function singletonAggregate(Assert $assert) {
+    function singletonAggregate() {
         $this->define('Singleton', SingletonAggregateRoot::class, '
             function handleFoo() {
                 $this->recordThat("This happened", [$this->identifier]);
@@ -48,8 +47,8 @@ class IdentifyAggregatesSpec extends Specification {
             CommandAction::IDENTIFIER_KEY => $this->id('Singleton', 'baz')
         ]);
 
-        $assert($this->domin->actions->getAction('Singleton$Foo')->parameters(), []);
-        $assert($this->recordedEvents(), [
+        $this->assert($this->domin->actions->getAction('Singleton$Foo')->parameters(), []);
+        $this->assert($this->recordedEvents(), [
             new Event(
                 $this->id('Singleton'),
                 'This happened',
@@ -58,7 +57,7 @@ class IdentifyAggregatesSpec extends Specification {
         ]);
     }
 
-    function staticIdentifier(Assert $assert) {
+    function staticIdentifier() {
         $this->define('StaticIdentifier', AggregateRoot::class, '
             function handleFoo() {
                 $this->recordThat("This happened", [$this->identifier]);
@@ -70,11 +69,11 @@ class IdentifyAggregatesSpec extends Specification {
             CommandAction::IDENTIFIER_KEY => new $identifierClass('bar')
         ]);
 
-        $assert($this->domin->actions->getAction('StaticIdentifier$Foo')->parameters(), [
+        $this->assert($this->domin->actions->getAction('StaticIdentifier$Foo')->parameters(), [
             new Parameter(CommandAction::IDENTIFIER_KEY, new ClassType($identifierClass), true)
         ]);
 
-        $assert(get_class($this->recordedEvents()[0]->getAggregateIdentifier()),
+        $this->assert(get_class($this->recordedEvents()[0]->getAggregateIdentifier()),
             $identifierClass);
     }
 }

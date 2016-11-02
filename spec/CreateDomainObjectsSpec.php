@@ -3,37 +3,36 @@ namespace spec\rtens\proto;
 
 use rtens\domin\Parameter;
 use rtens\proto\DomainObject;
-use rtens\scrut\Assert;
 use watoki\reflect\type\StringType;
 
 class CreateDomainObjectsSpec extends Specification {
 
-    function emptyObject(Assert $assert) {
+    function emptyObject() {
         $this->define('NoCreateMethod', DomainObject::class);
 
         try {
             $this->execute('NoArguments$create');
-            $assert->fail();
+            $this->assert->fail();
         } catch (\Exception $exception) {
-            $assert->pass();
+            $this->assert->pass();
         }
     }
 
-    function noArguments(Assert $assert) {
+    function noArguments() {
         $objectClass = $this->define('NoArguments', DomainObject::class, '
             function created() {}
         ');
 
         $this->execute('NoArguments$create');
 
-        $assert($this->domin->actions->getAction('NoArguments$create')->parameters(), []);
+        $this->assert($this->domin->actions->getAction('NoArguments$create')->parameters(), []);
 
-        $assert(count($this->recordedEvents()), 1);
-        $assert($this->recordedEvents()[0]->getName(), 'Created');
-        $assert($this->recordedEvents()[0]->getAggregateIdentifier()->getAggregateName(), $objectClass);
+        $this->assert(count($this->recordedEvents()), 1);
+        $this->assert($this->recordedEvents()[0]->getName(), 'Created');
+        $this->assert($this->recordedEvents()[0]->getAggregateIdentifier()->getAggregateName(), $objectClass);
     }
 
-    function createWithArguments(Assert $assert) {
+    function createWithArguments() {
         $this->define('WithArguments', DomainObject::class, '
             function created($one, $two) {}
         ');
@@ -43,7 +42,7 @@ class CreateDomainObjectsSpec extends Specification {
             'two' => 'Baz'
         ]);
 
-        $assert($this->domin->actions->getAction('WithArguments$create')->parameters(), [
+        $this->assert($this->domin->actions->getAction('WithArguments$create')->parameters(), [
             new Parameter('one', new StringType(), true),
             new Parameter('two', new StringType(), true),
         ]);

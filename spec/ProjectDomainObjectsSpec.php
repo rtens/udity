@@ -4,27 +4,26 @@ namespace spec\rtens\proto;
 use rtens\domin\Parameter;
 use rtens\proto\DomainObject;
 use rtens\proto\Event;
-use rtens\scrut\Assert;
 use watoki\reflect\type\ClassType;
 
 class ProjectDomainObjectsSpec extends Specification {
 
-    function emptyObject(Assert $assert) {
+    function emptyObject() {
         $class = $this->define('SomeEmptyObject', DomainObject::class);
 
         $object = $this->execute('SomeEmptyObject$read', [
             'identifier' => $this->id('SomeEmptyObject', 'foo')
         ]);
 
-        $assert($this->domin->actions->getAction('SomeEmptyObject$read')->parameters(), [
+        $this->assert($this->domin->actions->getAction('SomeEmptyObject$read')->parameters(), [
             new Parameter('identifier', new ClassType($class . 'Identifier'), true)
         ]);
 
-        $assert(is_object($object));
-        $assert(get_class($object), $class);
+        $this->assert(is_object($object));
+        $this->assert(get_class($object), $class);
     }
 
-    function withCreatedArguments(Assert $assert) {
+    function withCreatedArguments() {
         $this->define('WithCreatedArguments', DomainObject::class, '
             function created($one, $two) {
                 $this->createdWith = $one . $two;
@@ -39,10 +38,10 @@ class ProjectDomainObjectsSpec extends Specification {
         $object = $this->execute('WithCreatedArguments$read', [
             'identifier' => $this->id('WithCreatedArguments', 'foo')
         ]);
-        $assert($object->createdWith, 'BarBaz');
+        $this->assert($object->createdWith, 'BarBaz');
     }
 
-    function projectAll(Assert $assert) {
+    function projectAll() {
         $this->define('ProjectAll', DomainObject::class, '
             function created($name) {
                 $this->name = $name;
@@ -61,10 +60,10 @@ class ProjectDomainObjectsSpec extends Specification {
 
         $objects = $this->execute('ProjectAllList$all');
 
-        $assert(count($objects->getAll()), 3);
-        $assert(is_object($objects->getAll()[0]));
-        $assert($objects->getAll()[0]->name, 'One');
-        $assert($objects->getAll()[1]->name, 'Two');
-        $assert($objects->getAll()[2]->name, 'Three');
+        $this->assert(count($objects->getAll()), 3);
+        $this->assert(is_object($objects->getAll()[0]));
+        $this->assert($objects->getAll()[0]->name, 'One');
+        $this->assert($objects->getAll()[1]->name, 'Two');
+        $this->assert($objects->getAll()[2]->name, 'Three');
     }
 }
