@@ -20,12 +20,7 @@ class CommandAggregatesSpec extends Specification {
     function noMethods() {
         $this->define('NoMethods', AggregateRoot::class);
 
-        try {
-            $this->execute('NoMethods');
-            $this->assert->fail();
-        } catch (\Exception $exception) {
-            $this->assert->pass();
-        }
+        $this->assert($this->domin->actions->getAllActions(), []);
     }
 
     function nothingHappens() {

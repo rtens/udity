@@ -28,6 +28,10 @@ abstract class Specification {
      * @var WebApplication
      */
     protected $domin;
+    /**
+     * @var string[]
+     */
+    private $knownClasses = [];
 
     public function before() {
         Time::freeze();
@@ -42,7 +46,7 @@ abstract class Specification {
     }
 
     protected function runApp() {
-        $app = new Application($this->events);
+        $app = new Application($this->events, $this->knownClasses);
         $app->run($this->domin);
     }
 
@@ -76,6 +80,9 @@ abstract class Specification {
             $body
         }");
 
-        return $this->namespace . '\\' . $className;
+        $fullName = $this->namespace . '\\' . $className;
+        $this->knownClasses[] = $fullName;
+
+        return $fullName;
     }
 }

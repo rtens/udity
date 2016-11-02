@@ -13,10 +13,15 @@ class WebInterface {
      * @var WebApplication
      */
     private $ui;
+    /**
+     * @var string[]
+     */
+    private $knownClasses;
 
-    public function __construct(Application $app, WebApplication $ui) {
+    public function __construct(Application $app, WebApplication $ui, array $knownClasses) {
         $this->ui = $ui;
         $this->app = $app;
+        $this->knownClasses = $knownClasses;
     }
 
     public function prepare() {
@@ -61,7 +66,7 @@ class WebInterface {
      * @return \Generator|\ReflectionClass[]
      */
     private function findSubClasses($baseClass) {
-        foreach (get_declared_classes() as $class) {
+        foreach ($this->knownClasses as $class) {
             if (is_subclass_of($class, $baseClass)) {
                 yield new \ReflectionClass($class);
             }

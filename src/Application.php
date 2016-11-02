@@ -16,8 +16,16 @@ class Application {
      * @var Karma
      */
     private $karma;
+    /**
+     * @var string[]
+     */
+    private $knownClasses;
 
-    public function __construct(EventStore $eventStore) {
+    public function __construct(EventStore $eventStore, array $knownClasses = null) {
+        $this->knownClasses = is_null($knownClasses)
+            ? get_declared_classes()
+            : $knownClasses;
+
         $aggregates = (new GenericAggregateFactory([$this, 'buildAggregateRoot']))
             ->setGetAggregateIdentifierCallback([$this, 'getAggregateIdentifier']);
 
@@ -32,7 +40,7 @@ class Application {
      * @return void
      */
     public function run(WebApplication $ui) {
-        (new WebInterface($this, $ui))->prepare();
+        (new WebInterface($this, $ui, $this->knownClasses))->prepare();
     }
 
     /**
