@@ -15,6 +15,6 @@ abstract class AggregateList extends ProjectingList {
     }
 
     private function aggregateClass() {
-        return new \ReflectionClass(substr(get_class($this), 0, -strlen('List')));
+        return new \ReflectionClass(Str::g(get_class($this))->before('List'));
     }
 }

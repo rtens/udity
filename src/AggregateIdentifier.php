@@ -21,7 +21,7 @@ abstract class AggregateIdentifier {
      * @return string
      */
     public function getAggregateName() {
-        return substr(get_class($this), 0, -strlen('Identifier'));
+        return Str::g(get_class($this))->before('Identifier');
     }
 
     /**

@@ -14,26 +14,27 @@ class DomainObject extends AggregateRoot {
     }
 
     public function handle(Command $command) {
-        if ($command->getName() == 'create') {
+        $commandName = Str::g($command->getName());
+
+        if ($commandName->is('create')) {
             return new Event($command->getAggregateIdentifier(),
                 'Created',
                 $command->getArguments());
-        } else if (substr($command->getName(), 0, 6) == 'change') {
-            return new Event($command->getAggregateIdentifier(),
-                'Changed',
-                [
-                    'property' => substr($command->getName(), strlen('change')),
-                    'value' => array_values($command->getArguments())[0]
-                ]);
-        } else if (substr($command->getName(), 0, 2) == 'do') {
-            if (method_exists($this, $command->getName())) {
-                ArgumentFiller::from($this, $command->getName())
-                    ->invoke($this, $command->getArguments());
-            }
+        } else {
+            if ($commandName->startsWith('change')) {
+                return new Event($command->getAggregateIdentifier(),
+                    'Changed' . $commandName->after('change'),
+                    $command->getArguments());
+            } else if ($commandName->startsWith('do')) {
+                if (method_exists($this, $command->getName())) {
+                    ArgumentFiller::from($this, $command->getName())
+                        ->invoke($this, $command->getArguments());
+                }
 
-            return new Event($command->getAggregateIdentifier(),
-                'Did' . substr($command->getName(), 2),
-                $command->getArguments());
+                return new Event($command->getAggregateIdentifier(),
+                    'Did' . $commandName->after('do'),
+                    $command->getArguments());
+            }
         }
 
         return [];
@@ -44,15 +45,17 @@ class DomainObject extends AggregateRoot {
             return;
         }
 
-        if ($event->getName() == 'Created') {
+        $eventName = Str::g($event->getName());
+
+        if ($eventName->is('Created')) {
             ArgumentFiller::from($this, 'created')
                 ->inject(Event::class, $event)
                 ->invoke($this, $event->getArguments());
-        } else if ($event->getName() == 'Changed') {
-            ArgumentFiller::from($this, 'set' . $event->getArguments()['property'])
-                ->invoke($this, [$event->getArguments()['value']]);
-        } else if (substr($event->getName(), 0, 3) == 'Did') {
-            ArgumentFiller::from($this, $event->getName())
+        } else if ($eventName->startsWith('Changed')) {
+            ArgumentFiller::from($this, 'set' . $eventName->after('Changed'))
+                ->invoke($this, $event->getArguments());
+        } else if ($eventName->startsWith('Did')) {
+            ArgumentFiller::from($this, $eventName)
                 ->invoke($this, $event->getArguments());
         }
     }

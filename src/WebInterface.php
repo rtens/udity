@@ -62,8 +62,10 @@ class WebInterface {
             $this->addQueryAction($group, new \ReflectionClass($object->getName() . 'List'), 'all');
 
             foreach ($object->getMethods() as $method) {
-                if (substr($method->getName(), 0, 3) == 'set' && $method->getNumberOfParameters() == 1) {
-                    $propertyName = substr($method->getName(), 3);
+                $methodName = Str::g($method->getName());
+
+                if ($methodName->startsWithButIsNot('set') && $method->getNumberOfParameters() == 1) {
+                    $propertyName = $methodName->after('set');
                     $action = $this->addCommandAction($group, $method, 'change' . $propertyName);
 
                     $getter = 'get' . $propertyName;
@@ -79,10 +81,10 @@ class WebInterface {
                             return $parameters;
                         });
                     }
-                } else if (substr($method->getName(), 0, 2) == 'do') {
-                    $this->addCommandAction($group, $method, $method->getName());
-                } else if (substr($method->getName(), 0, 3) == 'did') {
-                    $command = 'do' . substr($method->getName(), 3);
+                } else if ($methodName->startsWithButIsNot('do')) {
+                    $this->addCommandAction($group, $method, $methodName);
+                } else if ($methodName->startsWithButIsNot('did')) {
+                    $command = 'do' . $methodName->after('did');
                     if (!array_key_exists($object->getShortName() . '$' . $command, $this->ui->actions->getAllActions())) {
                         $this->addCommandAction($group, $method, $command);
                     }
@@ -110,8 +112,9 @@ class WebInterface {
     private function findCommandMethods(\ReflectionClass $rootClass) {
         $commandMethods = [];
         foreach ($rootClass->getMethods() as $method) {
-            if ($method->getName() != 'handle' && substr($method->getName(), 0, strlen('handle')) == 'handle') {
-                $commandMethods[substr($method->getName(), strlen('handle'))] = $method;
+            $methodName = Str::g($method->getName());
+            if ($methodName->startsWithButIsNot('handle')) {
+                $commandMethods[$methodName->after('handle')] = $method;
             }
         }
         return $commandMethods;

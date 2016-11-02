@@ -96,7 +96,7 @@ class CommandAction implements Action {
             return ltrim($line, ' *');
         }, $lines);
         $lines = array_filter($lines, function ($line) {
-            return substr($line, 0, 1) != '@';
+            return !Str::g($line)->startsWith('@');
         });
         return $this->parser->parse(trim(implode("\n", $lines)));
     }

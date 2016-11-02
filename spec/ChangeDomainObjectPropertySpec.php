@@ -10,12 +10,14 @@ class ChangeDomainObjectPropertySpec extends Specification {
     function invalidSetter() {
         $this->define('Foo', DomainObject::class, '
             function setBar($baz, $bez) {}
+            function set($baz) {}
         ');
 
         $this->runApp();
-        $this->assert->not()->contains(
-            array_keys($this->domin->actions->getAllActions()),
-            'Foo$changeBar');
+
+        $actionIds = array_keys($this->domin->actions->getAllActions());
+        $this->assert->not()->contains($actionIds, 'Foo$changeBar');
+        $this->assert->not()->contains($actionIds, 'Foo$change');
     }
 
     function changeProperty() {
@@ -29,9 +31,8 @@ class ChangeDomainObjectPropertySpec extends Specification {
         ]);
 
         $this->assert($this->recordedEvents(), [
-            new Event($this->id('Foo', 'one'), 'Changed', [
-                'property' => 'Bar',
-                'value' => 'new foo'
+            new Event($this->id('Foo', 'one'), 'ChangedBar', [
+                'baz' => 'new foo'
             ])
         ]);
     }
@@ -43,9 +44,8 @@ class ChangeDomainObjectPropertySpec extends Specification {
             }
         ');
 
-        $this->recordThat('Foo', 'one', 'Changed', [
-            'property' => 'Bar',
-            'value' => 'new bar'
+        $this->recordThat('Foo', 'one', 'ChangedBar', [
+            'baz' => 'new bar'
         ]);
 
         $object = $this->execute('Foo', [
@@ -64,9 +64,8 @@ class ChangeDomainObjectPropertySpec extends Specification {
             }
         ');
 
-        $this->recordThat('Foo', 'one', 'Changed', [
-            'property' => 'Bar',
-            'value' => 'new bar'
+        $this->recordThat('Foo', 'one', 'ChangedBar', [
+            'baz' => 'new bar'
         ]);
 
         $this->runApp();

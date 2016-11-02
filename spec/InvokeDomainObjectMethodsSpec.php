@@ -7,6 +7,16 @@ use rtens\proto\Event;
 
 class InvokeDomainObjectMethodsSpec extends Specification {
 
+    function invalidMethodName() {
+        $this->define('Foo', DomainObject::class, '
+            function do() {}
+            function did() {}
+        ');
+
+        $this->runApp();
+        $this->assert->not()->contains(array_keys($this->domin->actions->getAllActions()), 'Foo$do');
+    }
+
     function handleCommand() {
         $this->define('Foo', DomainObject::class, '
             function doBar($baz) {}
