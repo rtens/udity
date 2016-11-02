@@ -5,7 +5,7 @@ use rtens\domin\Action;
 use rtens\domin\Parameter;
 use rtens\domin\reflection\CommentParser;
 use rtens\domin\reflection\types\TypeFactory;
-use watoki\reflect\PropertyReader;
+use watoki\reflect\MethodAnalyzer;
 use watoki\reflect\type\ClassType;
 
 /**
@@ -17,13 +17,13 @@ class QueryAction implements Action {
      */
     private $app;
     /**
-     * @var PropertyReader
-     */
-    private $reader;
-    /**
      * @var \ReflectionClass
      */
     protected $class;
+    /**
+     * @var TypeFactory
+     */
+    private $types;
     /**
      * @var CommentParser
      * */
@@ -37,8 +37,8 @@ class QueryAction implements Action {
      */
     public function __construct(Application $app, $class, TypeFactory $types, CommentParser $parser) {
         $this->app = $app;
-        $this->reader = new PropertyReader($types, $class);
         $this->class = new \ReflectionClass($class);
+        $this->types = $types;
         $this->parser = $parser;
     }
 
@@ -70,9 +70,13 @@ class QueryAction implements Action {
      * @return array Filled values indexed by name
      */
     public function fill(array $parameters) {
-        foreach ($this->reader->readInterface() as $property) {
-            if (!array_key_exists($property->name(), $parameters)) {
-                $parameters[$property->name()] = $property->defaultValue();
+        if (!$this->class->getConstructor()) {
+            return $parameters;
+        }
+
+        foreach ($this->class->getConstructor()->getParameters() as $parameter) {
+            if ($parameter->isDefaultValueAvailable() && !array_key_exists($parameter->name, $parameters)) {
+                $parameters[$parameter->name] = $parameter->getDefaultValue();
             }
         }
         return $parameters;
@@ -83,17 +87,20 @@ class QueryAction implements Action {
      * @throws \Exception
      */
     public function parameters() {
-        $parameters = [];
-        foreach ($this->reader->readInterface() as $property) {
-            if ($property->canSet()) {
-                $type = $property->type();
-                if ($property->name() == 'identifier') {
-                    $type = new ClassType($this->class->getName() . 'Identifier');
-                }
+        if (!$this->class->getConstructor()) {
+            return [];
+        }
 
-                $parameters[] = (new Parameter($property->name(), $type, $property->isRequired()))
-                    ->setDescription($this->parser->parse($property->comment()));
+        $analyzer = new MethodAnalyzer($this->class->getConstructor());
+        $parameters = [];
+
+        foreach ($this->class->getConstructor()->getParameters() as $parameter) {
+            $type = $analyzer->getType($parameter, $this->types);
+            if ($parameter->getName() == 'identifier') {
+                $type = new ClassType($this->class->getName() . 'Identifier');
             }
+            $parameters[] = (new Parameter($parameter->name, $type, !$parameter->isDefaultValueAvailable()))
+                ->setDescription($this->parser->parse($analyzer->getComment($parameter)));
         }
         return $parameters;
     }

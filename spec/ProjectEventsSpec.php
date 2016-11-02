@@ -8,7 +8,7 @@ use rtens\proto\Projection;
 use rtens\proto\SingletonAggregateRoot;
 use watoki\reflect\type\StringType;
 
-class ProjectEventsSpec extends Specification  {
+class ProjectEventsSpec extends Specification {
 
     function projectionDoesNotExist() {
         try {
@@ -46,6 +46,7 @@ class ProjectEventsSpec extends Specification  {
             function __construct($one, $two) {
                 $this->passed = $one . $two;
             }
+            function setFoo($foo) {}
         ');
 
         $result = $this->execute('PassArguments', [
@@ -67,9 +68,37 @@ class ProjectEventsSpec extends Specification  {
             }
         ', Projecting::class);
 
-        $this->events->append(new Event($this->id('foo'), 'That'), $this->id('foo'));
+        $this->events->append(new Event($this->id('asd'), 'That'), $this->id('asd'));
 
         $result = $this->execute('AggregateAsProjection');
         $this->assert($result->applied, true);
+    }
+
+    function projectingImplementation() {
+        $this->define('Foo', \stdClass::class, '
+            function apply(\\' . Event::class . ' $e) {
+                $this->applied = true;
+            }
+        ', Projecting::class);
+
+        $this->events->append(new Event($this->id('asd'), 'That'), $this->id('asd'));
+
+        $result = $this->execute('Foo');
+        $this->assert($this->domin->actions->getAction('Foo')->parameters(), []);
+        $this->assert($this->domin->actions->getAction('Foo')->fill([]), []);
+
+        $this->assert($result->applied, true);
+    }
+
+    function fillDefaultValues() {
+        $this->define('Foo', Projection::class, '
+            function __construct($one = "that one") {}
+            function setFoo($foo) {}
+        ');
+
+        $this->runApp();
+        $this->assert($this->domin->actions->getAction('Foo')->fill([]), [
+            'one' => 'that one'
+        ]);
     }
 }
