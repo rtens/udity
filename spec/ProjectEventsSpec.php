@@ -21,41 +21,41 @@ class ProjectEventsSpec extends Specification {
     }
 
     function emptyProjection() {
-        $this->define('EmptyProjection', Projection::class);
+        $this->define('Bar', Projection::class);
 
-        $result = $this->execute('EmptyProjection');
+        $result = $this->execute('Bar');
         $this->assert(is_object($result));
-        $this->assert(substr(get_class($result), -strlen('EmptyProjection')), 'EmptyProjection');
+        $this->assert(substr(get_class($result), -strlen('Bar')), 'Bar');
     }
 
     function applyEvents() {
-        $this->define('ProjectEvents', Projection::class, '
+        $this->define('Bar', Projection::class, '
             function applyThat($two, \rtens\proto\Event $e, $one) {
                 $this->applied = $e->getName() . $one . $two;
             }
         ');
 
-        $this->events->append(new Event($this->id('foo'), 'NotThis'), $this->id('foo'));
-        $this->events->append(new Event($this->id('foo'), 'That', ['one' => 'And', 'two' => 'This']), $this->id('foo'));
+        $this->recordThat('Bar', 'foo', 'NotThis');
+        $this->recordThat('Bar', 'foo', 'That', ['one' => 'And', 'two' => 'This']);
 
-        $result = $this->execute('ProjectEvents');
+        $result = $this->execute('Bar');
         $this->assert($result->applied, 'ThatAndThis');
     }
 
     function passArguments() {
-        $this->define('PassArguments', Projection::class, '
+        $this->define('Bar', Projection::class, '
             function __construct($one, $two) {
                 $this->passed = $one . $two;
             }
             function setFoo($foo) {}
         ');
 
-        $result = $this->execute('PassArguments', [
+        $result = $this->execute('Bar', [
             'two' => 'Bar',
             'one' => 'Foo',
         ]);
 
-        $this->assert($this->domin->actions->getAction('PassArguments')->parameters(), [
+        $this->assert($this->domin->actions->getAction('Bar')->parameters(), [
             new Parameter('one', new StringType(), true),
             new Parameter('two', new StringType(), true),
         ]);
@@ -63,15 +63,15 @@ class ProjectEventsSpec extends Specification {
     }
 
     function aggregateAsProjection() {
-        $this->define('AggregateAsProjection', SingletonAggregateRoot::class, '
+        $this->define('Bar', SingletonAggregateRoot::class, '
             function applyThat() {
                 $this->applied = true;
             }
         ', Projecting::class);
 
-        $this->events->append(new Event($this->id('asd'), 'That'), $this->id('asd'));
+        $this->recordThat('Bar', 'asd', 'That');
 
-        $result = $this->execute('AggregateAsProjection');
+        $result = $this->execute('Bar');
         $this->assert($result->applied, true);
     }
 
@@ -82,7 +82,7 @@ class ProjectEventsSpec extends Specification {
             }
         ', Projecting::class);
 
-        $this->events->append(new Event($this->id('asd'), 'That'), $this->id('asd'));
+        $this->recordThat('Foo', 'asd', 'That');
 
         $result = $this->execute('Foo');
         $this->assert($this->domin->actions->getAction('Foo')->parameters(), []);

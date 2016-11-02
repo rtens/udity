@@ -10,7 +10,7 @@ class HandleCommandsSpec extends Specification {
 
     function aggregateDoesNotExist() {
         try {
-            $this->execute('Foo$Bar');
+            $this->execute('Root$Bar');
         } catch (\Exception $exception) {
             $this->assert->pass();
             return;
@@ -19,59 +19,59 @@ class HandleCommandsSpec extends Specification {
     }
 
     function noMethods() {
-        $this->define('NoMethods', AggregateRoot::class);
+        $this->define('Foo', AggregateRoot::class);
 
         $this->assert($this->domin->actions->getAllActions(), []);
     }
 
     function nothingHappens() {
-        $this->define('Nothing', AggregateRoot::class, '
+        $this->define('Root', AggregateRoot::class, '
             function handleFoo() {}
         ');
 
-        $this->execute('Nothing$Foo', [
-            CommandAction::IDENTIFIER_KEY => $this->id('Nothing', 'baz')
+        $this->execute('Root$Foo', [
+            CommandAction::IDENTIFIER_KEY => $this->id('Root', 'baz')
         ]);
         $this->assert($this->recordedEvents(), []);
     }
 
     function singleton() {
-        $this->define('SingletonAggregate', SingletonAggregateRoot::class, '
+        $this->define('Root', SingletonAggregateRoot::class, '
             function handleFoo() {}
         ');
 
-        $this->execute('SingletonAggregate$Foo');
+        $this->execute('Root$Foo');
         $this->assert($this->recordedEvents(), []);
     }
 
     function appendEvents() {
-        $this->define('AppendEvents', AggregateRoot::class, '
+        $this->define('Root', AggregateRoot::class, '
             function handleFoo() {
                 $this->recordThat("This happened");
             }
         ');
 
-        $this->execute('AppendEvents$Foo', [
-            CommandAction::IDENTIFIER_KEY => $this->id('AppendEvents', 'baz')
+        $this->execute('Root$Foo', [
+            CommandAction::IDENTIFIER_KEY => $this->id('Root', 'baz')
         ]);
 
         $this->assert($this->recordedEvents(), [
             new Event(
-                $this->id('AppendEvents', 'baz'),
+                $this->id('Root', 'baz'),
                 'This happened'
             )
         ]);
     }
 
     function withArguments() {
-        $this->define('WithArguments', AggregateRoot::class, '
+        $this->define('Root', AggregateRoot::class, '
             function handleFoo($two, $one) {
                 $this->recordThat("This happened", ["this" => $one . $two]);
             }
         ');
 
-        $this->execute('WithArguments$Foo', [
-            CommandAction::IDENTIFIER_KEY => $this->id('WithArguments', 'baz'),
+        $this->execute('Root$Foo', [
+            CommandAction::IDENTIFIER_KEY => $this->id('Root', 'baz'),
             'one' => 'And',
             'two' => 'That'
         ]);
@@ -80,7 +80,7 @@ class HandleCommandsSpec extends Specification {
     }
 
     function applyEvents() {
-        $this->define('ApplyEvents', AggregateRoot::class, '
+        $this->define('Root', AggregateRoot::class, '
             function applyThat($two, \\' . Event::class . ' $e, $one) {
                 $this->applied = $e->getName() . $one . $two;
             }
@@ -89,10 +89,10 @@ class HandleCommandsSpec extends Specification {
             }
         ');
 
-        $this->events->append(new Event($this->id('baz'), 'That', ['one' => 'And', 'two' => 'This']), $this->id('baz'));
+        $this->recordThat('Root', 'baz', 'That', ['one' => 'And', 'two' => 'This']);
 
-        $this->execute('ApplyEvents$Foo', [
-            CommandAction::IDENTIFIER_KEY => $this->id('ApplyEvents', 'baz')
+        $this->execute('Root$Foo', [
+            CommandAction::IDENTIFIER_KEY => $this->id('Root', 'baz')
         ]);
 
         $this->assert($this->recordedEvents()[1]->getName(), 'Applied');

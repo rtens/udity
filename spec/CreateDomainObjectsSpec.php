@@ -8,10 +8,10 @@ use watoki\reflect\type\StringType;
 class CreateDomainObjectsSpec extends Specification {
 
     function emptyObject() {
-        $this->define('NoCreateMethod', DomainObject::class);
+        $this->define('Foo', DomainObject::class);
 
         try {
-            $this->execute('NoArguments$create');
+            $this->execute('Foo$create');
         } catch (\Exception $exception) {
             $this->assert->pass();
             return;
@@ -20,30 +20,30 @@ class CreateDomainObjectsSpec extends Specification {
     }
 
     function noArguments() {
-        $objectClass = $this->define('NoArguments', DomainObject::class, '
+        $objectClass = $this->define('Foo', DomainObject::class, '
             function created() {}
         ');
 
-        $this->execute('NoArguments$create');
+        $this->execute('Foo$create');
 
-        $this->assert($this->domin->actions->getAction('NoArguments$create')->parameters(), []);
+        $this->assert($this->domin->actions->getAction('Foo$create')->parameters(), []);
 
         $this->assert(count($this->recordedEvents()), 1);
         $this->assert($this->recordedEvents()[0]->getName(), 'Created');
         $this->assert($this->recordedEvents()[0]->getAggregateIdentifier()->getAggregateName(), $objectClass);
     }
 
-    function createWithArguments() {
-        $this->define('WithArguments', DomainObject::class, '
+    function createFoo() {
+        $this->define('Foo', DomainObject::class, '
             function created($one, $two) {}
         ');
 
-        $this->execute('WithArguments$create', [
+        $this->execute('Foo$create', [
             'one' => 'Bar',
             'two' => 'Baz'
         ]);
 
-        $this->assert($this->domin->actions->getAction('WithArguments$create')->parameters(), [
+        $this->assert($this->domin->actions->getAction('Foo$create')->parameters(), [
             new Parameter('one', new StringType(), true),
             new Parameter('two', new StringType(), true),
         ]);

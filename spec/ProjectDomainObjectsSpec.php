@@ -3,19 +3,18 @@ namespace spec\rtens\proto;
 
 use rtens\domin\Parameter;
 use rtens\proto\DomainObject;
-use rtens\proto\Event;
 use watoki\reflect\type\ClassType;
 
 class ProjectDomainObjectsSpec extends Specification {
 
     function emptyObject() {
-        $class = $this->define('SomeEmptyObject', DomainObject::class);
+        $class = $this->define('Object', DomainObject::class);
 
-        $object = $this->execute('SomeEmptyObject', [
-            'identifier' => $this->id('SomeEmptyObject', 'foo')
+        $object = $this->execute('Object', [
+            'identifier' => $this->id('Object', 'foo')
         ]);
 
-        $this->assert($this->domin->actions->getAction('SomeEmptyObject')->parameters(), [
+        $this->assert($this->domin->actions->getAction('Object')->parameters(), [
             new Parameter('identifier', new ClassType($class . 'Identifier'), true)
         ]);
 
@@ -24,44 +23,39 @@ class ProjectDomainObjectsSpec extends Specification {
     }
 
     function withCreatedArguments() {
-        $this->define('WithCreatedArguments', DomainObject::class, '
+        $this->define('Object', DomainObject::class, '
             function created($one, $two) {
                 $this->createdWith = $one . $two;
             }
         ');
 
-        $this->events->append(new Event($this->id('WithCreatedArguments', 'foo'), 'Created', [
+        $this->recordThat('Object', 'foo', 'Created', [
             'one' => 'Bar',
             'two' => 'Baz'
-        ]), $this->id('WithCreatedArguments', 'foo'));
+        ]);
 
-        $this->events->append(new Event($this->id('Wrong', 'foo'), 'Created'),
-            $this->id('Wrong', 'foo'));
+        $this->recordThat('Wrong', 'foo', 'Created');
 
-        $object = $this->execute('WithCreatedArguments', [
-            'identifier' => $this->id('WithCreatedArguments', 'foo')
+        $object = $this->execute('Object', [
+            'identifier' => $this->id('Object', 'foo')
         ]);
         $this->assert($object->createdWith, 'BarBaz');
     }
 
     function projectAll() {
-        $this->define('ProjectAll', DomainObject::class, '
+        $this->define('Object', DomainObject::class, '
             function created($name) {
                 $this->name = $name;
             }
         ');
 
-        $this->events->append(new Event($this->id('ProjectAll', 'one'), 'Created', ['name' => 'One']),
-            $this->id('ProjectAll', 'one'));
-        $this->events->append(new Event($this->id('ProjectAll', 'two'), 'Created', ['name' => 'Two']),
-            $this->id('ProjectAll', 'two'));
-        $this->events->append(new Event($this->id('ProjectAll', 'three'), 'Created', ['name' => 'Three']),
-            $this->id('ProjectAll', 'three'));
+        $this->recordThat('Object', 'one', 'Created', ['name' => 'One']);
+        $this->recordThat('Object', 'two', 'Created', ['name' => 'Two']);
+        $this->recordThat('Object', 'three', 'Created', ['name' => 'Three']);
 
-        $this->events->append(new Event($this->id('Wrong', 'three'), 'Created'),
-            $this->id('Wrong', 'three'));
+        $this->recordThat('Wrong', 'three', 'Created');
 
-        $objects = $this->execute('ProjectAllList$all');
+        $objects = $this->execute('ObjectList$all');
 
         $this->assert(count($objects->getAll()), 3);
         $this->assert(is_object($objects->getAll()[0]));

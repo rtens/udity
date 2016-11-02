@@ -12,64 +12,64 @@ use watoki\reflect\type\ClassType;
 class IdentifyAggregatesSpec extends Specification {
 
     function addIdentifierProperty() {
-        $class = $this->define('AddIdentifierProperty', AggregateRoot::class, '
+        $class = $this->define('Root', AggregateRoot::class, '
             function handleFoo() {
                 $this->recordThat("This happened", [$this->getIdentifier()]);
             }
         ');
 
-        $this->execute('AddIdentifierProperty$Foo', [
-            CommandAction::IDENTIFIER_KEY => $this->id('AddIdentifierProperty', 'baz')
+        $this->execute('Root$Foo', [
+            CommandAction::IDENTIFIER_KEY => $this->id('Root', 'baz')
         ]);
 
-        $this->assert($this->domin->actions->getAction('AddIdentifierProperty$Foo')->parameters(), [
+        $this->assert($this->domin->actions->getAction('Root$Foo')->parameters(), [
             new Parameter(CommandAction::IDENTIFIER_KEY, new ClassType($class . 'Identifier'), true)
         ]);
 
         $this->assert($this->recordedEvents(), [
             new Event(
-                $this->id('AddIdentifierProperty', 'baz'),
+                $this->id('Root', 'baz'),
                 'This happened',
-                [$this->id('AddIdentifierProperty', 'baz')]
+                [$this->id('Root', 'baz')]
             )
         ]);
     }
 
 
     function singletonAggregate() {
-        $this->define('Singleton', SingletonAggregateRoot::class, '
+        $this->define('Root', SingletonAggregateRoot::class, '
             function handleFoo() {
                 $this->recordThat("This happened", [$this->getIdentifier()]);
             }
         ');
 
-        $this->execute('Singleton$Foo', [
-            CommandAction::IDENTIFIER_KEY => $this->id('Singleton', 'baz')
+        $this->execute('Root$Foo', [
+            CommandAction::IDENTIFIER_KEY => $this->id('Root', 'baz')
         ]);
 
-        $this->assert($this->domin->actions->getAction('Singleton$Foo')->parameters(), []);
+        $this->assert($this->domin->actions->getAction('Root$Foo')->parameters(), []);
         $this->assert($this->recordedEvents(), [
             new Event(
-                $this->id('Singleton'),
+                $this->id('Root'),
                 'This happened',
-                [$this->id('Singleton')]
+                [$this->id('Root')]
             )
         ]);
     }
 
     function staticIdentifier() {
-        $this->define('StaticIdentifier', AggregateRoot::class, '
+        $this->define('Root', AggregateRoot::class, '
             function handleFoo() {
                 $this->recordThat("This happened", [$this->getIdentifier()]);
             }
         ');
-        $identifierClass = $this->define('StaticIdentifierIdentifier', AggregateIdentifier::class);
+        $identifierClass = $this->define('RootIdentifier', AggregateIdentifier::class);
 
-        $this->execute('StaticIdentifier$Foo', [
+        $this->execute('Root$Foo', [
             CommandAction::IDENTIFIER_KEY => new $identifierClass('bar')
         ]);
 
-        $this->assert($this->domin->actions->getAction('StaticIdentifier$Foo')->parameters(), [
+        $this->assert($this->domin->actions->getAction('Root$Foo')->parameters(), [
             new Parameter(CommandAction::IDENTIFIER_KEY, new ClassType($identifierClass), true)
         ]);
 
