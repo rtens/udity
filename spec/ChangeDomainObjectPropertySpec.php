@@ -78,4 +78,15 @@ class ChangeDomainObjectPropertySpec extends Specification {
             'baz' => 'new bar'
         ]);
     }
+
+    function notExistingChangedProperty() {
+        $this->define('Foo', DomainObject::class);
+
+        $this->recordThat('Foo', 'one', 'ChangedBar', ['baz' => 'yeah']);
+
+        $this->execute('Foo', [
+            'identifier' => $this->id('Foo', 'one')
+        ]);
+        $this->assert->pass();
+    }
 }

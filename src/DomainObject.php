@@ -48,15 +48,21 @@ class DomainObject extends AggregateRoot {
         $eventName = Str::g($event->getName());
 
         if ($eventName->is('Created')) {
-            ArgumentFiller::from($this, 'created')
-                ->inject(Event::class, $event)
-                ->invoke($this, $event->getArguments());
+            $this->invoke($event, 'created');
         } else if ($eventName->startsWith('Changed')) {
-            ArgumentFiller::from($this, 'set' . $eventName->after('Changed'))
-                ->invoke($this, $event->getArguments());
+            $this->invoke($event, 'set' . $eventName->after('Changed'));
         } else if ($eventName->startsWith('Did')) {
-            ArgumentFiller::from($this, $eventName)
-                ->invoke($this, $event->getArguments());
+            $this->invoke($event, $eventName);
         }
+    }
+
+    private function invoke(Event $event, $methodName) {
+        if (!method_exists($this, $methodName)) {
+            return;
+        }
+
+        ArgumentFiller::from($this, $methodName)
+            ->inject(Event::class, $event)
+            ->invoke($this, $event->getArguments());
     }
 }
