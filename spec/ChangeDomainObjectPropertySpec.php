@@ -15,9 +15,8 @@ class ChangeDomainObjectPropertySpec extends Specification {
 
         $this->runApp();
 
-        $actionIds = array_keys($this->domin->actions->getAllActions());
-        $this->assert->not()->contains($actionIds, 'Foo$changeBar');
-        $this->assert->not()->contains($actionIds, 'Foo$change');
+        $this->assert->not()->contains($this->actionIds(), 'Foo$changeBar');
+        $this->assert->not()->contains($this->actionIds(), 'Foo$change');
     }
 
     function changeProperty() {
@@ -69,7 +68,7 @@ class ChangeDomainObjectPropertySpec extends Specification {
         ]);
 
         $this->runApp();
-        $filled = $this->domin->actions->getAction('Foo$changeBar')->fill([
+        $filled = $this->action('Foo$changeBar')->fill([
             CommandAction::IDENTIFIER_KEY => $this->id('Foo', 'one')
         ]);
 

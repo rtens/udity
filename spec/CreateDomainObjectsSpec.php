@@ -26,7 +26,7 @@ class CreateDomainObjectsSpec extends Specification {
 
         $this->execute('Foo$create');
 
-        $this->assert($this->domin->actions->getAction('Foo$create')->parameters(), []);
+        $this->assert($this->action('Foo$create')->parameters(), []);
 
         $this->assert(count($this->recordedEvents()), 1);
         $this->assert($this->recordedEvents()[0]->getName(), 'Created');
@@ -43,7 +43,7 @@ class CreateDomainObjectsSpec extends Specification {
             'two' => 'Baz'
         ]);
 
-        $this->assert($this->domin->actions->getAction('Foo$create')->parameters(), [
+        $this->assert($this->action('Foo$create')->parameters(), [
             new Parameter('one', new StringType(), true),
             new Parameter('two', new StringType(), true),
         ]);

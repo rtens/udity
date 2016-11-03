@@ -22,7 +22,7 @@ class IdentifyAggregatesSpec extends Specification {
             CommandAction::IDENTIFIER_KEY => $this->id('Root', 'baz')
         ]);
 
-        $this->assert($this->domin->actions->getAction('Root$Foo')->parameters(), [
+        $this->assert($this->action('Root$Foo')->parameters(), [
             new Parameter(CommandAction::IDENTIFIER_KEY, new ClassType($class . 'Identifier'), true)
         ]);
 
@@ -47,7 +47,7 @@ class IdentifyAggregatesSpec extends Specification {
             CommandAction::IDENTIFIER_KEY => $this->id('Root', 'baz')
         ]);
 
-        $this->assert($this->domin->actions->getAction('Root$Foo')->parameters(), []);
+        $this->assert($this->action('Root$Foo')->parameters(), []);
         $this->assert($this->recordedEvents(), [
             new Event(
                 $this->id('Root'),
@@ -69,7 +69,7 @@ class IdentifyAggregatesSpec extends Specification {
             CommandAction::IDENTIFIER_KEY => new $identifierClass('bar')
         ]);
 
-        $this->assert($this->domin->actions->getAction('Root$Foo')->parameters(), [
+        $this->assert($this->action('Root$Foo')->parameters(), [
             new Parameter(CommandAction::IDENTIFIER_KEY, new ClassType($identifierClass), true)
         ]);
 

@@ -21,7 +21,7 @@ class HandleCommandsSpec extends Specification {
     function noMethods() {
         $this->define('Foo', AggregateRoot::class);
 
-        $this->assert($this->domin->actions->getAllActions(), []);
+        $this->assert($this->actionIds(), []);
     }
 
     function nothingHappens() {

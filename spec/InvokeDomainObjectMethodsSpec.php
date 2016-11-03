@@ -19,8 +19,8 @@ class InvokeDomainObjectMethodsSpec extends Specification {
         }
 
         $this->runApp();
-        $this->assert->not()->contains(array_keys($this->domin->actions->getAllActions()), 'Foo$do');
-        $this->assert->not()->contains(array_keys($this->domin->actions->getAllActions()), 'Bar$do');
+        $this->assert->not()->contains($this->actionIds(), 'Foo$do');
+        $this->assert->not()->contains($this->actionIds(), 'Bar$do');
     }
 
     function handleCommand() {

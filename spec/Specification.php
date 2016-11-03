@@ -52,7 +52,7 @@ abstract class Specification {
 
     protected function execute($action, $arguments = []) {
         $this->runApp();
-        return $this->domin->actions->getAction($action)->execute($arguments);
+        return $this->action($action)->execute($arguments);
     }
 
     protected function id($aggregate, $key = null) {
@@ -88,5 +88,13 @@ abstract class Specification {
         $fullName = $this->namespace . '\\' . $className;
         $this->knownClasses[] = $fullName;
         return $fullName;
+    }
+
+    protected function action($action) {
+        return $this->domin->actions->getAction($action);
+    }
+
+    protected function actionIds() {
+        return array_keys($this->domin->actions->getAllActions());
     }
 }

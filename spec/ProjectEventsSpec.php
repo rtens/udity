@@ -55,7 +55,7 @@ class ProjectEventsSpec extends Specification {
             'one' => 'Foo',
         ]);
 
-        $this->assert($this->domin->actions->getAction('Bar')->parameters(), [
+        $this->assert($this->action('Bar')->parameters(), [
             new Parameter('one', new StringType(), true),
             new Parameter('two', new StringType(), true),
         ]);
@@ -85,8 +85,8 @@ class ProjectEventsSpec extends Specification {
         $this->recordThat('Foo', 'asd', 'That');
 
         $result = $this->execute('Foo');
-        $this->assert($this->domin->actions->getAction('Foo')->parameters(), []);
-        $this->assert($this->domin->actions->getAction('Foo')->fill([]), []);
+        $this->assert($this->action('Foo')->parameters(), []);
+        $this->assert($this->action('Foo')->fill([]), []);
 
         $this->assert($result->applied, true);
     }
@@ -98,7 +98,7 @@ class ProjectEventsSpec extends Specification {
         ');
 
         $this->runApp();
-        $this->assert($this->domin->actions->getAction('Foo')->fill([]), [
+        $this->assert($this->action('Foo')->fill([]), [
             'one' => 'that one'
         ]);
     }

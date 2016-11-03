@@ -14,7 +14,7 @@ class ProjectDomainObjectsSpec extends Specification {
             'identifier' => $this->id('Object', 'foo')
         ]);
 
-        $this->assert($this->domin->actions->getAction('Object')->parameters(), [
+        $this->assert($this->action('Object')->parameters(), [
             new Parameter('identifier', new ClassType($class . 'Identifier'), true)
         ]);
 
