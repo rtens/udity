@@ -61,10 +61,10 @@ class Application {
 
     /**
      * @param Command $command
-     * @return AggregateIdentifier
+     * @return string
      */
     public function getAggregateIdentifier(Command $command) {
-        return $command->getAggregateIdentifier();
+        return $command->getAggregateIdentifier()->getKey();
     }
 
     /**

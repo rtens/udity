@@ -41,7 +41,16 @@ abstract class Specification {
         $this->domin = (new Factory())->getInstance(WebApplication::class);
     }
 
+    /**
+     * @param $value
+     * @param bool|mixed|callable $equals
+     */
     protected function assert($value, $equals = true) {
+        if (is_callable($equals)) {
+            $value = $equals($value);
+            $equals = true;
+        }
+
         $this->assert->__invoke($value, $equals);
     }
 
@@ -55,6 +64,11 @@ abstract class Specification {
         return $this->action($action)->execute($arguments);
     }
 
+    /**
+     * @param string $aggregate
+     * @param string|null $key
+     * @return AggregateIdentifier
+     */
     protected function id($aggregate, $key = null) {
         $short = $aggregate . 'Identifier';
         $class = $this->namespace . '\\' . $short;
@@ -67,7 +81,7 @@ abstract class Specification {
 
     protected function recordThat($aggregate, $key, $event, $arguments = []) {
         $this->events->append(new Event($this->id($aggregate, $key), $event, $arguments),
-            $this->id($aggregate, $key));
+            $this->id($aggregate, $key)->getKey());
     }
 
     /**

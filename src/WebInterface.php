@@ -2,7 +2,9 @@
 namespace rtens\proto;
 
 use rtens\domin\Action;
+use rtens\domin\delivery\web\renderers\link\types\ClassLink;
 use rtens\domin\delivery\web\WebApplication;
+use watoki\reflect\PropertyReader;
 use watoki\reflect\type\ClassType;
 
 class WebInterface {
@@ -34,11 +36,61 @@ class WebInterface {
         $this->registerDomainObjects();
 
         $identifiedActions = [];
-        foreach ($this->ui->actions->getAllActions() as $action) {
+        foreach ($this->ui->actions->getAllActions() as $id => $action) {
             foreach ($action->parameters() as $parameter) {
                 $type = $parameter->getType();
                 if ($type instanceof ClassType && is_subclass_of($type->getClass(), AggregateIdentifier::class)) {
-                    $identifiedActions[$type->getClass()][$parameter->getName()][] = $action;
+                    $identifiedActions[$type->getClass()][$parameter->getName()][] = $id;
+                }
+            }
+        }
+
+        foreach ($this->findSubClasses(Projecting::class) as $projecting) {
+            $reader = new PropertyReader($this->ui->types, $projecting->getName());
+            foreach ($reader->readInterface() as $property) {
+                if (!$property->canGet()) {
+                    continue;
+                }
+
+                $type = $property->type();
+                if ($type instanceof ClassType && is_subclass_of($type->getClass(), AggregateIdentifier::class)) {
+                    foreach ($identifiedActions[$type->getClass()] as $parameter => $actions) {
+                        foreach ($actions as $action) {
+                            $this->ui->links->add(new ClassLink($projecting->getName(), $action,
+                                function ($object) use ($parameter, $property) {
+                                    /** @var AggregateIdentifier $identifier */
+                                    $identifier = $property->get($object);
+                                    return [
+                                        $parameter => ['key' => $identifier->getKey()]
+                                    ];
+                                }));
+                        }
+                    }
+                }
+            }
+        }
+
+        foreach ($this->findSubClasses(DomainObject::class) as $projecting) {
+            $reader = new PropertyReader($this->ui->types, $projecting->getName());
+            foreach ($reader->readInterface() as $property) {
+                $type = $property->type();
+                if ($property->name() == 'identifier') {
+                    $type = new ClassType($projecting->getName() . 'Identifier');
+                }
+
+                if ($type instanceof ClassType && is_subclass_of($type->getClass(), AggregateIdentifier::class)) {
+                    foreach ($identifiedActions[$type->getClass()] as $parameter => $actions) {
+                        foreach ($actions as $action) {
+                            $this->ui->links->add(new ClassLink($projecting->getName(), $action,
+                                function ($object) use ($parameter, $property) {
+                                    /** @var AggregateIdentifier $identifier */
+                                    $identifier = $property->get($object);
+                                    return [
+                                        $parameter => ['key' => $identifier->getKey()]
+                                    ];
+                                }));
+                        }
+                    }
                 }
             }
         }
@@ -71,6 +123,8 @@ class WebInterface {
             if ($object->hasMethod('created')) {
                 $this->addCommandAction($group, $object->getMethod('created'), 'create');
             }
+
+            $this->addQueryAction(self::PROJECTION_GROUP, $object);
 
             $this->defineClassIfNotExists($object->getName() . 'List', AggregateList::class);
             $this->addQueryAction(self::PROJECTION_GROUP, new \ReflectionClass($object->getName() . 'List'), 'all');

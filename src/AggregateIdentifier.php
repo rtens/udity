@@ -30,8 +30,4 @@ abstract class AggregateIdentifier {
     public function getKey() {
         return $this->key;
     }
-
-    function __toString() {
-        return $this->key;
-    }
 }

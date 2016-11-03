@@ -27,7 +27,7 @@ abstract class ProjectingList {
      * @return void
      */
     public function apply(Event $event) {
-        $id = (string)$event->getAggregateIdentifier();
+        $id = $event->getAggregateIdentifier()->getKey();
 
         if (!$this->matchesEvent($event)) {
             return;
