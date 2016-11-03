@@ -4,6 +4,7 @@ namespace rtens\proto;
 use rtens\domin\Action;
 use rtens\domin\delivery\web\renderers\link\types\ClassLink;
 use rtens\domin\delivery\web\WebApplication;
+use watoki\reflect\Property;
 use watoki\reflect\PropertyReader;
 use watoki\reflect\type\ClassType;
 
@@ -35,65 +36,7 @@ class WebInterface {
         $this->registerAggregates();
         $this->registerDomainObjects();
 
-        $identifiedActions = [];
-        foreach ($this->ui->actions->getAllActions() as $id => $action) {
-            foreach ($action->parameters() as $parameter) {
-                $type = $parameter->getType();
-                if ($type instanceof ClassType && is_subclass_of($type->getClass(), AggregateIdentifier::class)) {
-                    $identifiedActions[$type->getClass()][$parameter->getName()][] = $id;
-                }
-            }
-        }
-
-        foreach ($this->findSubClasses(Projecting::class) as $projecting) {
-            $reader = new PropertyReader($this->ui->types, $projecting->getName());
-            foreach ($reader->readInterface() as $property) {
-                if (!$property->canGet()) {
-                    continue;
-                }
-
-                $type = $property->type();
-                if ($type instanceof ClassType && is_subclass_of($type->getClass(), AggregateIdentifier::class)) {
-                    foreach ($identifiedActions[$type->getClass()] as $parameter => $actions) {
-                        foreach ($actions as $action) {
-                            $this->ui->links->add(new ClassLink($projecting->getName(), $action,
-                                function ($object) use ($parameter, $property) {
-                                    /** @var AggregateIdentifier $identifier */
-                                    $identifier = $property->get($object);
-                                    return [
-                                        $parameter => ['key' => $identifier->getKey()]
-                                    ];
-                                }));
-                        }
-                    }
-                }
-            }
-        }
-
-        foreach ($this->findSubClasses(DomainObject::class) as $projecting) {
-            $reader = new PropertyReader($this->ui->types, $projecting->getName());
-            foreach ($reader->readInterface() as $property) {
-                $type = $property->type();
-                if ($property->name() == 'identifier') {
-                    $type = new ClassType($projecting->getName() . 'Identifier');
-                }
-
-                if ($type instanceof ClassType && is_subclass_of($type->getClass(), AggregateIdentifier::class)) {
-                    foreach ($identifiedActions[$type->getClass()] as $parameter => $actions) {
-                        foreach ($actions as $action) {
-                            $this->ui->links->add(new ClassLink($projecting->getName(), $action,
-                                function ($object) use ($parameter, $property) {
-                                    /** @var AggregateIdentifier $identifier */
-                                    $identifier = $property->get($object);
-                                    return [
-                                        $parameter => ['key' => $identifier->getKey()]
-                                    ];
-                                }));
-                        }
-                    }
-                }
-            }
-        }
+        $this->linkActions();
     }
 
     private function registerProjections() {
@@ -172,14 +115,16 @@ class WebInterface {
 
     /**
      * @param $baseClass
-     * @return \Generator|\ReflectionClass[]
+     * @return \ReflectionClass[]
      */
     private function findSubClasses($baseClass) {
+        $classes = [];
         foreach ($this->knownClasses as $class) {
             if (is_subclass_of($class, $baseClass)) {
-                yield new \ReflectionClass($class);
+                $classes[] = new \ReflectionClass($class);
             }
         }
+        return $classes;
     }
 
     /**
@@ -207,6 +152,7 @@ class WebInterface {
         $nameSpace = implode('\\', $parts);
 
         eval("namespace $nameSpace; class $shortName extends \\" . $baseClass . " {}");
+        $this->knownClasses[] = $fullName;
     }
 
     private function addCommandAction($group, \ReflectionMethod $method, $command = null) {
@@ -229,5 +175,91 @@ class WebInterface {
 
     private function makeActionId(\ReflectionClass $class, $command) {
         return $class->getShortName() . ($command ? '$' . $command : '');
+    }
+
+    private function linkActions() {
+        $actions = $this->findIdentifiedActions();
+
+        $this->linkEntities($actions, $this->findSubClasses(DomainObject::class));
+        $this->linkEntities($actions, $this->findSubClasses(Projecting::class));
+        $this->linkEntities($actions, $this->findSubClasses(AggregateIdentifier::class));
+    }
+
+    private function findIdentifiedActions() {
+        $identifiedActions = [];
+        foreach ($this->ui->actions->getAllActions() as $id => $action) {
+            foreach ($action->parameters() as $parameter) {
+                $identifierClass = $this->getIdentifierClass($parameter->getType());
+                if ($identifierClass) {
+                    $identifiedActions[$identifierClass][$parameter->getName()][] = $id;
+                }
+            }
+        }
+        return $identifiedActions;
+    }
+
+    /**
+     * @param $identifiedActions
+     * @param \ReflectionClass[] $entities
+     */
+    private function linkEntities($identifiedActions, $entities) {
+        foreach ($entities as $entity) {
+            foreach ($this->readGettableProperties($entity) as $property) {
+                $type = $property->type();
+                if ($entity->isSubclassOf(DomainObject::class) && $property->name() == 'identifier') {
+                    $type = new ClassType($entity->getName() . 'Identifier');
+                } else if ($entity->isSubclassOf(AggregateIdentifier::class) && $property->name() == 'key') {
+                    $type = new ClassType($entity->getName());
+                }
+
+                $identifierType = $this->getIdentifierClass($type);
+                if (!$identifierType) {
+                    continue;
+                }
+
+                if (!array_key_exists($identifierType, $identifiedActions)) {
+                    continue;
+                }
+
+                foreach ($identifiedActions[$identifierType] as $parameter => $actions) {
+                    foreach ($actions as $action) {
+                        $this->linkEntity($entity, $parameter, $action, $property);
+                    }
+                }
+            }
+        }
+    }
+
+    private function getIdentifierClass($type) {
+        if ($type instanceof ClassType && is_subclass_of($type->getClass(), AggregateIdentifier::class)) {
+            return $type->getClass();
+        }
+        return null;
+    }
+
+    /**
+     * @param \ReflectionClass $entity
+     * @return Property[]
+     */
+    private function readGettableProperties($entity) {
+        $reader = new PropertyReader($this->ui->types, $entity->getName());
+        return $reader->readInterface()->filter(function (Property $property) {
+            return $property->canGet();
+        })->toArray();
+    }
+
+    private function linkEntity(\ReflectionClass $entity, $parameter, $action, Property $property) {
+        $this->ui->links->add(new ClassLink($entity->getName(), $action,
+            function ($object) use ($parameter, $property) {
+                $value = $property->get($object);
+
+                if ($value instanceof AggregateIdentifier) {
+                    $value = $value->getKey();
+                }
+
+                return [
+                    $parameter => ['key' => $value]
+                ];
+            }));
     }
 }

@@ -58,6 +58,23 @@ class LinkActionsSpec extends Specification {
         ]);
     }
 
+    function linkActionsToIdentifiers() {
+        $this->define('Foo', AggregateRoot::class, '
+            function handleBar() {}
+        ');
+
+        $this->runApp();
+        $object = $this->id('Foo', 'that');
+        $links = $this->links($object);
+
+        $this->assert->size($links, 1);
+
+        $this->assert($links[0]->actionId(), 'Foo$Bar');
+        $this->assert($links[0]->parameters($object), [
+            CommandAction::IDENTIFIER_KEY => ['key' => 'that'],
+        ]);
+    }
+
     /**
      * @param object $object
      * @return ClassLink[]
