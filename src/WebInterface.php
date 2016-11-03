@@ -6,6 +6,7 @@ use rtens\domin\delivery\web\WebApplication;
 use watoki\reflect\type\ClassType;
 
 class WebInterface {
+    const PROJECTION_GROUP = 'Show';
     /**
      * @var Application
      */
@@ -49,7 +50,7 @@ class WebInterface {
                 continue;
             }
 
-            $this->addQueryAction('Show', $projection);
+            $this->addQueryAction(self::PROJECTION_GROUP, $projection);
         }
     }
 
@@ -72,7 +73,7 @@ class WebInterface {
             }
 
             $this->defineClassIfNotExists($object->getName() . 'List', AggregateList::class);
-            $this->addQueryAction($group, new \ReflectionClass($object->getName() . 'List'), 'all');
+            $this->addQueryAction(self::PROJECTION_GROUP, new \ReflectionClass($object->getName() . 'List'), 'all');
 
             foreach ($object->getMethods() as $method) {
                 $methodName = Str::g($method->getName());
