@@ -55,6 +55,10 @@ class WebInterface {
 
             foreach ($this->findCommandMethods($root) as $command => $method) {
                 $this->addCommandAction($root->getShortName(), $method, $command);
+
+                if ($root->isSubclassOf(SingletonAggregateRoot::class)) {
+                    $this->ui->links->add(new ClassLink($root->getName(), $this->makeActionId($root, $command)));
+                }
             }
         }
     }

@@ -6,6 +6,7 @@ use rtens\proto\AggregateRoot;
 use rtens\proto\CommandAction;
 use rtens\proto\DomainObject;
 use rtens\proto\Projection;
+use rtens\proto\SingletonAggregateRoot;
 
 class LinkActionsSpec extends Specification {
 
@@ -14,7 +15,27 @@ class LinkActionsSpec extends Specification {
             function handleBar() {}
         ');
         $projection = $this->define('Bar', Projection::class, '
-            /** @var FooIdentifier $in */
+            /** @var FooIdentifier */
+            public $that;
+            function __construct($in) { $this->that = $in; }
+        ');
+
+        $this->runApp();
+        $object = new $projection($this->id('Foo', 'one'));
+        $links = $this->links($object);
+
+        $this->assert->size($links, 1);
+
+        $this->assert($links[0]->actionId(), 'Foo$Bar');
+        $this->assert($links[0]->parameters($object), [
+            CommandAction::IDENTIFIER_KEY => ['key' => 'one']
+        ]);
+    }
+
+    function linkProjectionToProjection() {
+        $this->define('Foo', AggregateRoot::class);
+        $projection = $this->define('Bar', Projection::class, '
+            /** @var FooIdentifier */
             public $that;
             function __construct(FooIdentifier $in) { $this->that = $in; }
         ');
@@ -23,16 +44,11 @@ class LinkActionsSpec extends Specification {
         $object = new $projection($this->id('Foo', 'one'));
         $links = $this->links($object);
 
-        $this->assert->size($links, 2);
+        $this->assert->size($links, 1);
 
         $this->assert($links[0]->actionId(), 'Bar');
         $this->assert($links[0]->parameters($object), [
             'in' => ['key' => 'one']
-        ]);
-
-        $this->assert($links[1]->actionId(), 'Foo$Bar');
-        $this->assert($links[1]->parameters($object), [
-            CommandAction::IDENTIFIER_KEY => ['key' => 'one']
         ]);
     }
 
@@ -73,6 +89,21 @@ class LinkActionsSpec extends Specification {
         $this->assert($links[0]->parameters($object), [
             CommandAction::IDENTIFIER_KEY => ['key' => 'that'],
         ]);
+    }
+
+    function linkAggregateToSingletons() {
+        $projection = $this->define('Foo', SingletonAggregateRoot::class, '
+            function handleBar() {}
+        ');
+
+        $this->runApp();
+        $object = new $projection($this->id('Foo'));
+        $links = $this->links($object);
+
+        $this->assert->size($links, 1);
+
+        $this->assert($links[0]->actionId(), 'Foo$Bar');
+        $this->assert($links[0]->parameters($object), []);
     }
 
     /**
