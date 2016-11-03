@@ -65,24 +65,12 @@ class WebInterface {
                 $methodName = Str::g($method->getName());
 
                 if ($methodName->startsWithButIsNot('set') && $method->getNumberOfParameters() == 1) {
-                    $propertyName = $methodName->after('set');
-                    $action = $this->addCommandAction($group, $method, 'change' . $propertyName);
+                    $this->addCommandAction($group, $method, 'change' . $methodName->after('set'))
+                        ->setPostFill($this->fillPropertyFunction($method));
 
-                    $getter = 'get' . $propertyName;
-                    if ($object->hasMethod($getter)) {
-                        $action->setPostFill(function ($parameters) use ($object, $method, $getter) {
-                            if (array_key_exists(CommandAction::IDENTIFIER_KEY, $parameters)) {
-                                $projection = $this->app->handle(new Query($object->getName(), [
-                                    'identifier' => $parameters[CommandAction::IDENTIFIER_KEY]
-                                ]));
-
-                                $parameters[$method->getParameters()[0]->getName()] = $object->getMethod($getter)->invoke($projection);
-                            }
-                            return $parameters;
-                        });
-                    }
                 } else if ($methodName->startsWithButIsNot('do')) {
                     $this->addCommandAction($group, $method, $methodName);
+
                 } else if ($methodName->startsWithButIsNot('did')) {
                     $command = 'do' . $methodName->after('did');
                     if (!array_key_exists($object->getShortName() . '$' . $command, $this->ui->actions->getAllActions())) {
@@ -91,6 +79,27 @@ class WebInterface {
                 }
             }
         }
+    }
+
+    private function fillPropertyFunction(\ReflectionMethod $method) {
+        return function ($parameters) use ($method) {
+            $class = $method->getDeclaringClass();
+
+            $getter = 'get' . Str::g($method->getName())->after('set');
+            if (!$class->hasMethod($getter)) {
+                return $parameters;
+            }
+
+            if (array_key_exists(CommandAction::IDENTIFIER_KEY, $parameters)) {
+                $projection = $this->app->handle(new Query($class->getName(), [
+                    'identifier' => $parameters[CommandAction::IDENTIFIER_KEY]
+                ]));
+
+                $parameterName = $method->getParameters()[0]->getName();
+                $parameters[$parameterName] = $class->getMethod($getter)->invoke($projection);
+            }
+            return $parameters;
+        };
     }
 
     /**
