@@ -46,7 +46,7 @@ abstract class Specification {
     }
 
     protected function runApp() {
-        $app = new Application($this->events, $this->knownClasses);
+        $app = new Application($this->events, array_unique($this->knownClasses));
         $app->run($this->domin);
     }
 
@@ -87,6 +87,7 @@ abstract class Specification {
 
         $fullName = $this->namespace . '\\' . $className;
         $this->knownClasses[] = $fullName;
+        $this->knownClasses[] = $extends;
         return $fullName;
     }
 

@@ -6,6 +6,8 @@ use rtens\proto\AggregateRoot;
 class LinkCommandsSpec extends Specification {
 
     function test() {
+        $this->assert->incomplete();
+
         $this->define('Foo', AggregateRoot::class, '
             function handleBar() {}
         ');

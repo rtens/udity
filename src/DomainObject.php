@@ -4,7 +4,7 @@ namespace rtens\proto;
 /**
  * AggregateRoot that automatically generates CRUD Commands.
  */
-class DomainObject extends AggregateRoot {
+class DomainObject extends AggregateRoot implements Projecting {
 
     /**
      * @return AggregateIdentifier

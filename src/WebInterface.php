@@ -3,6 +3,7 @@ namespace rtens\proto;
 
 use rtens\domin\Action;
 use rtens\domin\delivery\web\WebApplication;
+use watoki\reflect\type\ClassType;
 
 class WebInterface {
     /**
@@ -30,10 +31,24 @@ class WebInterface {
         $this->registerProjections();
         $this->registerAggregates();
         $this->registerDomainObjects();
+
+        $identifiedActions = [];
+        foreach ($this->ui->actions->getAllActions() as $action) {
+            foreach ($action->parameters() as $parameter) {
+                $type = $parameter->getType();
+                if ($type instanceof ClassType && is_subclass_of($type->getClass(), AggregateIdentifier::class)) {
+                    $identifiedActions[$type->getClass()][$parameter->getName()][] = $action;
+                }
+            }
+        }
     }
 
     private function registerProjections() {
         foreach ($this->findSubClasses(Projecting::class) as $projection) {
+            if ($projection->getName() == DomainObject::class) {
+                continue;
+            }
+
             $this->addQueryAction('Show', $projection);
         }
     }
@@ -55,8 +70,6 @@ class WebInterface {
             if ($object->hasMethod('created')) {
                 $this->addCommandAction($group, $object->getMethod('created'), 'create');
             }
-
-            $this->addQueryAction($group, $object);
 
             $this->defineClassIfNotExists($object->getName() . 'List', AggregateList::class);
             $this->addQueryAction($group, new \ReflectionClass($object->getName() . 'List'), 'all');

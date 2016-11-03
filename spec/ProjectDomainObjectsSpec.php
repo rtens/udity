@@ -63,4 +63,11 @@ class ProjectDomainObjectsSpec extends Specification {
         $this->assert($objects->getAll()[1]->name, 'Two');
         $this->assert($objects->getAll()[2]->name, 'Three');
     }
+
+    function doNotRegisterDomainObjectItself() {
+        $this->define('Foo', DomainObject::class);
+
+        $this->runApp();
+        $this->assert->not()->contains($this->actionIds(), 'DomainObject');
+    }
 }
