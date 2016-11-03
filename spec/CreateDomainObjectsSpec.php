@@ -30,7 +30,7 @@ class CreateDomainObjectsSpec extends Specification {
 
         $this->assert(count($this->recordedEvents()), 1);
         $this->assert($this->recordedEvents()[0]->getName(), 'Created');
-        $this->assert($this->recordedEvents()[0]->getAggregateIdentifier()->getAggregateName(), $objectClass);
+        $this->assert($this->recordedEvents()[0]->getAggregateIdentifier()->aggregateName(), $objectClass);
     }
 
     function createFoo() {

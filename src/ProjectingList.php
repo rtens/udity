@@ -4,7 +4,7 @@ namespace rtens\proto;
 /**
  * Forwards all Events to its items.
  */
-abstract class ProjectingList {
+abstract class ProjectingList implements Options {
     /**
      * @var Projecting[]
      */
@@ -18,9 +18,9 @@ abstract class ProjectingList {
 
     /**
      * @param Event $event
-     * @return object
+     * @return mixed
      */
-    abstract protected function createInstance(Event $event);
+    abstract protected function createItem(Event $event);
 
     /**
      * @param Event $event
@@ -34,7 +34,7 @@ abstract class ProjectingList {
         }
 
         if (!array_key_exists($id, $this->items)) {
-            $this->items[$id] = $this->createInstance($event);
+            $this->items[$id] = $this->createItem($event);
         }
         $this->items[$id]->apply($event);
     }
@@ -44,5 +44,20 @@ abstract class ProjectingList {
      */
     public function getAll() {
         return array_values($this->items);
+    }
+
+    public function options() {
+        $options = [];
+        foreach ($this->items as $key => $item) {
+            $options[$key] = $this->caption($item) ?: $key;
+        }
+        return $options;
+    }
+
+    protected function caption($item) {
+        if (method_exists($item, 'caption')) {
+            return $item->caption();
+        }
+        return null;
     }
 }

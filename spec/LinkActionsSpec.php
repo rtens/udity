@@ -28,7 +28,7 @@ class LinkActionsSpec extends Specification {
 
         $this->assert($links[0]->actionId(), 'Foo$Bar');
         $this->assert($links[0]->parameters($object), [
-            CommandAction::IDENTIFIER_KEY => ['key' => 'one']
+            CommandAction::IDENTIFIER_KEY => 'one'
         ]);
     }
 
@@ -48,7 +48,7 @@ class LinkActionsSpec extends Specification {
 
         $this->assert($links[0]->actionId(), 'Bar');
         $this->assert($links[0]->parameters($object), [
-            'in' => ['key' => 'one']
+            'in' => 'one'
         ]);
     }
 
@@ -65,12 +65,12 @@ class LinkActionsSpec extends Specification {
 
         $this->assert($links[0]->actionId(), 'Foo');
         $this->assert($links[0]->parameters($object), [
-            'identifier' => ['key' => 'one'],
+            'identifier' => 'one',
         ]);
 
         $this->assert($links[1]->actionId(), 'Foo$doThat');
         $this->assert($links[1]->parameters($object), [
-            CommandAction::IDENTIFIER_KEY => ['key' => 'one'],
+            CommandAction::IDENTIFIER_KEY => 'one',
         ]);
     }
 
@@ -87,7 +87,7 @@ class LinkActionsSpec extends Specification {
 
         $this->assert($links[0]->actionId(), 'Foo$Bar');
         $this->assert($links[0]->parameters($object), [
-            CommandAction::IDENTIFIER_KEY => ['key' => 'that'],
+            CommandAction::IDENTIFIER_KEY => 'that',
         ]);
     }
 

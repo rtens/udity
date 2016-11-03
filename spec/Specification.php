@@ -76,6 +76,7 @@ abstract class Specification {
             eval("namespace $this->namespace; 
             class $short extends \\" . AggregateIdentifier::class . " {}");
         }
+        $this->knownClasses[] = $class;
         return new $class($key ?: $aggregate);
     }
 

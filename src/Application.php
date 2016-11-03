@@ -72,7 +72,7 @@ class Application {
      * @return object|AggregateRoot
      */
     public function buildAggregateRoot(Command $command) {
-        $class = new \ReflectionClass($command->getAggregateIdentifier()->getAggregateName());
+        $class = new \ReflectionClass($command->getAggregateIdentifier()->aggregateName());
 
         if ($class->isSubclassOf(DomainObject::class)) {
             return $class->newInstanceArgs(array_merge([$command->getAggregateIdentifier()], $command->getArguments()));

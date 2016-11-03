@@ -7,10 +7,10 @@ namespace rtens\proto;
 abstract class AggregateList extends ProjectingList {
 
     protected function matchesEvent(Event $event) {
-        return $event->getAggregateIdentifier()->getAggregateName() == $this->aggregateClass()->getName();
+        return $event->getAggregateIdentifier()->aggregateName() == $this->aggregateClass()->getName();
     }
 
-    protected function createInstance(Event $event) {
+    protected function createItem(Event $event) {
         return $this->aggregateClass()->newInstance($event->getAggregateIdentifier());
     }
 

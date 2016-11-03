@@ -4,13 +4,17 @@ namespace rtens\proto;
 /**
  * AggregateRoot that automatically generates CRUD Commands.
  */
-class DomainObject extends AggregateRoot {
+abstract class DomainObject extends AggregateRoot {
 
     /**
      * @return AggregateIdentifier
      */
     public function getIdentifier() {
         return parent::getIdentifier();
+    }
+
+    public function caption() {
+        return $this->getIdentifier()->getKey();
     }
 
     public function handle(Command $command) {
