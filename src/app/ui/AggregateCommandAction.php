@@ -5,6 +5,7 @@ use rtens\domin\Action;
 use rtens\domin\Parameter;
 use rtens\proto\app\Application;
 use rtens\proto\Command;
+use watoki\reflect\type\ClassType;
 
 /**
  * Builds a Command from parameters inferred from a method
@@ -60,7 +61,7 @@ class AggregateCommandAction implements Action {
      * @return Parameter[]
      */
     public function parameters() {
-        return [];
+        return $this->initParameters();
     }
 
     /**
@@ -82,5 +83,17 @@ class AggregateCommandAction implements Action {
         $identifier = $parameters[self::IDENTIFIER_KEY];
 
         $this->app->handle(new Command($identifier, $this->name, $parameters));
+    }
+
+    /**
+     * @return Parameter[]
+     */
+    protected function initParameters() {
+        $class = $this->method->getDeclaringClass();
+        $identifierClass = $class->getName() . 'Identifier';
+
+        return [
+            new Parameter(self::IDENTIFIER_KEY, new ClassType($identifierClass), true)
+        ];
     }
 }

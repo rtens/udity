@@ -5,6 +5,10 @@ use rtens\proto\Command;
 
 class SingletonCommandAction extends AggregateCommandAction {
 
+    protected function initParameters() {
+        return [];
+    }
+
     /**
      * @param mixed[] $parameters Values indexed by name
      * @return void

@@ -1,5 +1,6 @@
 <?php
 namespace rtens\proto\app\ui;
+
 use rtens\domin\delivery\web\WebApplication;
 use rtens\proto\app\Application;
 
@@ -15,10 +16,6 @@ class WebInterface {
      * @var WebApplication
      */
     private $ui;
-    /**
-     * @var ActionFactory[]
-     */
-    private $factories = [];
 
     /**
      * @param Application $app
@@ -27,7 +24,6 @@ class WebInterface {
     public function __construct(Application $app, WebApplication $ui) {
         $this->app = $app;
         $this->ui = $ui;
-        $this->factories = $this->buildActionFactories();
     }
 
     /**
@@ -41,13 +37,20 @@ class WebInterface {
         ];
     }
 
+    /**
+     * @param string[] $domainClasses
+     */
     public function prepare(array $domainClasses) {
         $this->ui->types = new DefaultTypeFactory();
 
+        $this->registerActions($domainClasses);
+    }
+
+    private function registerActions(array $domainClasses) {
         foreach ($domainClasses as $class) {
             $class = new \ReflectionClass($class);
 
-            foreach ($this->factories as $factory) {
+            foreach ($this->buildActionFactories() as $factory) {
                 foreach ($this->getBaseClasses($class) as $base) {
                     if ($factory->getClass() == $base->getName()) {
                         foreach ($factory->buildActionsFrom($class) as $id => $action) {

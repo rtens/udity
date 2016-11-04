@@ -9,10 +9,6 @@ use watoki\reflect\type\ClassType;
 
 class IdentifyAggregatesSpec extends Specification {
 
-    public function before() {
-        $this->assert->incomplete('tabula rasa');
-    }
-
     function addIdentifierProperty() {
         $class = $this->define('Root', Aggregate::class, '
             function handleFoo() {
@@ -36,7 +32,6 @@ class IdentifyAggregatesSpec extends Specification {
             )
         ]);
     }
-
 
     function singletonAggregate() {
         $this->define('Root', Singleton::class, '
