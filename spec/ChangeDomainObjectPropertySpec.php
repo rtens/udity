@@ -6,10 +6,6 @@ use rtens\proto\domain\objects\DomainObject;
 
 class ChangeDomainObjectPropertySpec extends Specification {
 
-    public function before() {
-        $this->assert->incomplete('tabula rasa');
-    }
-
     function invalidSetter() {
         $this->define('Foo', DomainObject::class, '
             function setBar($baz, $bez) {}

@@ -6,6 +6,7 @@ use rtens\domin\delivery\web\WebApplication;
 use rtens\proto\app\Application;
 use rtens\proto\app\ui\ActionFactory;
 use rtens\proto\app\ui\actions\AggregateCommandAction;
+use rtens\proto\app\ui\actions\ChangeDomainObjectAction;
 use rtens\proto\app\ui\actions\CreateDomainObjectAction;
 use rtens\proto\app\ui\actions\QueryAction;
 use rtens\proto\domain\objects\DomainObject;
@@ -55,23 +56,17 @@ class DomainObjectActionFactory implements ActionFactory {
 
         foreach ($class->getMethods() as $method) {
             $methodName = Str::g($method->getName());
-//
-//            if ($methodName->startsWithButIsNot('set') && $method->getNumberOfParameters() == 1) {
-//                $this->addCommandAction($method, 'change' . $methodName->after('set'))
-//                    ->setPostFill($this->fillPropertyFunction($method));
-//
-//            }
-//              else
-            if ($methodName->startsWithButIsNot('do')) {
-                $actions[$this->id($class, $method->getName())] =
-                    new AggregateCommandAction($this->app, $method->getName(), $method, $this->ui->types);
+
+            if ($methodName->startsWithButIsNot('set') && $method->getNumberOfParameters() == 1) {
+                $command = 'change' . $methodName->after('set');
+                $actions[$this->id($class, $command)] =
+                    new ChangeDomainObjectAction($this->app, $command, $method, $this->ui->types);
+
+            } else if ($methodName->startsWithButIsNot('do')) {
+                $this->addCommand($class, $method->getName(), $method, $actions);
 
             } else if ($methodName->startsWithButIsNot('did')) {
-                $command = 'do' . $methodName->after('did');
-                if (!array_key_exists($class->getShortName() . '$' . $command, $this->ui->actions->getAllActions())) {
-                    $actions[$this->id($class, $command)] =
-                        new AggregateCommandAction($this->app, $command, $method, $this->ui->types);
-                }
+                $this->addCommand($class, 'do' . $methodName->after('did'), $method, $actions);
             }
         }
 
@@ -80,5 +75,10 @@ class DomainObjectActionFactory implements ActionFactory {
 
     private function id(\ReflectionClass $class, $command) {
         return $class->getShortName() . ($command ? '$' . $command : '');
+    }
+
+    private function addCommand(\ReflectionClass $class, $command, $method, &$actions) {
+        $actions[$this->id($class, $command)] =
+            new AggregateCommandAction($this->app, $command, $method, $this->ui->types);
     }
 }
