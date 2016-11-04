@@ -8,9 +8,10 @@ use rtens\domin\Action;
 interface ActionFactory {
 
     /**
-     * @return string
+     * @param \ReflectionClass $class
+     * @return bool
      */
-    public function getClass();
+    public function handles(\ReflectionClass $class);
 
     /**
      * @param \ReflectionClass $class

@@ -3,13 +3,10 @@ namespace rtens\proto;
 
 use rtens\domin\Parameter;
 use rtens\proto\domain\objects\DomainObject;
+use rtens\proto\domain\objects\DomainObjectList;
 use watoki\reflect\type\ClassType;
 
 class ProjectDomainObjectsSpec extends Specification {
-
-    public function before() {
-        $this->assert->incomplete('tabula rasa');
-    }
 
     function emptyObject() {
         $class = $this->define('Object', DomainObject::class);
@@ -59,13 +56,14 @@ class ProjectDomainObjectsSpec extends Specification {
 
         $this->recordThat('Wrong', 'three', 'Created');
 
+        /** @var DomainObjectList $objects */
         $objects = $this->execute('ObjectList$all');
 
-        $this->assert(count($objects->getAll()), 3);
-        $this->assert(is_object($objects->getAll()[0]));
-        $this->assert($objects->getAll()[0]->name, 'One');
-        $this->assert($objects->getAll()[1]->name, 'Two');
-        $this->assert($objects->getAll()[2]->name, 'Three');
+        $this->assert(count($objects->getList()), 3);
+        $this->assert(is_object($objects->getList()[0]));
+        $this->assert($objects->getList()[0]->name, 'One');
+        $this->assert($objects->getList()[1]->name, 'Two');
+        $this->assert($objects->getList()[2]->name, 'Three');
     }
 
     function doNotRegisterDomainObjectItself() {

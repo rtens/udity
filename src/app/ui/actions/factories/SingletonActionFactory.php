@@ -7,10 +7,11 @@ use rtens\proto\domain\command\Singleton;
 class SingletonActionFactory extends AggregateActionFactory {
 
     /**
-     * @return string
+     * @param \ReflectionClass $class
+     * @return bool
      */
-    public function getClass() {
-        return Singleton::class;
+    public function handles(\ReflectionClass $class) {
+        return $class->getParentClass() && $class->getParentClass()->getName() == Singleton::class;
     }
 
     protected function buildCommandAction($command, \ReflectionMethod $method) {

@@ -36,9 +36,9 @@ class WebInterface {
     protected function buildActionFactories() {
         return [
             new ProjectionActionFactory($this->app, $this->ui),
-            new AggregateActionFactory($this->app, $this->ui),
             new SingletonActionFactory($this->app, $this->ui),
-            new DomainObjectActionFactory($this->app, $this->ui)
+            new DomainObjectActionFactory($this->app, $this->ui),
+            new AggregateActionFactory($this->app, $this->ui),
         ];
     }
 
@@ -53,30 +53,21 @@ class WebInterface {
 
     private function registerActions(array $domainClasses) {
         foreach ($domainClasses as $class) {
-            $class = new \ReflectionClass($class);
+            $this->registerActionsOf(new \ReflectionClass($class));
+        }
+    }
 
-            foreach ($this->buildActionFactories() as $factory) {
-                foreach ($this->getBaseClasses($class) as $base) {
-                    if ($factory->getClass() == $base->getName()) {
-                        foreach ($factory->buildActionsFrom($class) as $id => $action) {
-                            $this->ui->actions->add($id, $action);
-                        }
-                        break;
-                    }
-                }
+    private function registerActionsOf($class) {
+        foreach ($this->buildActionFactories() as $factory) {
+            if ($factory->handles($class)) {
+                $this->registerActionBuiltBy($class, $factory);
             }
         }
     }
 
-    /**
-     * @param \ReflectionClass $class
-     * @return \ReflectionClass[]
-     */
-    private function getBaseClasses(\ReflectionClass $class) {
-        $bases = [];
-        if ($class->getParentClass()) {
-            $bases[] = $class->getParentClass();
+    private function registerActionBuiltBy(\ReflectionClass $class, ActionFactory $factory) {
+        foreach ($factory->buildActionsFrom($class) as $id => $action) {
+            $this->ui->actions->add($id, $action);
         }
-        return array_merge($bases, $class->getInterfaces());
     }
 }

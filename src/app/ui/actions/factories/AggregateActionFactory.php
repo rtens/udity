@@ -29,10 +29,11 @@ class AggregateActionFactory implements ActionFactory {
     }
 
     /**
-     * @return string
+     * @param \ReflectionClass $class
+     * @return bool
      */
-    public function getClass() {
-        return Aggregate::class;
+    public function handles(\ReflectionClass $class) {
+        return $class->getParentClass() && $class->getParentClass()->getName() == Aggregate::class;
     }
 
     /**

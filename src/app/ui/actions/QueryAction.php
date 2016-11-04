@@ -7,6 +7,7 @@ use rtens\domin\reflection\types\TypeFactory;
 use rtens\proto\app\Application;
 use rtens\proto\Query;
 use watoki\reflect\MethodAnalyzer;
+use watoki\reflect\type\ClassType;
 
 /**
  * Builds a Query with parameters inferred from a class
@@ -72,6 +73,10 @@ class QueryAction implements Action {
         foreach ($constructor->getParameters() as $parameter) {
             $type = $analyzer->getType($parameter, $this->types);
             $required = !$parameter->isDefaultValueAvailable();
+
+            if ($parameter->getName() == 'identifier') {
+                $type = new ClassType($this->class->getName() . 'Identifier');
+            }
 
             $parameters[] = (new Parameter($parameter->name, $type, $required));
         }

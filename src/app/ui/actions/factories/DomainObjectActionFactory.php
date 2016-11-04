@@ -6,6 +6,7 @@ use rtens\domin\delivery\web\WebApplication;
 use rtens\proto\app\Application;
 use rtens\proto\app\ui\ActionFactory;
 use rtens\proto\app\ui\actions\CreateDomainObjectAction;
+use rtens\proto\app\ui\actions\QueryAction;
 use rtens\proto\domain\objects\DomainObject;
 
 class DomainObjectActionFactory implements ActionFactory {
@@ -27,8 +28,12 @@ class DomainObjectActionFactory implements ActionFactory {
         $this->ui = $ui;
     }
 
-    public function getClass() {
-        return DomainObject::class;
+    /**
+     * @param \ReflectionClass $class
+     * @return bool
+     */
+    public function handles(\ReflectionClass $class) {
+        return $class->getParentClass() && $class->getParentClass()->getName() == DomainObject::class;
     }
 
     /**
@@ -42,11 +47,9 @@ class DomainObjectActionFactory implements ActionFactory {
             $actions[$this->id($class, 'create')] = new CreateDomainObjectAction($this->app, $class->getMethod('created'), $this->ui->types);
         }
 
-//        $this->addQueryAction($class);
-//
-//        $this->defineClassIfNotExists($class->getName() . 'List', AggregateList::class);
-//        $this->addQueryAction(new \ReflectionClass($class->getName() . 'List'), 'all');
-//
+        $listClass = new \ReflectionClass($class->getName() . 'List');
+        $actions[$this->id($listClass, 'all')] = new QueryAction($this->app, $listClass, $this->ui->types);
+
 //        foreach ($class->getMethods() as $method) {
 //            $methodName = Str::g($method->getName());
 //
