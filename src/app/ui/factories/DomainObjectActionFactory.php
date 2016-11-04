@@ -1,5 +1,5 @@
 <?php
-namespace rtens\proto\app\ui\actions\factories;
+namespace rtens\proto\app\ui\factories;
 
 use rtens\domin\Action;
 use rtens\domin\delivery\web\WebApplication;
@@ -54,6 +54,12 @@ class DomainObjectActionFactory implements ActionFactory {
         $listClass = new \ReflectionClass($class->getName() . 'List');
         $actions[$this->id($listClass, 'all')] = new QueryAction($this->app, $listClass, $this->ui->types);
 
+        $actions = $this->buildActionsFromMethods($class, $actions);
+
+        return $actions;
+    }
+
+    private function buildActionsFromMethods(\ReflectionClass $class, $actions) {
         foreach ($class->getMethods() as $method) {
             $methodName = Str::g($method->getName());
 
@@ -69,7 +75,6 @@ class DomainObjectActionFactory implements ActionFactory {
                 $this->addCommand($class, 'do' . $methodName->after('did'), $method, $actions);
             }
         }
-
         return $actions;
     }
 

@@ -3,10 +3,10 @@ namespace rtens\proto\app\ui;
 
 use rtens\domin\delivery\web\WebApplication;
 use rtens\proto\app\Application;
-use rtens\proto\app\ui\actions\factories\AggregateActionFactory;
-use rtens\proto\app\ui\actions\factories\ProjectionActionFactory;
-use rtens\proto\app\ui\actions\factories\SingletonActionFactory;
-use rtens\proto\app\ui\actions\factories\DomainObjectActionFactory;
+use rtens\proto\app\ui\factories\AggregateActionFactory;
+use rtens\proto\app\ui\factories\ProjectionActionFactory;
+use rtens\proto\app\ui\factories\SingletonActionFactory;
+use rtens\proto\app\ui\factories\DomainObjectActionFactory;
 
 /**
  * Prepares the web interface (e.g. registers Actions, Links and Field)

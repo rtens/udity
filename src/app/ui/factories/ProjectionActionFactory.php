@@ -1,5 +1,5 @@
 <?php
-namespace rtens\proto\app\ui\actions\factories;
+namespace rtens\proto\app\ui\factories;
 
 use rtens\domin\Action;
 use rtens\domin\delivery\web\WebApplication;

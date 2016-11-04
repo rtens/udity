@@ -1,5 +1,5 @@
 <?php
-namespace rtens\proto\app\ui\actions\factories;
+namespace rtens\proto\app\ui\factories;
 
 use rtens\proto\app\ui\actions\SingletonCommandAction;
 use rtens\proto\domain\command\Singleton;
