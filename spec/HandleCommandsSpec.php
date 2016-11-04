@@ -76,7 +76,7 @@ class HandleCommandsSpec extends Specification {
             'two' => 'That'
         ]);
 
-        $this->assert($this->recordedEvents()[0]->getArguments(), ['this' => 'AndThat']);
+        $this->assert($this->recordedEvents()[0]->getPayload(), ['this' => 'AndThat']);
     }
 
     function applyEvents() {
@@ -96,6 +96,6 @@ class HandleCommandsSpec extends Specification {
         ]);
 
         $this->assert($this->recordedEvents()[1]->getName(), 'Applied');
-        $this->assert($this->recordedEvents()[1]->getArguments(), ['ThatAndThis']);
+        $this->assert($this->recordedEvents()[1]->getPayload(), ['ThatAndThis']);
     }
 }

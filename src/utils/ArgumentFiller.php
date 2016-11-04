@@ -1,5 +1,5 @@
 <?php
-namespace rtens\proto;
+namespace rtens\proto\utils;
 
 use watoki\reflect\MethodAnalyzer;
 

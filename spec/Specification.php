@@ -5,7 +5,7 @@ use rtens\domin\delivery\web\WebApplication;
 use rtens\proto\AggregateIdentifier;
 use rtens\proto\Application;
 use rtens\proto\Event;
-use rtens\proto\Time;
+use rtens\proto\utils\Time;
 use rtens\scrut\Assert;
 use watoki\factory\Factory;
 use watoki\karma\stores\EventStore;
