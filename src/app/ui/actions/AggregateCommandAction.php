@@ -82,6 +82,18 @@ class AggregateCommandAction implements Action {
     }
 
     /**
+     * @return Parameter[]
+     */
+    protected function initParameters() {
+        $class = $this->method->getDeclaringClass();
+        $identifierClass = $class->getName() . 'Identifier';
+
+        return [
+            new Parameter(self::IDENTIFIER_KEY, new ClassType($identifierClass), true)
+        ];
+    }
+
+    /**
      * Fills out partially available parameters
      *
      * @param array $parameters Available values indexed by name
@@ -98,19 +110,8 @@ class AggregateCommandAction implements Action {
      */
     public function execute(array $parameters) {
         $identifier = $parameters[self::IDENTIFIER_KEY];
+        unset($parameters[self::IDENTIFIER_KEY]);
 
         $this->app->handle(new Command($identifier, $this->name, $parameters));
-    }
-
-    /**
-     * @return Parameter[]
-     */
-    protected function initParameters() {
-        $class = $this->method->getDeclaringClass();
-        $identifierClass = $class->getName() . 'Identifier';
-
-        return [
-            new Parameter(self::IDENTIFIER_KEY, new ClassType($identifierClass), true)
-        ];
     }
 }

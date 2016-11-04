@@ -5,9 +5,11 @@ use rtens\domin\Action;
 use rtens\domin\delivery\web\WebApplication;
 use rtens\proto\app\Application;
 use rtens\proto\app\ui\ActionFactory;
+use rtens\proto\app\ui\actions\AggregateCommandAction;
 use rtens\proto\app\ui\actions\CreateDomainObjectAction;
 use rtens\proto\app\ui\actions\QueryAction;
 use rtens\proto\domain\objects\DomainObject;
+use rtens\proto\utils\Str;
 
 class DomainObjectActionFactory implements ActionFactory {
     /**
@@ -44,29 +46,34 @@ class DomainObjectActionFactory implements ActionFactory {
         $actions = [];
 
         if ($class->hasMethod('created')) {
-            $actions[$this->id($class, 'create')] = new CreateDomainObjectAction($this->app, $class->getMethod('created'), $this->ui->types);
+            $actions[$this->id($class, 'create')] =
+                new CreateDomainObjectAction($this->app, $class->getMethod('created'), $this->ui->types);
         }
 
         $listClass = new \ReflectionClass($class->getName() . 'List');
         $actions[$this->id($listClass, 'all')] = new QueryAction($this->app, $listClass, $this->ui->types);
 
-//        foreach ($class->getMethods() as $method) {
-//            $methodName = Str::g($method->getName());
+        foreach ($class->getMethods() as $method) {
+            $methodName = Str::g($method->getName());
 //
 //            if ($methodName->startsWithButIsNot('set') && $method->getNumberOfParameters() == 1) {
 //                $this->addCommandAction($method, 'change' . $methodName->after('set'))
 //                    ->setPostFill($this->fillPropertyFunction($method));
 //
-//            } else if ($methodName->startsWithButIsNot('do')) {
-//                $this->addCommandAction($method, $methodName);
-//
-//            } else if ($methodName->startsWithButIsNot('did')) {
-//                $command = 'do' . $methodName->after('did');
-//                if (!array_key_exists($class->getShortName() . '$' . $command, $this->ui->actions->getAllActions())) {
-//                    $this->addCommandAction($method, $command);
-//                }
 //            }
-//        }
+//              else
+            if ($methodName->startsWithButIsNot('do')) {
+                $actions[$this->id($class, $method->getName())] =
+                    new AggregateCommandAction($this->app, $method->getName(), $method, $this->ui->types);
+
+            } else if ($methodName->startsWithButIsNot('did')) {
+                $command = 'do' . $methodName->after('did');
+                if (!array_key_exists($class->getShortName() . '$' . $command, $this->ui->actions->getAllActions())) {
+                    $actions[$this->id($class, $command)] =
+                        new AggregateCommandAction($this->app, $command, $method, $this->ui->types);
+                }
+            }
+        }
 
         return $actions;
     }

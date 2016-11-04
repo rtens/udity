@@ -6,10 +6,6 @@ use rtens\proto\domain\objects\DomainObject;
 
 class InvokeDomainObjectMethodsSpec extends Specification {
 
-    public function before() {
-        $this->assert->incomplete('tabula rasa');
-    }
-
     function invalidMethodName() {
         $this->define('Foo', DomainObject::class, '
             function did() {}
