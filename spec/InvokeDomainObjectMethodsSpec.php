@@ -1,8 +1,8 @@
 <?php
 namespace spec\rtens\proto;
 
-use rtens\proto\CommandAction;
-use rtens\proto\DomainObject;
+use rtens\proto\app\ui\CommandAction;
+use rtens\proto\domain\objects\DomainObject;
 use rtens\proto\Event;
 
 class InvokeDomainObjectMethodsSpec extends Specification {

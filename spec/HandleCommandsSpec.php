@@ -1,10 +1,10 @@
 <?php
 namespace spec\rtens\proto;
 
-use rtens\proto\AggregateRoot;
-use rtens\proto\CommandAction;
+use rtens\proto\app\ui\CommandAction;
+use rtens\proto\domain\command\Aggregate;
+use rtens\proto\domain\command\Singleton;
 use rtens\proto\Event;
-use rtens\proto\SingletonAggregateRoot;
 
 class HandleCommandsSpec extends Specification {
 
@@ -19,13 +19,13 @@ class HandleCommandsSpec extends Specification {
     }
 
     function noMethods() {
-        $this->define('Foo', AggregateRoot::class);
+        $this->define('Foo', Aggregate::class);
 
         $this->assert($this->actionIds(), []);
     }
 
     function nothingHappens() {
-        $this->define('Root', AggregateRoot::class, '
+        $this->define('Root', Aggregate::class, '
             function handleFoo() {}
         ');
 
@@ -36,7 +36,7 @@ class HandleCommandsSpec extends Specification {
     }
 
     function singleton() {
-        $this->define('Root', SingletonAggregateRoot::class, '
+        $this->define('Root', Singleton::class, '
             function handleFoo() {}
         ');
 
@@ -45,7 +45,7 @@ class HandleCommandsSpec extends Specification {
     }
 
     function appendEvents() {
-        $this->define('Root', AggregateRoot::class, '
+        $this->define('Root', Aggregate::class, '
             function handleFoo() {
                 $this->recordThat("This happened");
             }
@@ -64,7 +64,7 @@ class HandleCommandsSpec extends Specification {
     }
 
     function withArguments() {
-        $this->define('Root', AggregateRoot::class, '
+        $this->define('Root', Aggregate::class, '
             function handleFoo($two, $one) {
                 $this->recordThat("This happened", ["this" => $one . $two]);
             }
@@ -80,7 +80,7 @@ class HandleCommandsSpec extends Specification {
     }
 
     function applyEvents() {
-        $this->define('Root', AggregateRoot::class, '
+        $this->define('Root', Aggregate::class, '
             function applyThat($two, \\' . Event::class . ' $e, $one) {
                 $this->applied = $e->getName() . $one . $two;
             }

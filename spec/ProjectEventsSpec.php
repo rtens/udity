@@ -2,10 +2,10 @@
 namespace spec\rtens\proto;
 
 use rtens\domin\Parameter;
+use rtens\proto\domain\command\Singleton;
+use rtens\proto\domain\query\DefaultProjection;
 use rtens\proto\Event;
-use rtens\proto\Projecting;
 use rtens\proto\Projection;
-use rtens\proto\SingletonAggregateRoot;
 use watoki\reflect\type\StringType;
 
 class ProjectEventsSpec extends Specification {
@@ -21,7 +21,7 @@ class ProjectEventsSpec extends Specification {
     }
 
     function emptyProjection() {
-        $this->define('Bar', Projection::class);
+        $this->define('Bar', DefaultProjection::class);
 
         $result = $this->execute('Bar');
         $this->assert(is_object($result));
@@ -29,7 +29,7 @@ class ProjectEventsSpec extends Specification {
     }
 
     function applyEvents() {
-        $this->define('Bar', Projection::class, '
+        $this->define('Bar', DefaultProjection::class, '
             function applyThat($two, \rtens\proto\Event $e, $one) {
                 $this->applied = $e->getName() . $one . $two;
             }
@@ -43,7 +43,7 @@ class ProjectEventsSpec extends Specification {
     }
 
     function passArguments() {
-        $this->define('Bar', Projection::class, '
+        $this->define('Bar', DefaultProjection::class, '
             function __construct($one, $two) {
                 $this->passed = $one . $two;
             }
@@ -63,11 +63,11 @@ class ProjectEventsSpec extends Specification {
     }
 
     function aggregateAsProjection() {
-        $this->define('Bar', SingletonAggregateRoot::class, '
+        $this->define('Bar', Singleton::class, '
             function applyThat() {
                 $this->applied = true;
             }
-        ', Projecting::class);
+        ', Projection::class);
 
         $this->recordThat('Bar', 'asd', 'That');
 
@@ -80,7 +80,7 @@ class ProjectEventsSpec extends Specification {
             function apply(\\' . Event::class . ' $e) {
                 $this->applied = true;
             }
-        ', Projecting::class);
+        ', Projection::class);
 
         $this->recordThat('Foo', 'asd', 'That');
 
@@ -92,7 +92,7 @@ class ProjectEventsSpec extends Specification {
     }
 
     function fillDefaultValues() {
-        $this->define('Foo', Projection::class, '
+        $this->define('Foo', DefaultProjection::class, '
             function __construct($one = "that one") {}
             function setFoo($foo) {}
         ');

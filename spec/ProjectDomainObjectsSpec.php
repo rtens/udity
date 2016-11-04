@@ -2,7 +2,7 @@
 namespace spec\rtens\proto;
 
 use rtens\domin\Parameter;
-use rtens\proto\DomainObject;
+use rtens\proto\domain\objects\DomainObject;
 use watoki\reflect\type\ClassType;
 
 class ProjectDomainObjectsSpec extends Specification {

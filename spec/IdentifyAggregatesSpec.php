@@ -3,16 +3,16 @@ namespace spec\rtens\proto;
 
 use rtens\domin\Parameter;
 use rtens\proto\AggregateIdentifier;
-use rtens\proto\AggregateRoot;
-use rtens\proto\CommandAction;
+use rtens\proto\app\ui\CommandAction;
+use rtens\proto\domain\command\Aggregate;
+use rtens\proto\domain\command\Singleton;
 use rtens\proto\Event;
-use rtens\proto\SingletonAggregateRoot;
 use watoki\reflect\type\ClassType;
 
 class IdentifyAggregatesSpec extends Specification {
 
     function addIdentifierProperty() {
-        $class = $this->define('Root', AggregateRoot::class, '
+        $class = $this->define('Root', Aggregate::class, '
             function handleFoo() {
                 $this->recordThat("This happened", [$this->getIdentifier()]);
             }
@@ -37,7 +37,7 @@ class IdentifyAggregatesSpec extends Specification {
 
 
     function singletonAggregate() {
-        $this->define('Root', SingletonAggregateRoot::class, '
+        $this->define('Root', Singleton::class, '
             function handleFoo() {
                 $this->recordThat("This happened", [$this->getIdentifier()]);
             }
@@ -58,7 +58,7 @@ class IdentifyAggregatesSpec extends Specification {
     }
 
     function staticIdentifier() {
-        $this->define('Root', AggregateRoot::class, '
+        $this->define('Root', Aggregate::class, '
             function handleFoo() {
                 $this->recordThat("This happened", [$this->getIdentifier()]);
             }

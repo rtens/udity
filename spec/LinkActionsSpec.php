@@ -2,19 +2,19 @@
 namespace spec\rtens\proto;
 
 use rtens\domin\delivery\web\renderers\link\types\ClassLink;
-use rtens\proto\AggregateRoot;
-use rtens\proto\CommandAction;
-use rtens\proto\DomainObject;
-use rtens\proto\Projection;
-use rtens\proto\SingletonAggregateRoot;
+use rtens\proto\app\ui\CommandAction;
+use rtens\proto\domain\command\Aggregate;
+use rtens\proto\domain\command\Singleton;
+use rtens\proto\domain\objects\DomainObject;
+use rtens\proto\domain\query\DefaultProjection;
 
 class LinkActionsSpec extends Specification {
 
     function linkAggregateToProjection() {
-        $this->define('Foo', AggregateRoot::class, '
+        $this->define('Foo', Aggregate::class, '
             function handleBar() {}
         ');
-        $projection = $this->define('Bar', Projection::class, '
+        $projection = $this->define('Bar', DefaultProjection::class, '
             /** @var FooIdentifier */
             public $that;
             function __construct($in) { $this->that = $in; }
@@ -33,8 +33,8 @@ class LinkActionsSpec extends Specification {
     }
 
     function linkProjectionToProjection() {
-        $this->define('Foo', AggregateRoot::class);
-        $projection = $this->define('Bar', Projection::class, '
+        $this->define('Foo', Aggregate::class);
+        $projection = $this->define('Bar', DefaultProjection::class, '
             /** @var FooIdentifier */
             public $that;
             function __construct(FooIdentifier $in) { $this->that = $in; }
@@ -75,7 +75,7 @@ class LinkActionsSpec extends Specification {
     }
 
     function linkActionsToIdentifiers() {
-        $this->define('Foo', AggregateRoot::class, '
+        $this->define('Foo', Aggregate::class, '
             function handleBar() {}
         ');
 
@@ -92,7 +92,7 @@ class LinkActionsSpec extends Specification {
     }
 
     function linkAggregateToSingletons() {
-        $projection = $this->define('Foo', SingletonAggregateRoot::class, '
+        $projection = $this->define('Foo', Singleton::class, '
             function handleBar() {}
         ');
 

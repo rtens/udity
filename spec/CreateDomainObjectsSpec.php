@@ -2,7 +2,7 @@
 namespace spec\rtens\proto;
 
 use rtens\domin\Parameter;
-use rtens\proto\DomainObject;
+use rtens\proto\domain\objects\DomainObject;
 use watoki\reflect\type\StringType;
 
 class CreateDomainObjectsSpec extends Specification {
@@ -30,7 +30,7 @@ class CreateDomainObjectsSpec extends Specification {
 
         $this->assert(count($this->recordedEvents()), 1);
         $this->assert($this->recordedEvents()[0]->getName(), 'Created');
-        $this->assert($this->recordedEvents()[0]->getAggregateIdentifier()->getAggregateName(), $objectClass);
+        $this->assert($this->recordedEvents()[0]->getAggregateIdentifier()->getName(), $objectClass);
     }
 
     function createFoo() {
