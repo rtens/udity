@@ -1,10 +1,9 @@
 <?php
-namespace spec\rtens\proto;
+namespace rtens\proto;
 
 use rtens\proto\app\ui\CommandAction;
 use rtens\proto\domain\command\Aggregate;
 use rtens\proto\domain\command\Singleton;
-use rtens\proto\Event;
 
 class HandleCommandsSpec extends Specification {
 

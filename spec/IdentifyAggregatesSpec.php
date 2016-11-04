@@ -1,12 +1,10 @@
 <?php
-namespace spec\rtens\proto;
+namespace rtens\proto;
 
 use rtens\domin\Parameter;
-use rtens\proto\AggregateIdentifier;
 use rtens\proto\app\ui\CommandAction;
 use rtens\proto\domain\command\Aggregate;
 use rtens\proto\domain\command\Singleton;
-use rtens\proto\Event;
 use watoki\reflect\type\ClassType;
 
 class IdentifyAggregatesSpec extends Specification {

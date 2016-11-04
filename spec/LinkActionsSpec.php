@@ -1,5 +1,5 @@
 <?php
-namespace spec\rtens\proto;
+namespace rtens\proto;
 
 use rtens\domin\delivery\web\renderers\link\types\ClassLink;
 use rtens\proto\app\ui\CommandAction;

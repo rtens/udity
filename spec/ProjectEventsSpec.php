@@ -1,11 +1,9 @@
 <?php
-namespace spec\rtens\proto;
+namespace rtens\proto;
 
 use rtens\domin\Parameter;
 use rtens\proto\domain\command\Singleton;
 use rtens\proto\domain\query\DefaultProjection;
-use rtens\proto\Event;
-use rtens\proto\Projection;
 use watoki\reflect\type\StringType;
 
 class ProjectEventsSpec extends Specification {

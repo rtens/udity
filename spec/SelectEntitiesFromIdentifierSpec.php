@@ -1,13 +1,11 @@
 <?php
-namespace spec\rtens\proto;
+namespace rtens\proto;
 
 use rtens\domin\Parameter;
-use rtens\proto\AggregateIdentifier;
 use rtens\proto\app\ui\IdentifierEnumerationField;
 use rtens\proto\app\ui\IdentifierField;
 use rtens\proto\domain\objects\DomainObject;
 use rtens\proto\domain\query\IdentifierOptionsList;
-use rtens\proto\Event;
 use watoki\reflect\type\ClassType;
 
 class SelectEntitiesFromIdentifierSpec extends Specification {

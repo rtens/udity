@@ -1,10 +1,8 @@
 <?php
-namespace spec\rtens\proto;
+namespace rtens\proto;
 
 use rtens\domin\delivery\web\WebApplication;
-use rtens\proto\AggregateIdentifier;
 use rtens\proto\app\Application;
-use rtens\proto\Event;
 use rtens\proto\utils\Time;
 use rtens\scrut\Assert;
 use watoki\factory\Factory;

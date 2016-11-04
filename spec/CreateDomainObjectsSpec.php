@@ -1,5 +1,5 @@
 <?php
-namespace spec\rtens\proto;
+namespace rtens\proto;
 
 use rtens\domin\Parameter;
 use rtens\proto\domain\objects\DomainObject;
