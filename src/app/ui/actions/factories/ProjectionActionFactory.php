@@ -1,12 +1,14 @@
 <?php
-namespace rtens\proto\app\ui;
+namespace rtens\proto\app\ui\actions\factories;
 
 use rtens\domin\Action;
 use rtens\domin\delivery\web\WebApplication;
 use rtens\proto\app\Application;
+use rtens\proto\app\ui\ActionFactory;
+use rtens\proto\app\ui\actions\QueryAction;
 use rtens\proto\Projection;
 
-class QueryActionFactory implements ActionFactory {
+class ProjectionActionFactory implements ActionFactory {
     /**
      * @var Application
      */

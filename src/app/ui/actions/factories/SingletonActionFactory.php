@@ -1,6 +1,7 @@
 <?php
-namespace rtens\proto\app\ui;
+namespace rtens\proto\app\ui\actions\factories;
 
+use rtens\proto\app\ui\actions\SingletonCommandAction;
 use rtens\proto\domain\command\Singleton;
 
 class SingletonActionFactory extends AggregateActionFactory {

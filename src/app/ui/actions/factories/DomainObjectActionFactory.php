@@ -1,9 +1,11 @@
 <?php
-namespace rtens\proto\app\ui;
+namespace rtens\proto\app\ui\actions\factories;
 
 use rtens\domin\Action;
 use rtens\domin\delivery\web\WebApplication;
 use rtens\proto\app\Application;
+use rtens\proto\app\ui\ActionFactory;
+use rtens\proto\app\ui\actions\CreateDomainObjectAction;
 use rtens\proto\domain\objects\DomainObject;
 
 class DomainObjectActionFactory implements ActionFactory {

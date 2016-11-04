@@ -1,7 +1,7 @@
 <?php
 namespace rtens\proto;
 
-use rtens\proto\app\ui\AggregateCommandAction;
+use rtens\proto\app\ui\actions\AggregateCommandAction;
 use rtens\proto\domain\objects\DomainObject;
 
 class ChangeDomainObjectPropertySpec extends Specification {

@@ -1,5 +1,5 @@
 <?php
-namespace rtens\proto\app\ui;
+namespace rtens\proto\app\ui\actions;
 
 use rtens\proto\Command;
 

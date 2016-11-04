@@ -2,7 +2,7 @@
 namespace rtens\proto;
 
 use rtens\domin\delivery\web\renderers\link\types\ClassLink;
-use rtens\proto\app\ui\AggregateCommandAction;
+use rtens\proto\app\ui\actions\AggregateCommandAction;
 use rtens\proto\domain\command\Aggregate;
 use rtens\proto\domain\command\Singleton;
 use rtens\proto\domain\objects\DomainObject;

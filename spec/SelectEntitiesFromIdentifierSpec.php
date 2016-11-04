@@ -2,8 +2,8 @@
 namespace rtens\proto;
 
 use rtens\domin\Parameter;
-use rtens\proto\app\ui\IdentifierEnumerationField;
-use rtens\proto\app\ui\IdentifierField;
+use rtens\proto\app\ui\fields\IdentifierEnumerationField;
+use rtens\proto\app\ui\fields\IdentifierField;
 use rtens\proto\domain\objects\DomainObject;
 use rtens\proto\domain\query\IdentifierOptionsList;
 use watoki\reflect\type\ClassType;

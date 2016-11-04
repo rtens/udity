@@ -1,5 +1,5 @@
 <?php
-namespace rtens\proto\app\ui;
+namespace rtens\proto\app\ui\fields;
 
 use rtens\domin\delivery\web\Element;
 use rtens\domin\delivery\web\WebField;
