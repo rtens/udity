@@ -7,6 +7,10 @@ use watoki\reflect\type\ClassType;
 
 class ProjectDomainObjectsSpec extends Specification {
 
+    public function before() {
+        $this->assert->incomplete('tabula rasa');
+    }
+
     function emptyObject() {
         $class = $this->define('Object', DomainObject::class);
 

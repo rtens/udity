@@ -10,6 +10,10 @@ use watoki\reflect\type\ClassType;
 
 class SelectEntitiesFromIdentifierSpec extends Specification {
 
+    public function before() {
+        $this->assert->incomplete('tabula rasa');
+    }
+
     function showOptionsForDomainObject() {
         $this->define('Foo', DomainObject::class);
         $parameter = new Parameter('bla', new ClassType(get_class($this->id('Foo'))));

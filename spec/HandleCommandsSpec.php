@@ -7,6 +7,10 @@ use rtens\proto\domain\command\Singleton;
 
 class HandleCommandsSpec extends Specification {
 
+    public function before() {
+        $this->assert->incomplete('tabula rasa');
+    }
+
     function aggregateDoesNotExist() {
         try {
             $this->execute('Root$Bar');

@@ -7,6 +7,10 @@ use watoki\reflect\type\StringType;
 
 class CreateDomainObjectsSpec extends Specification {
 
+    public function before() {
+        $this->assert->incomplete('tabula rasa');
+    }
+
     function emptyObject() {
         $this->define('Foo', DomainObject::class);
 

@@ -10,6 +10,10 @@ use rtens\proto\domain\query\DefaultProjection;
 
 class LinkActionsSpec extends Specification {
 
+    public function before() {
+        $this->assert->incomplete('tabula rasa');
+    }
+
     function linkAggregateToProjection() {
         $this->define('Foo', Aggregate::class, '
             function handleBar() {}

@@ -8,6 +8,10 @@ use watoki\reflect\type\StringType;
 
 class ProjectEventsSpec extends Specification {
 
+    public function before() {
+        $this->assert->incomplete('tabula rasa');
+    }
+
     function projectionDoesNotExist() {
         try {
             $this->execute('Foo');
