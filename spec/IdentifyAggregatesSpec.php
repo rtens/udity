@@ -2,7 +2,7 @@
 namespace rtens\proto;
 
 use rtens\domin\Parameter;
-use rtens\proto\app\ui\CommandAction;
+use rtens\proto\app\ui\AggregateCommandAction;
 use rtens\proto\domain\command\Aggregate;
 use rtens\proto\domain\command\Singleton;
 use watoki\reflect\type\ClassType;
@@ -21,11 +21,11 @@ class IdentifyAggregatesSpec extends Specification {
         ');
 
         $this->execute('Root$Foo', [
-            CommandAction::IDENTIFIER_KEY => $this->id('Root', 'baz')
+            AggregateCommandAction::IDENTIFIER_KEY => $this->id('Root', 'baz')
         ]);
 
         $this->assert($this->action('Root$Foo')->parameters(), [
-            new Parameter(CommandAction::IDENTIFIER_KEY, new ClassType($class . 'Identifier'), true)
+            new Parameter(AggregateCommandAction::IDENTIFIER_KEY, new ClassType($class . 'Identifier'), true)
         ]);
 
         $this->assert($this->recordedEvents(), [
@@ -46,7 +46,7 @@ class IdentifyAggregatesSpec extends Specification {
         ');
 
         $this->execute('Root$Foo', [
-            CommandAction::IDENTIFIER_KEY => $this->id('Root', 'baz')
+            AggregateCommandAction::IDENTIFIER_KEY => $this->id('Root', 'baz')
         ]);
 
         $this->assert($this->action('Root$Foo')->parameters(), []);
@@ -68,11 +68,11 @@ class IdentifyAggregatesSpec extends Specification {
         $identifierClass = $this->define('RootIdentifier', AggregateIdentifier::class);
 
         $this->execute('Root$Foo', [
-            CommandAction::IDENTIFIER_KEY => new $identifierClass('bar')
+            AggregateCommandAction::IDENTIFIER_KEY => new $identifierClass('bar')
         ]);
 
         $this->assert($this->action('Root$Foo')->parameters(), [
-            new Parameter(CommandAction::IDENTIFIER_KEY, new ClassType($identifierClass), true)
+            new Parameter(AggregateCommandAction::IDENTIFIER_KEY, new ClassType($identifierClass), true)
         ]);
 
         $this->assert(get_class($this->recordedEvents()[0]->getAggregateIdentifier()),

@@ -1,7 +1,7 @@
 <?php
 namespace rtens\proto;
 
-use rtens\proto\app\ui\CommandAction;
+use rtens\proto\app\ui\AggregateCommandAction;
 use rtens\proto\domain\objects\DomainObject;
 
 class InvokeDomainObjectMethodsSpec extends Specification {
@@ -32,7 +32,7 @@ class InvokeDomainObjectMethodsSpec extends Specification {
         ');
 
         $this->execute('Foo$doBar', [
-            CommandAction::IDENTIFIER_KEY => $this->id('Foo', 'one'),
+            AggregateCommandAction::IDENTIFIER_KEY => $this->id('Foo', 'one'),
             'baz' => 'bla',
         ]);
 
@@ -52,7 +52,7 @@ class InvokeDomainObjectMethodsSpec extends Specification {
 
         try {
             $this->execute('Foo$doBar', [
-                CommandAction::IDENTIFIER_KEY => $this->id('Foo', 'one'),
+                AggregateCommandAction::IDENTIFIER_KEY => $this->id('Foo', 'one'),
                 'baz' => 'bla',
             ]);
         } catch (\Exception $exception) {
@@ -70,7 +70,7 @@ class InvokeDomainObjectMethodsSpec extends Specification {
         ');
 
         $this->execute('Foo$doBar', [
-            CommandAction::IDENTIFIER_KEY => $this->id('Foo', 'one'),
+            AggregateCommandAction::IDENTIFIER_KEY => $this->id('Foo', 'one'),
             'baz' => 'bla',
         ]);
 

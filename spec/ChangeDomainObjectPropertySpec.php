@@ -1,7 +1,7 @@
 <?php
 namespace rtens\proto;
 
-use rtens\proto\app\ui\CommandAction;
+use rtens\proto\app\ui\AggregateCommandAction;
 use rtens\proto\domain\objects\DomainObject;
 
 class ChangeDomainObjectPropertySpec extends Specification {
@@ -28,7 +28,7 @@ class ChangeDomainObjectPropertySpec extends Specification {
         ');
 
         $this->execute('Foo$changeBar', [
-            CommandAction::IDENTIFIER_KEY => $this->id('Foo', 'one'),
+            AggregateCommandAction::IDENTIFIER_KEY => $this->id('Foo', 'one'),
             'baz' => 'new foo'
         ]);
 
@@ -72,11 +72,11 @@ class ChangeDomainObjectPropertySpec extends Specification {
 
         $this->runApp();
         $filled = $this->action('Foo$changeBar')->fill([
-            CommandAction::IDENTIFIER_KEY => $this->id('Foo', 'one')
+            AggregateCommandAction::IDENTIFIER_KEY => $this->id('Foo', 'one')
         ]);
 
         $this->assert($filled, [
-            CommandAction::IDENTIFIER_KEY => $this->id('Foo', 'one'),
+            AggregateCommandAction::IDENTIFIER_KEY => $this->id('Foo', 'one'),
             'baz' => 'new bar'
         ]);
     }

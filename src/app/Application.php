@@ -2,6 +2,7 @@
 namespace rtens\proto\app;
 
 use rtens\domin\delivery\web\WebApplication;
+use rtens\proto\app\ui\WebInterface;
 use rtens\proto\Command;
 use rtens\proto\domain\command\Aggregate;
 use rtens\proto\Projection;
@@ -21,16 +22,11 @@ class Application {
      * @var Karma
      */
     private $karma;
+
     /**
-     * @var string[]
+     * @param EventStore $eventStore
      */
-    private $knownClasses;
-
-    public function __construct(EventStore $eventStore, array $knownClasses = null) {
-        $this->knownClasses = is_null($knownClasses)
-            ? get_declared_classes()
-            : $knownClasses;
-
+    public function __construct(EventStore $eventStore) {
         $aggregates = (new GenericAggregateFactory([$this, 'buildAggregate']))
             ->setGetAggregateIdentifierCallback([$this, 'getAggregateIdentifier']);
 
@@ -42,9 +38,13 @@ class Application {
 
     /**
      * @param WebApplication $ui
-     * @return void
+     * @param string[] $domainClasses
      */
-    public function run(WebApplication $ui) {
+    public function run(WebApplication $ui, array $domainClasses) {
+        $generator = new ClassGenerator();
+        $webInterface = new WebInterface($this, $ui);
+
+        $webInterface->prepare($generator->inferClasses($domainClasses));
     }
 
     /**

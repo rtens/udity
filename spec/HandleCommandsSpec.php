@@ -1,15 +1,11 @@
 <?php
 namespace rtens\proto;
 
-use rtens\proto\app\ui\CommandAction;
+use rtens\proto\app\ui\AggregateCommandAction;
 use rtens\proto\domain\command\Aggregate;
 use rtens\proto\domain\command\Singleton;
 
 class HandleCommandsSpec extends Specification {
-
-    public function before() {
-        $this->assert->incomplete('tabula rasa');
-    }
 
     function aggregateDoesNotExist() {
         try {
@@ -33,17 +29,8 @@ class HandleCommandsSpec extends Specification {
         ');
 
         $this->execute('Root$Foo', [
-            CommandAction::IDENTIFIER_KEY => $this->id('Root', 'baz')
+            AggregateCommandAction::IDENTIFIER_KEY => $this->id('Root', 'baz')
         ]);
-        $this->assert($this->recordedEvents(), []);
-    }
-
-    function singleton() {
-        $this->define('Root', Singleton::class, '
-            function handleFoo() {}
-        ');
-
-        $this->execute('Root$Foo');
         $this->assert($this->recordedEvents(), []);
     }
 
@@ -55,7 +42,7 @@ class HandleCommandsSpec extends Specification {
         ');
 
         $this->execute('Root$Foo', [
-            CommandAction::IDENTIFIER_KEY => $this->id('Root', 'baz')
+            AggregateCommandAction::IDENTIFIER_KEY => $this->id('Root', 'baz')
         ]);
 
         $this->assert($this->recordedEvents(), [
@@ -74,7 +61,7 @@ class HandleCommandsSpec extends Specification {
         ');
 
         $this->execute('Root$Foo', [
-            CommandAction::IDENTIFIER_KEY => $this->id('Root', 'baz'),
+            AggregateCommandAction::IDENTIFIER_KEY => $this->id('Root', 'baz'),
             'one' => 'And',
             'two' => 'That'
         ]);
@@ -95,10 +82,19 @@ class HandleCommandsSpec extends Specification {
         $this->recordThat('Root', 'baz', 'That', ['one' => 'And', 'two' => 'This']);
 
         $this->execute('Root$Foo', [
-            CommandAction::IDENTIFIER_KEY => $this->id('Root', 'baz')
+            AggregateCommandAction::IDENTIFIER_KEY => $this->id('Root', 'baz')
         ]);
 
         $this->assert($this->recordedEvents()[1]->getName(), 'Applied');
         $this->assert($this->recordedEvents()[1]->getPayload(), ['ThatAndThis']);
+    }
+
+    function singleton() {
+        $this->define('Root', Singleton::class, '
+            function handleFoo() {}
+        ');
+
+        $this->execute('Root$Foo');
+        $this->assert($this->recordedEvents(), []);
     }
 }

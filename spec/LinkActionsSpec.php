@@ -2,7 +2,7 @@
 namespace rtens\proto;
 
 use rtens\domin\delivery\web\renderers\link\types\ClassLink;
-use rtens\proto\app\ui\CommandAction;
+use rtens\proto\app\ui\AggregateCommandAction;
 use rtens\proto\domain\command\Aggregate;
 use rtens\proto\domain\command\Singleton;
 use rtens\proto\domain\objects\DomainObject;
@@ -32,7 +32,7 @@ class LinkActionsSpec extends Specification {
 
         $this->assert($links[0]->actionId(), 'Foo$Bar');
         $this->assert($links[0]->parameters($object), [
-            CommandAction::IDENTIFIER_KEY => 'one'
+            AggregateCommandAction::IDENTIFIER_KEY => 'one'
         ]);
     }
 
@@ -74,7 +74,7 @@ class LinkActionsSpec extends Specification {
 
         $this->assert($links[1]->actionId(), 'Foo$doThat');
         $this->assert($links[1]->parameters($object), [
-            CommandAction::IDENTIFIER_KEY => 'one',
+            AggregateCommandAction::IDENTIFIER_KEY => 'one',
         ]);
     }
 
@@ -91,7 +91,7 @@ class LinkActionsSpec extends Specification {
 
         $this->assert($links[0]->actionId(), 'Foo$Bar');
         $this->assert($links[0]->parameters($object), [
-            CommandAction::IDENTIFIER_KEY => 'that',
+            AggregateCommandAction::IDENTIFIER_KEY => 'that',
         ]);
     }
 

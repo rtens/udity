@@ -29,7 +29,7 @@ abstract class Specification {
     /**
      * @var string[]
      */
-    private $knownClasses = [];
+    private $domainClasses = [];
 
     public function before() {
         Time::freeze();
@@ -53,8 +53,8 @@ abstract class Specification {
     }
 
     protected function runApp() {
-        $app = new Application($this->events, array_unique($this->knownClasses));
-        $app->run($this->domin);
+        $app = new Application($this->events);
+        $app->run($this->domin, array_unique($this->domainClasses));
     }
 
     protected function execute($action, $arguments = []) {
@@ -74,7 +74,7 @@ abstract class Specification {
             eval("namespace $this->namespace; 
             class $short extends \\" . AggregateIdentifier::class . " {}");
         }
-        $this->knownClasses[] = $class;
+        $this->domainClasses[] = $class;
         return new $class($key ?: $aggregate);
     }
 
@@ -91,16 +91,22 @@ abstract class Specification {
     }
 
     protected function define($className, $extends, $body = '', $implements = null) {
-        $implements = $implements ? ' implements \\' . $implements : '';
+        $fullName = $this->namespace . '\\' . $className;
+
+        $this->domainClasses[] = $fullName;
+        $this->domainClasses[] = $extends;
+
+        $implementsString = '';
+        if ($implements) {
+            $this->domainClasses[] = $implements;
+            $implementsString = ' implements \\' . $implements;
+        }
 
         eval("namespace $this->namespace;
-        class $className extends \\" . $extends . $implements . " {
+        class $className extends \\" . $extends . $implementsString . " {
             $body
         }");
 
-        $fullName = $this->namespace . '\\' . $className;
-        $this->knownClasses[] = $fullName;
-        $this->knownClasses[] = $extends;
         return $fullName;
     }
 
