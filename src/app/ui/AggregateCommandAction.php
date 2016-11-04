@@ -3,8 +3,10 @@ namespace rtens\proto\app\ui;
 
 use rtens\domin\Action;
 use rtens\domin\Parameter;
+use rtens\domin\reflection\types\TypeFactory;
 use rtens\proto\app\Application;
 use rtens\proto\Command;
+use watoki\reflect\MethodAnalyzer;
 use watoki\reflect\type\ClassType;
 
 /**
@@ -24,16 +26,22 @@ class AggregateCommandAction implements Action {
      * @var \ReflectionMethod
      */
     protected $method;
+    /**
+     * @var TypeFactory
+     */
+    private $types;
 
     /**
      * @param Application $app
      * @param string $name
      * @param \ReflectionMethod $method
+     * @param TypeFactory $types
      */
-    public function __construct(Application $app, $name, \ReflectionMethod $method) {
+    public function __construct(Application $app, $name, \ReflectionMethod $method, TypeFactory $types) {
         $this->app = $app;
         $this->name = $name;
         $this->method = $method;
+        $this->types = $types;
     }
 
     /**
@@ -61,7 +69,16 @@ class AggregateCommandAction implements Action {
      * @return Parameter[]
      */
     public function parameters() {
-        return $this->initParameters();
+        $parameters = $this->initParameters();
+
+
+        $analyzer = new MethodAnalyzer($this->method);
+        foreach ($this->method->getParameters() as $parameter) {
+            $type = $analyzer->getType($parameter, $this->types);
+            $parameters[] = (new Parameter($parameter->name, $type, !$parameter->isDefaultValueAvailable()));
+        }
+
+        return $parameters;
     }
 
     /**

@@ -7,10 +7,6 @@ use watoki\reflect\type\StringType;
 
 class CreateDomainObjectsSpec extends Specification {
 
-    public function before() {
-        $this->assert->incomplete('tabula rasa');
-    }
-
     function emptyObject() {
         $this->define('Foo', DomainObject::class);
 
@@ -37,7 +33,7 @@ class CreateDomainObjectsSpec extends Specification {
         $this->assert($this->recordedEvents()[0]->getAggregateIdentifier()->getName(), $objectClass);
     }
 
-    function createFoo() {
+    function parameters() {
         $this->define('Foo', DomainObject::class, '
             function created($one, $two) {}
         ');
@@ -47,6 +43,10 @@ class CreateDomainObjectsSpec extends Specification {
             'two' => 'Baz'
         ]);
 
+        $this->assert($this->recordedEvents()[0]->getPayload(), [
+            'one' => 'Bar',
+            'two' => 'Baz'
+        ]);
         $this->assert($this->action('Foo$create')->parameters(), [
             new Parameter('one', new StringType(), true),
             new Parameter('two', new StringType(), true),

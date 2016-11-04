@@ -32,8 +32,9 @@ class WebInterface {
     protected function buildActionFactories() {
         return [
             new QueryActionFactory($this->app, $this->ui),
-            new AggregateActionFactory($this->app),
-            new SingletonActionFactory($this->app)
+            new AggregateActionFactory($this->app, $this->ui),
+            new SingletonActionFactory($this->app, $this->ui),
+            new DomainObjectActionFactory($this->app, $this->ui)
         ];
     }
 

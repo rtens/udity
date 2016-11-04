@@ -2,6 +2,7 @@
 namespace rtens\proto\app\ui;
 
 use rtens\domin\Action;
+use rtens\domin\delivery\web\WebApplication;
 use rtens\proto\app\Application;
 use rtens\proto\domain\command\Aggregate;
 use rtens\proto\utils\Str;
@@ -11,12 +12,18 @@ class AggregateActionFactory implements ActionFactory {
      * @var Application
      */
     protected $app;
+    /**
+     * @var WebApplication
+     */
+    protected $ui;
 
     /**
      * @param Application $app
+     * @param WebApplication $ui
      */
-    public function __construct(Application $app) {
+    public function __construct(Application $app, WebApplication $ui) {
         $this->app = $app;
+        $this->ui = $ui;
     }
 
     /**
@@ -33,8 +40,7 @@ class AggregateActionFactory implements ActionFactory {
     public function buildActionsFrom(\ReflectionClass $class) {
         $actions = [];
         foreach ($this->findCommandMethods($class) as $command => $method) {
-            $id = $this->makeActionId($class, $command);
-            $actions[$id] = $this->buildCommandAction($command, $method);
+            $actions[$this->id($class, $command)] = $this->buildCommandAction($command, $method);
         }
         return $actions;
     }
@@ -45,7 +51,7 @@ class AggregateActionFactory implements ActionFactory {
      * @return AggregateCommandAction
      */
     protected function buildCommandAction($command, \ReflectionMethod $method) {
-        return new AggregateCommandAction($this->app, $command, $method);
+        return new AggregateCommandAction($this->app, $command, $method, $this->ui->types);
     }
 
     /**
@@ -63,7 +69,7 @@ class AggregateActionFactory implements ActionFactory {
         return $commandMethods;
     }
 
-    protected function makeActionId(\ReflectionClass $class, $command) {
+    private function id(\ReflectionClass $class, $command) {
         return $class->getShortName() . ($command ? '$' . $command : '');
     }
 }
