@@ -68,6 +68,7 @@ class WebInterface {
     private function registerActionBuiltBy(\ReflectionClass $class, ActionFactory $factory) {
         foreach ($factory->buildActionsFrom($class) as $id => $action) {
             $this->ui->actions->add($id, $action);
+            $this->ui->groups->put($id, $class->getShortName());
         }
     }
 }

@@ -41,14 +41,14 @@ class QueryAction implements Action {
      * @return string
      */
     public function caption() {
-        return '';
+        return 'Show ' . ucfirst(preg_replace('/(.)([A-Z0-9])/', '$1 $2', $this->class->getShortName()));
     }
 
     /**
      * @return string|null
      */
     public function description() {
-        return '';
+        return null;
     }
 
     /**

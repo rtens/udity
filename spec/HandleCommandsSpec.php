@@ -32,6 +32,19 @@ class HandleCommandsSpec extends Specification {
             AggregateCommandAction::IDENTIFIER_KEY => $this->id('Root', 'baz')
         ]);
         $this->assert($this->recordedEvents(), []);
+
+        $this->assert($this->domin->actions->getAction('Root$Foo')->caption(), 'Foo');
+        $this->assert(array_keys($this->domin->groups->getActionsOf('Root')), ['Root$Foo']);
+    }
+
+    function presentation() {
+        $this->define('Root', Aggregate::class, '
+            function handleFooThat() {}
+        ');
+        $this->runApp();
+
+        $this->assert($this->domin->actions->getAction('Root$FooThat')->caption(), 'Foo That');
+        $this->assert(array_keys($this->domin->groups->getActionsOf('Root')), ['Root$FooThat']);
     }
 
     function appendEvents() {

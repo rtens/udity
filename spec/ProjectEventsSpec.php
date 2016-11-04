@@ -40,6 +40,16 @@ class ProjectEventsSpec extends Specification {
         $this->assert($result->applied, 'ThatAndThis');
     }
 
+    function presentation() {
+        $this->define('Bar', DefaultProjection::class, '
+            function applyFooThat() {}
+        ');
+        $this->runApp();
+
+        $this->assert($this->domin->actions->getAction('Bar')->caption(), 'Show Bar');
+        $this->assert(array_keys($this->domin->groups->getActionsOf('Bar')), ['Bar']);
+    }
+
     function passArguments() {
         $this->define('Bar', DefaultProjection::class, '
             function __construct($one, $two = "") {
