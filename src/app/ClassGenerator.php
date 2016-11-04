@@ -8,7 +8,7 @@ class ClassGenerator {
 
     public function inferClasses(array $classes) {
         foreach ($classes as $class) {
-            if (is_subclass_of($class, Aggregate::class)) {
+            if ($this->hasBaseClass($class, Aggregate::class)) {
                 $this->defineClass($classes, $class . 'Identifier', AggregateIdentifier::class);
             }
         }
@@ -29,5 +29,10 @@ class ClassGenerator {
         eval("namespace $nameSpace; class $shortName extends \\" . $baseClass . " {}");
 
         return $classes;
+    }
+
+    private function hasBaseClass($class, $baseClass) {
+        $class = new \ReflectionClass($class);
+        return !$class->isAbstract() && $class->isSubclassOf($baseClass);
     }
 }

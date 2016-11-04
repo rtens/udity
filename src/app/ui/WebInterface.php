@@ -35,28 +35,40 @@ class WebInterface {
      */
     protected function buildActionFactories() {
         return [
+            new QueryActionFactory($this->app, $this->ui),
             new AggregateActionFactory($this->app),
             new SingletonActionFactory($this->app)
         ];
     }
 
     public function prepare(array $domainClasses) {
+        $this->ui->types = new DefaultTypeFactory();
+
         foreach ($domainClasses as $class) {
             $class = new \ReflectionClass($class);
 
-            $parent = $class->getParentClass();
-            if (!$parent) {
-                continue;
-            }
-
             foreach ($this->factories as $factory) {
-                if ($factory->getClass() == $parent->getName()) {
-                    foreach ($factory->buildActionsFrom($class) as $id => $action) {
-                        $this->ui->actions->add($id, $action);
+                foreach ($this->getBaseClasses($class) as $base) {
+                    if ($factory->getClass() == $base->getName()) {
+                        foreach ($factory->buildActionsFrom($class) as $id => $action) {
+                            $this->ui->actions->add($id, $action);
+                        }
+                        break;
                     }
-                    break;
                 }
             }
         }
+    }
+
+    /**
+     * @param \ReflectionClass $class
+     * @return \ReflectionClass[]
+     */
+    private function getBaseClasses(\ReflectionClass $class) {
+        $bases = [];
+        if ($class->getParentClass()) {
+            $bases[] = $class->getParentClass();
+        }
+        return array_merge($bases, $class->getInterfaces());
     }
 }

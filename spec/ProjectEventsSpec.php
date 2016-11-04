@@ -8,10 +8,6 @@ use watoki\reflect\type\StringType;
 
 class ProjectEventsSpec extends Specification {
 
-    public function before() {
-        $this->assert->incomplete('tabula rasa');
-    }
-
     function projectionDoesNotExist() {
         try {
             $this->execute('Foo');
@@ -46,7 +42,7 @@ class ProjectEventsSpec extends Specification {
 
     function passArguments() {
         $this->define('Bar', DefaultProjection::class, '
-            function __construct($one, $two) {
+            function __construct($one, $two = "") {
                 $this->passed = $one . $two;
             }
             function setFoo($foo) {}
@@ -59,7 +55,7 @@ class ProjectEventsSpec extends Specification {
 
         $this->assert($this->action('Bar')->parameters(), [
             new Parameter('one', new StringType(), true),
-            new Parameter('two', new StringType(), true),
+            new Parameter('two', new StringType(), false),
         ]);
         $this->assert($result->passed, 'FooBar');
     }
@@ -77,7 +73,7 @@ class ProjectEventsSpec extends Specification {
         $this->assert($result->applied, true);
     }
 
-    function projectingImplementation() {
+    function plaintProjection() {
         $this->define('Foo', \stdClass::class, '
             function apply(\\' . Event::class . ' $e) {
                 $this->applied = true;
@@ -95,13 +91,14 @@ class ProjectEventsSpec extends Specification {
 
     function fillDefaultValues() {
         $this->define('Foo', DefaultProjection::class, '
-            function __construct($one = "that one") {}
+            function __construct($one = "this", $two = "that") {}
             function setFoo($foo) {}
         ');
 
         $this->runApp();
-        $this->assert($this->action('Foo')->fill([]), [
-            'one' => 'that one'
+        $this->assert($this->action('Foo')->fill(['two' => 'other']), [
+            'one' => 'this',
+            'two' => 'other'
         ]);
     }
 }

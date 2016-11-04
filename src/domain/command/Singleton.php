@@ -8,7 +8,7 @@ use rtens\proto\AggregateIdentifier;
  *
  * The key of a Singleton's identifier is the its short class name
  */
-class Singleton extends Aggregate {
+abstract class Singleton extends Aggregate {
 
     public function __construct() {
         parent::__construct($this->buildIdentifier());

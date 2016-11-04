@@ -3,11 +3,38 @@ namespace rtens\proto\app\ui;
 
 use rtens\domin\Action;
 use rtens\domin\Parameter;
+use rtens\domin\reflection\types\TypeFactory;
+use rtens\proto\app\Application;
+use rtens\proto\Query;
+use watoki\reflect\MethodAnalyzer;
 
 /**
  * Builds a Query with parameters inferred from a class
  */
 class QueryAction implements Action {
+    /**
+     * @var Application
+     */
+    private $app;
+    /**
+     * @var \ReflectionClass
+     */
+    private $class;
+    /**
+     * @var TypeFactory
+     */
+    private $types;
+
+    /**
+     * @param Application $app
+     * @param \ReflectionClass $class
+     * @param TypeFactory $types
+     */
+    public function __construct(Application $app, \ReflectionClass $class, TypeFactory $types) {
+        $this->app = $app;
+        $this->class = $class;
+        $this->types = $types;
+    }
 
     /**
      * @return string
@@ -34,7 +61,21 @@ class QueryAction implements Action {
      * @return Parameter[]
      */
     public function parameters() {
-        return [];
+        $parameters = [];
+
+        $constructor = $this->class->getConstructor();
+        if (!$constructor) {
+            return $parameters;
+        }
+
+        $analyzer = new MethodAnalyzer($constructor);
+        foreach ($constructor->getParameters() as $parameter) {
+            $type = $analyzer->getType($parameter, $this->types);
+            $required = !$parameter->isDefaultValueAvailable();
+
+            $parameters[] = (new Parameter($parameter->name, $type, $required));
+        }
+        return $parameters;
     }
 
     /**
@@ -44,6 +85,16 @@ class QueryAction implements Action {
      * @return array Filled values indexed by name
      */
     public function fill(array $parameters) {
+        $constructor = $this->class->getConstructor();
+        if (!$constructor) {
+            return $parameters;
+        }
+
+        foreach ($constructor->getParameters() as $parameter) {
+            if ($parameter->isDefaultValueAvailable() && !array_key_exists($parameter->name, $parameters)) {
+                $parameters[$parameter->name] = $parameter->getDefaultValue();
+            }
+        }
         return $parameters;
     }
 
@@ -53,6 +104,6 @@ class QueryAction implements Action {
      * @throws \Exception if Action cannot be executed
      */
     public function execute(array $parameters) {
-        return null;
+        return $this->app->execute(new Query($this->class->getName(), $parameters));
     }
 }

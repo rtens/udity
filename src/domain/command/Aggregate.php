@@ -7,7 +7,7 @@ use rtens\proto\CommandHandler;
 use rtens\proto\Event;
 use rtens\proto\utils\ArgumentFiller;
 
-class Aggregate implements CommandHandler {
+abstract class Aggregate implements CommandHandler {
     /**
      * @var AggregateIdentifier
      */
