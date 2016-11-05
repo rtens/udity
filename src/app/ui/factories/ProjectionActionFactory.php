@@ -7,6 +7,7 @@ use rtens\proto\app\Application;
 use rtens\proto\app\ui\ActionFactory;
 use rtens\proto\app\ui\actions\QueryAction;
 use rtens\proto\domain\objects\DomainObject;
+use rtens\proto\domain\query\DefaultProjection;
 use rtens\proto\Projection;
 
 class ProjectionActionFactory implements ActionFactory {
@@ -33,7 +34,9 @@ class ProjectionActionFactory implements ActionFactory {
      * @return bool
      */
     public function handles(\ReflectionClass $class) {
-        return $class->isSubclassOf(Projection::class) && $class->getName() != DomainObject::class;
+        return
+            $class->isSubclassOf(Projection::class)
+            && !in_array($class->getName(), [DomainObject::class, DefaultProjection::class]);
     }
 
     /**

@@ -48,7 +48,7 @@ class Str {
     }
 
     public function endsWith($suffix) {
-        return substr($this->string, 0, -strlen($suffix)) == $suffix;
+        return substr($this->string, -strlen($suffix)) == $suffix;
     }
 
     public function after($prefix) {

@@ -8,6 +8,12 @@ use watoki\reflect\type\StringType;
 
 class ProjectEventsSpec extends Specification {
 
+    function doNotRegisterDefaultProjection() {
+        $this->define('Foo', DefaultProjection::class);
+        $this->runApp();
+        $this->assert->not()->contains($this->actionIds(), 'DefaultProjection');
+    }
+
     function projectionDoesNotExist() {
         try {
             $this->execute('Foo');

@@ -1,51 +1,94 @@
 <?php
 namespace rtens\proto;
 
+use rtens\domin\delivery\web\WebField;
 use rtens\domin\Parameter;
 use rtens\proto\app\ui\fields\IdentifierEnumerationField;
 use rtens\proto\app\ui\fields\IdentifierField;
 use rtens\proto\domain\objects\DomainObject;
 use rtens\proto\domain\query\IdentifierOptionsList;
+use rtens\proto\utils\Str;
 use watoki\reflect\type\ClassType;
 
 class SelectEntitiesFromIdentifierSpec extends Specification {
 
-    public function before() {
-        $this->assert->incomplete('tabula rasa');
+    function wrongName() {
+        $class = $this->define('FooBaz', AggregateIdentifier::class);
+
+        try {
+            $this->runApp();
+            $this->domin->fields->getField(new Parameter('that', new ClassType($class)));
+        } catch (\Exception $exception) {
+            $this->assert(Str::g($exception->getMessage())->startsWith('No field found'));
+            return;
+        }
+
+        $this->assert->fail();
+    }
+
+    function noOptions() {
+        $this->define('FooIdentifier', AggregateIdentifier::class);
+
+        $field = $this->getIdentifierField('Foo');
+
+        $this->assert->isInstanceOf($field, IdentifierField::class);
+        $this->assert($field->inflate($this->parameter('Foo'), ['key' => 'one']), $this->id('Foo', 'one'));
+
+        $rendered = $field->render($this->parameter('Foo', 'that'), null);
+        $this->assert($rendered, '<input class="form-control" type="text" name="that[key]" value=""/>');
+
+        $rendered = $field->render($this->parameter('Foo', 'that'), $this->id('one'));
+        $this->assert->contains($rendered, 'value="one"');
+    }
+
+    function disableIdentifierField() {
+        $this->assert->incomplete('Inflate to a DisabledAggregateIdentifier if a special key is present');
+        $this->define('FooIdentifier', AggregateIdentifier::class);
+
+        $field = $this->getIdentifierField('Foo');
+
+        $rendered = $field->render($this->parameter('Foo', 'that'), $this->id('one'));
+        $this->assert->contains($rendered, 'disabled="disabled"');
+    }
+
+    function getOptionsFromList() {
+        $this->define('FooIdentifier', AggregateIdentifier::class);
+        $this->define('FooList', \stdClass::class, '
+            function apply(\\' . Event::class . ' $event) {}
+            function getOptions() { return ["foo" => "bar"]; }
+        ', IdentifierOptionsList::class);
+
+        $field = $this->getIdentifierField('Foo');
+
+        $this->assert->isInstanceOf($field, IdentifierEnumerationField::class);
+        $rendered = $field->render($this->parameter('Foo'), $this->id('Foo'));
+        $this->assert->contains($rendered, '<option value="foo">bar</option>');
     }
 
     function showOptionsForDomainObject() {
         $this->define('Foo', DomainObject::class);
-        $parameter = new Parameter('bla', new ClassType(get_class($this->id('Foo'))));
 
         $this->recordThat('Foo', 'one', 'Created');
         $this->recordThat('Foo', 'two', 'Created');
         $this->recordThat('Bar', 'three', 'Created');
 
-        $this->runApp();
-        $field = $this->domin->fields->getField($parameter);
+        $field = $this->getIdentifierField('Foo');
 
-        $this->assert->isInstanceOf($field, IdentifierEnumerationField::class);
-
-        /** @var IdentifierEnumerationField $field */
-        $rendered = $field->render($parameter, null);
+        $rendered = $field->render($this->parameter('Foo'), null);
         $this->assert->contains($rendered, '<option value="one">one</option>');
         $this->assert->contains($rendered, '<option value="two">two</option>');
         $this->assert->not()->contains($rendered, '<option value="three">three</option>');
     }
 
-    function selectOptionForDomainObject() {
+    function selectedOptionForDomainObject() {
         $this->define('Foo', DomainObject::class);
-        $parameter = new Parameter('bla', new ClassType(get_class($this->id('Foo'))));
 
         $this->recordThat('Foo', 'one', 'Created');
         $this->recordThat('Foo', 'two', 'Created');
 
-        $this->runApp();
-        $field = $this->domin->fields->getField($parameter);
+        $field = $this->getIdentifierField('Foo');
 
-        /** @var IdentifierEnumerationField $field */
-        $rendered = $field->render($parameter, $this->id('Foo', 'two'));
+        $rendered = $field->render($this->parameter('one'), $this->id('Foo', 'two'));
         $this->assert->contains($rendered, '<option value="two" selected="selected">two</option>');
     }
 
@@ -53,46 +96,31 @@ class SelectEntitiesFromIdentifierSpec extends Specification {
         $this->define('Foo', DomainObject::class, '
             function caption() { return "My Caption"; }
         ');
-        $parameter = new Parameter('bla', new ClassType(get_class($this->id('Foo'))));
 
         $this->recordThat('Foo', 'one', 'Created');
 
-        $this->runApp();
-        $field = $this->domin->fields->getField($parameter);
+        $field = $this->getIdentifierField('Foo');
 
-        /** @var IdentifierEnumerationField $field */
-        $rendered = $field->render($parameter, $this->id('Foo'));
+        $rendered = $field->render($this->parameter('Foo'), $this->id('Foo'));
         $this->assert->contains($rendered, '<option value="one">My Caption</option>');
     }
 
-    function withoutProjectionList() {
-        $this->define('FooIdentifier', AggregateIdentifier::class);
-        $parameter = new Parameter('bla', new ClassType(get_class($this->id('Foo'))));
-
-        $this->recordThat('Foo', 'one', 'Created');
-
+    /**
+     * @return WebField
+     */
+    private function getIdentifierField($class) {
+        $parameter = $this->parameter($class);
         $this->runApp();
-        $field = $this->domin->fields->getField($parameter);
-
-        $this->assert->isInstanceOf($field, IdentifierField::class);
+        /** @noinspection PhpIncompatibleReturnTypeInspection */
+        return $this->domin->fields->getField($parameter);
     }
 
-    function withOptions() {
-        $this->define('FooIdentifier', AggregateIdentifier::class);
-        $this->define('FooList', \stdClass::class, '
-            function apply(\\' .Event::class . ' $event) {}
-            function getOptions() { return ["foo" => "bar"]; }
-        ', IdentifierOptionsList::class);
-
-        $parameter = new Parameter('bla', new ClassType(get_class($this->id('Foo'))));
-
-        $this->recordThat('Foo', 'one', 'Created');
-
-        $this->runApp();
-        $field = $this->domin->fields->getField($parameter);
-
-        /** @var IdentifierEnumerationField $field */
-        $rendered = $field->render($parameter, $this->id('Foo'));
-        $this->assert->contains($rendered, '<option value="foo">bar</option>');
+    /**
+     * @param $class
+     * @param string $name
+     * @return Parameter
+     */
+    private function parameter($class, $name = 'bla') {
+        return new Parameter($name, new ClassType(get_class($this->id($class))));
     }
 }
