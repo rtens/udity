@@ -36,6 +36,20 @@ class Application {
             ->setCommandCondition([$this, 'isCommand']);
     }
 
+    public static function loadClasses($inFolder) {
+        $before = get_declared_classes();
+
+        foreach (glob($inFolder . '/*') as $file) {
+            if (is_dir($file)) {
+                self::loadClasses($file);
+            } else if (strtolower(substr($file, -4)) == '.php') {
+                require_once $file;
+            }
+        }
+
+        return array_diff(get_declared_classes(), $before);
+    }
+
     /**
      * @param WebApplication $ui
      * @param string[] $domainClasses
