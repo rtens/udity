@@ -37,20 +37,30 @@ class IdentifierEnumerationField extends IdentifierField {
      * @return string
      */
     public function render(Parameter $parameter, $value) {
-        return (string)new Element('select', [
+        $attributes = [
             'name' => $parameter->getName(),
             'class' => 'form-control'
-        ], $this->renderOptions($value));
+        ];
+
+        if ($this->isDisabled($parameter, $value)) {
+            $attributes['disabled'] = 'disabled';
+        }
+
+        return (string)new Element('select', $attributes, $this->renderOptions($value));
     }
 
     private function renderOptions(AggregateIdentifier $value = null) {
         $options = [];
         foreach ($this->getOptions() as $key => $caption) {
-            $options[] = new Element('option', array_merge([
+            $attributes = [
                 'value' => $key
-            ], $value && $key == $value->getKey() ? [
-                'selected' => 'selected'
-            ] : []), [
+            ];
+
+            if ($value && $key == $value->getKey()) {
+                $attributes['selected'] = 'selected';
+            }
+
+            $options[] = new Element('option', $attributes, [
                 $caption
             ]);
         }

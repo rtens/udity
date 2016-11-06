@@ -42,13 +42,17 @@ class SelectEntitiesFromIdentifierSpec extends Specification {
     }
 
     function disableIdentifierField() {
-        $this->assert->incomplete('Inflate to a DisabledAggregateIdentifier if a special key is present');
-        $this->define('FooIdentifier', AggregateIdentifier::class);
+        $this->define('Foo', DomainObject::class);
 
         $field = $this->getIdentifierField('Foo');
+        $field->inflate($this->parameter('Foo', 'that'), ['key' => 'one', 'fix' => true]);
 
-        $rendered = $field->render($this->parameter('Foo', 'that'), $this->id('one'));
-        $this->assert->contains($rendered, 'disabled="disabled"');
+        $this->assert->contains($field->render($this->parameter('Foo', 'that'), $this->id('Foo', 'one')),
+            'disabled="disabled"');
+        $this->assert->not()->contains($field->render($this->parameter('Foo', 'this'), $this->id('Foo', 'one')),
+            'disabled="disabled"');
+        $this->assert->not()->contains($field->render($this->parameter('Foo', 'that'), $this->id('Foo', 'two')),
+            'disabled="disabled"');
     }
 
     function getOptionsFromList() {

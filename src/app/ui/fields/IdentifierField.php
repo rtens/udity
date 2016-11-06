@@ -15,6 +15,10 @@ class IdentifierField implements WebField {
      * @var string
      */
     protected $class;
+    /**
+     * @var Parameter[]
+     */
+    private $disabled = [];
 
     /**
      * @param string $identifierClass
@@ -42,7 +46,7 @@ class IdentifierField implements WebField {
         $identifier = new $identifierClass($serialized['key']);
 
         if (array_key_exists('fix', $serialized)) {
-            return new DisabledAggregateIdentifier($identifier);
+            $this->disabled[(string)$parameter] = $identifier;
         }
         return $identifier;
     }
@@ -64,7 +68,7 @@ class IdentifierField implements WebField {
             $attributes['required'] = 'required';
         }
 
-        if ($value instanceof DisabledAggregateIdentifier) {
+        if ($this->isDisabled($parameter, $value)) {
             $attributes['disabled'] = 'disabled';
         }
 
@@ -77,5 +81,10 @@ class IdentifierField implements WebField {
      */
     public function headElements(Parameter $parameter) {
         return [];
+    }
+
+    protected function isDisabled(Parameter $parameter, $value) {
+        $param = (string)$parameter;
+        return array_key_exists($param, $this->disabled) && $this->disabled[$param] == $value;
     }
 }
