@@ -4,6 +4,7 @@ namespace rtens\proto\app\ui\actions;
 use rtens\domin\Action;
 use rtens\domin\Parameter;
 use rtens\domin\reflection\types\TypeFactory;
+use rtens\proto\AggregateIdentifier;
 use rtens\proto\app\Application;
 use rtens\proto\Query;
 use watoki\reflect\MethodAnalyzer;
@@ -74,7 +75,7 @@ class QueryAction implements Action {
             $type = $analyzer->getType($parameter, $this->types);
             $required = !$parameter->isDefaultValueAvailable();
 
-            if ($parameter->getName() == 'identifier') {
+            if ($parameter->getName() == 'identifier' && $type == new ClassType(AggregateIdentifier::class)) {
                 $type = new ClassType($this->class->getName() . 'Identifier');
             }
 

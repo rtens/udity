@@ -3,6 +3,7 @@ namespace rtens\proto\app\ui;
 
 use rtens\domin\delivery\web\renderers\link\types\ClassLink;
 use rtens\domin\delivery\web\WebApplication;
+use rtens\domin\reflection\GenericAction;
 use rtens\proto\AggregateIdentifier;
 use rtens\proto\app\Application;
 use rtens\proto\app\ui\factories\AggregateActionFactory;
@@ -105,29 +106,27 @@ class WebInterface {
 
         foreach ($classes as $class) {
             if (is_subclass_of($class, AggregateIdentifier::class)) {
-                $linkables[$class][$class][] = function (AggregateIdentifier $object) {
+                $linkables[$class][$class]['$$'] = function (AggregateIdentifier $object) {
                     return $object->getKey();
                 };
             }
 
             $reader = new PropertyReader($this->ui->types, $class);
-            foreach ($reader->readInterface() as $getter) {
-                if (!$getter->canGet()) {
+            foreach ($reader->readInterface() as $property) {
+                $type = $property->type();
+                if (!$property->canGet() || !($type instanceof ClassType)) {
                     continue;
                 }
-                $type = $getter->type();
-                if (!($type instanceof ClassType)) {
-                    continue;
-                }
+
                 if (is_subclass_of($class, DomainObject::class) && $type->getClass() == AggregateIdentifier::class) {
                     $type = new ClassType($class . 'Identifier');
                 }
 
                 if (is_subclass_of($type->getClass(), AggregateIdentifier::class)) {
                     $identifierClass = $type->getClass();
-                    $linkables[$identifierClass][$class][] = function ($object) use ($getter) {
+                    $linkables[$identifierClass][$class][$property->name()] = function ($object) use ($property) {
                         /** @var AggregateIdentifier $identifier */
-                        $identifier = $getter->get($object);
+                        $identifier = $property->get($object);
                         return $identifier->getKey();
                     };
                 }
@@ -144,8 +143,27 @@ class WebInterface {
                     }
 
                     foreach ($linkables[$identifierClass] as $class => $getters) {
-                        foreach ($getters as $getter) {
-                            $this->ui->links->add(new ClassLink($class, $actionId,
+                        foreach ($getters as $property => $getter) {
+                            $linkId = $actionId;
+
+                            $isDefaultProperty = in_array($property, ['$$', 'identifier']);
+                            $isDefaultParameter = in_array($parameter->getName(), ['target', 'identifier']);
+
+                            if (!$isDefaultProperty || (!$isDefaultParameter)) {
+                                $linkAction = new GenericAction($this->ui->actions->getAction($actionId));
+                                $details = '';
+                                if (!$isDefaultProperty) {
+                                    $details .= $property;
+                                }
+                                if (!$isDefaultParameter) {
+                                    $details .= '->' . $parameter->getName();
+                                }
+                                $linkAction->setCaption($linkAction->caption() . '(' . $details . ')');
+                                $linkId = $actionId . '$' . $property . '$' . $parameter->getName();
+                                $this->ui->actions->add($linkId, $linkAction);
+                            }
+
+                            $this->ui->links->add(new ClassLink($class, $linkId,
                                 function ($object) use ($parameter, $getter) {
                                     return [
                                         $parameter->getName() => [

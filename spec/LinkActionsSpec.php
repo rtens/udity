@@ -19,7 +19,7 @@ class LinkActionsSpec extends Specification {
             public $that;
         ');
 
-        $links = $this->linksOfProjection('Bar', 'Foo', 'one');
+        $links = $this->linksOfProjection('Bar');
 
         $this->assert->size($links, 0);
     }
@@ -30,34 +30,35 @@ class LinkActionsSpec extends Specification {
         ');
         $projection = $this->define('Bar', DefaultProjection::class, '
             /** @var FooIdentifier */
-            public $that;
-            function __construct($in) { $this->that = $in; }
+            public $identifier;
+            function __construct($in) { $this->identifier = $in; }
         ');
 
-        $links = $this->linksOfProjection('Bar', 'Foo', 'one');
+        $links = $this->linksOfAggregate('Bar', 'Foo', 'one');
 
         $this->assert->size($links, 1);
         $this->assert($links[0]->actionId(), 'Foo$Bar');
         $this->assert($links[0]->parameters(new $projection($this->id('Foo', 'one'))), [
             AggregateCommandAction::IDENTIFIER_KEY => ['key' => 'one', 'fix' => true]
         ]);
+        $this->assert($this->linkAction($links[0])->caption(), 'Bar');
     }
 
     function linkQueryToProjection() {
-        $this->define('Foo', Aggregate::class);
+        $this->define('FooIdentifier', AggregateIdentifier::class);
         $projection = $this->define('Bar', DefaultProjection::class, '
             /** @var FooIdentifier */
-            public $that;
-            function __construct(FooIdentifier $in) { $this->that = $in; }
+            public $identifier;
+            function __construct(FooIdentifier $identifier) { $this->identifier = $identifier; }
         ');
 
-        $links = $this->linksOfProjection('Bar', 'Foo', 'one');
+        $links = $this->linksOfAggregate('Bar', 'Foo', 'one');
 
         $this->assert->size($links, 1);
 
         $this->assert($links[0]->actionId(), 'Bar');
         $this->assert($links[0]->parameters(new $projection($this->id('Foo', 'one'))), [
-            'in' => ['key' => 'one', 'fix' => true]
+            'identifier' => ['key' => 'one', 'fix' => true]
         ]);
     }
 
@@ -66,7 +67,7 @@ class LinkActionsSpec extends Specification {
             function doThat() {}
         ');
 
-        $links = $this->linksOfProjection('Foo', 'Foo', 'one');
+        $links = $this->linksOfAggregate('Foo', 'Foo', 'one');
 
         $this->assert->size($links, 2);
 
@@ -96,7 +97,57 @@ class LinkActionsSpec extends Specification {
         ]);
     }
 
-    function multipleMatchingProperties() {
+    function multipleProperties() {
+        $this->define('Foo', Aggregate::class, '
+            function handleFoo() {}        
+        ');
+        $this->define('Bar', Aggregate::class, '
+            function handleBar() {}        
+        ');
+        $this->define('Baz', DefaultProjection::class, '
+            /** @var FooIdentifier */
+            public $a;
+            /** @var BarIdentifier */
+            public $b;
+        ');
+
+        $links = $this->linksOfProjection('Baz');
+
+        $this->assert->size($links, 2);
+
+        $this->assert($this->linkAction($links[0])->caption(), 'Foo(a)');
+        $this->assert($this->linkAction($links[1])->caption(), 'Bar(b)');
+    }
+
+    function multipleActionsPerProperties() {
+        $this->define('MyIdentifier', AggregateIdentifier::class);
+        $this->define('YourIdentifier', AggregateIdentifier::class);
+
+        $this->define('Foo', Aggregate::class, '
+            function handleFoo(
+                MyIdentifier $one, 
+                YourIdentifier $two, 
+                MyIdentifier $three
+            ) {}        
+        ');
+        $this->define('Bar', DefaultProjection::class, '
+            /** @var MyIdentifier */
+            public $a;
+            /** @var YourIdentifier */
+            public $b;
+            /** @var MyIdentifier */
+            public $c;
+        ');
+
+        $links = $this->linksOfProjection('Bar');
+
+        $this->assert->size($links, 5);
+
+        $this->assert($this->linkAction($links[0])->caption(), 'Foo(a->one)');
+        $this->assert($this->linkAction($links[1])->caption(), 'Foo(c->one)');
+        $this->assert($this->linkAction($links[2])->caption(), 'Foo(b->two)');
+        $this->assert($this->linkAction($links[3])->caption(), 'Foo(a->three)');
+        $this->assert($this->linkAction($links[4])->caption(), 'Foo(c->three)');
     }
 
     /**
@@ -105,10 +156,18 @@ class LinkActionsSpec extends Specification {
      * @param string $key
      * @return ClassLink[]
      */
-    private function linksOfProjection($className, $aggregate, $key = null) {
+    private function linksOfAggregate($className, $aggregate, $key = null) {
         $projectionClass = $this->fullname($className);
-        $object = new $projectionClass($this->id($aggregate, $key));
-        return array_values($this->linksOf($object));
+        return array_values($this->linksOf(new $projectionClass($this->id($aggregate, $key))));
+    }
+
+    /**
+     * @param string $className
+     * @return ClassLink[]
+     */
+    private function linksOfProjection($className) {
+        $projectionClass = $this->fullname($className);
+        return array_values($this->linksOf(new $projectionClass()));
     }
 
     /**
@@ -118,5 +177,9 @@ class LinkActionsSpec extends Specification {
     private function linksOf($object) {
         $this->runApp();
         return $this->domin->links->getLinks($object);
+    }
+
+    private function linkAction(ClassLink $link) {
+        return $this->domin->actions->getAction($link->actionId());
     }
 }
