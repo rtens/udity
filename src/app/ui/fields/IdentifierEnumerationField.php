@@ -5,6 +5,7 @@ use rtens\domin\delivery\web\Element;
 use rtens\domin\Parameter;
 use rtens\proto\AggregateIdentifier;
 use rtens\proto\app\Application;
+use rtens\proto\domain\query\IdentifierOptionsList;
 use rtens\proto\Query;
 
 /**
@@ -68,6 +69,8 @@ class IdentifierEnumerationField extends IdentifierField {
     }
 
     private function getOptions() {
-        return $this->app->execute(new Query($this->listClass))->getOptions();
+        /** @var IdentifierOptionsList $optionsList */
+        $optionsList = $this->app->execute(new Query($this->listClass));
+        return $optionsList->options();
     }
 }

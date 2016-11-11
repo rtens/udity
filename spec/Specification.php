@@ -91,7 +91,7 @@ abstract class Specification {
     }
 
     protected function define($className, $extends, $body = '', $implements = null) {
-        $fullName = $this->namespace . '\\' . $className;
+        $fullName = $this->fullname($className);
 
         $this->domainClasses[] = $fullName;
         $this->domainClasses[] = $extends;
@@ -102,10 +102,11 @@ abstract class Specification {
             $implementsString = ' implements \\' . $implements;
         }
 
-        eval("namespace $this->namespace;
-        class $className extends \\" . $extends . $implementsString . " {
-            $body
-        }");
+        $code = "namespace $this->namespace;
+            class $className extends \\" . $extends . $implementsString . " {
+                $body
+            }";
+        eval($code) ;
 
         return $fullName;
     }
@@ -116,5 +117,13 @@ abstract class Specification {
 
     protected function actionIds() {
         return array_keys($this->domin->actions->getAllActions());
+    }
+
+    /**
+     * @param $className
+     * @return string
+     */
+    protected function fullname($className) {
+        return $this->namespace . '\\' . $className;
     }
 }

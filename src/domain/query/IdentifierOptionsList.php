@@ -8,5 +8,5 @@ interface IdentifierOptionsList extends Projection {
     /**
      * @return string[] captions indexed by keys
      */
-    public function getOptions();
+    public function options();
 }

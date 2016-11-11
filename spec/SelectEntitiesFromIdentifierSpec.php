@@ -59,7 +59,7 @@ class SelectEntitiesFromIdentifierSpec extends Specification {
         $this->define('FooIdentifier', AggregateIdentifier::class);
         $this->define('FooList', \stdClass::class, '
             function apply(\\' . Event::class . ' $event) {}
-            function getOptions() { return ["foo" => "bar"]; }
+            function options() { return ["foo" => "bar"]; }
         ', IdentifierOptionsList::class);
 
         $field = $this->getIdentifierField('Foo');

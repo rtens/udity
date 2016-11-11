@@ -36,7 +36,7 @@ abstract class DomainObjectList extends ProjectionList implements IdentifierOpti
     /**
      * @return string[] captions indexed by keys
      */
-    public function getOptions() {
+    public function options() {
         return array_map(function (DomainObject $object) {
             return $object->caption();
         }, $this->getItems());
