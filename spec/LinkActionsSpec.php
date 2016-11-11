@@ -9,6 +9,21 @@ use rtens\proto\domain\query\DefaultProjection;
 
 class LinkActionsSpec extends Specification {
 
+    function notActuallyAnIdentifier() {
+        $this->define('FooIdentifier', \stdClass::class);
+        $this->define('Foo', Aggregate::class, '
+            function handleBar() {}
+        ');
+        $this->define('Bar', DefaultProjection::class, '
+            /** @var FooIdentifier */
+            public $that;
+        ');
+
+        $links = $this->linksOfProjection('Bar', 'Foo', 'one');
+
+        $this->assert->size($links, 0);
+    }
+
     function linkAggregateCommandToProjection() {
         $this->define('Foo', Aggregate::class, '
             function handleBar() {}
@@ -82,12 +97,6 @@ class LinkActionsSpec extends Specification {
     }
 
     function multipleMatchingProperties() {
-    }
-
-    function notActuallyAnIdentifier() {
-    }
-
-    function wrongSuffix() {
     }
 
     /**
