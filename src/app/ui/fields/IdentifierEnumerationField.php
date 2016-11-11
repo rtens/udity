@@ -39,7 +39,7 @@ class IdentifierEnumerationField extends IdentifierField {
      */
     public function render(Parameter $parameter, $value) {
         $attributes = [
-            'name' => $parameter->getName(),
+            'name' => $parameter->getName() . '[key]',
             'class' => 'form-control'
         ];
 

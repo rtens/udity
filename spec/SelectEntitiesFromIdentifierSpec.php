@@ -66,6 +66,7 @@ class SelectEntitiesFromIdentifierSpec extends Specification {
 
         $this->assert->isInstanceOf($field, IdentifierEnumerationField::class);
         $rendered = $field->render($this->parameter('Foo'), $this->id('Foo'));
+        $this->assert->contains($rendered, '<select name="bla[key]" class="form-control">');
         $this->assert->contains($rendered, '<option value="foo">bar</option>');
     }
 
