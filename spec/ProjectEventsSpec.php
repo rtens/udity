@@ -34,8 +34,8 @@ class ProjectEventsSpec extends Specification {
 
     function applyEvents() {
         $this->define('Bar', DefaultProjection::class, '
-            function applyThat($two, \rtens\proto\Event $e, $one) {
-                $this->applied = $e->getName() . $one . $two;
+            function applyThat($two, $one) {
+                $this->applied = $one . $two;
             }
         ');
 
@@ -43,7 +43,54 @@ class ProjectEventsSpec extends Specification {
         $this->recordThat('Bar', 'foo', 'That', ['one' => 'And', 'two' => 'This']);
 
         $result = $this->execute('Bar');
-        $this->assert($result->applied, 'ThatAndThis');
+        $this->assert($result->applied, 'AndThis');
+    }
+
+    function applyEventsPerAggregate() {
+        $this->define('Foo', \stdClass::class);
+        $this->define('Bar', \stdClass::class);
+        $this->define('Baz', DefaultProjection::class, '
+            public $applied = "";
+            function forFooApplyThat($one) {
+                $this->applied .= "Foo:" . $one;
+            }
+            function forBarApplyThat($one) {
+                $this->applied .= "Bar:" . $one;
+            }
+        ');
+
+        $this->recordThat('Bar', 'bla', 'That', ['one']);
+        $this->recordThat('Foo', 'bla', 'That', ['two']);
+        $this->recordThat('NotAClass', 'bla', 'That');
+
+        $result = $this->execute('Baz');
+        $this->assert($result->applied, 'Bar:oneFoo:two');
+    }
+
+    function injectEvent() {
+        $this->define('Bar', DefaultProjection::class, '
+            function applyThat(\\' . Event::class . ' $e) {
+                $this->applied = $e->getName();
+            }
+        ');
+
+        $this->recordThat('Bar', 'foo', 'That');
+
+        $result = $this->execute('Bar');
+        $this->assert($result->applied, 'That');
+    }
+
+    function injectIdentifier() {
+        $this->define('Bar', DefaultProjection::class, '
+            function applyThat(\\' . AggregateIdentifier::class . ' $id) {
+                $this->applied = $id;
+            }
+        ');
+
+        $this->recordThat('Bar', 'foo', 'That');
+
+        $result = $this->execute('Bar');
+        $this->assert($result->applied, $this->id('Bar', 'foo'));
     }
 
     function presentation() {
