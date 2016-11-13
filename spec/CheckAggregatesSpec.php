@@ -1,12 +1,11 @@
 <?php
-namespace spec\rtens\proto;
+namespace rtens\proto;
 
 use rtens\proto\check\DomainSpecification;
 use rtens\proto\check\event\Events;
 use rtens\proto\domain\command\Aggregate;
-use rtens\proto\Specification;
 
-class CheckAggregatesSpec extends Specification {
+class CheckAggregatesSpec extends CheckDomainSpecification {
 
     function notACommand() {
         $this->define('Foo', Aggregate::class);
@@ -134,22 +133,5 @@ class CheckAggregatesSpec extends Specification {
             $a->tryTo($this->fqn('Foo'))->handleBaz();
             $a->thenShouldFailWith('Nope');
         }, 'Did not fail');
-    }
-
-    private function shouldFail(callable $callable, $message) {
-        try {
-            $this->shouldPass($callable);
-        } catch (\Exception $exception) {
-            $this->assert($exception->getMessage(), $message);
-            return;
-        }
-
-        throw new \Exception('Did not fail');
-    }
-
-    private function shouldPass(callable $callable) {
-        $spec = new DomainSpecification($this->domainClasses);
-        $callable($spec);
-        $this->assert->pass();
     }
 }
