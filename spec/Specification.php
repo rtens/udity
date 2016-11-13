@@ -29,7 +29,7 @@ abstract class Specification {
     /**
      * @var string[]
      */
-    private $domainClasses = [];
+    protected $domainClasses = [];
 
     public function before() {
         Time::freeze();
@@ -91,7 +91,7 @@ abstract class Specification {
     }
 
     protected function define($className, $extends, $body = '', $implements = null) {
-        $fullName = $this->fullname($className);
+        $fullName = $this->fqn($className);
 
         $this->domainClasses[] = $fullName;
         $this->domainClasses[] = $extends;
@@ -123,7 +123,7 @@ abstract class Specification {
      * @param $className
      * @return string
      */
-    protected function fullname($className) {
+    protected function fqn($className) {
         return $this->namespace . '\\' . $className;
     }
 }

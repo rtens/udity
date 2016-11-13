@@ -73,4 +73,14 @@ class IdentifyAggregatesSpec extends Specification {
         $this->assert(get_class($this->recordedEvents()[0]->getAggregateIdentifier()),
             $identifierClass);
     }
+
+    function classAlreadyDeclared() {
+        $this->define('FooIdentifier', AggregateIdentifier::class);
+        $this->domainClasses = [];
+        $this->define('Foo', Aggregate::class);
+
+        $this->runApp();
+
+        $this->assert->pass();
+    }
 }

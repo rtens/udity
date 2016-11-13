@@ -27,6 +27,10 @@ class ClassGenerator {
         }
         $classes[] = $fullName;
 
+        if (class_exists($fullName)) {
+            return $classes;
+        }
+
         $parts = explode('\\', $fullName);
         $shortName = array_pop($parts);
         $nameSpace = implode('\\', $parts);

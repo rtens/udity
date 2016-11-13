@@ -157,7 +157,7 @@ class LinkActionsSpec extends Specification {
      * @return ClassLink[]
      */
     private function linksOfAggregate($className, $aggregate, $key = null) {
-        $projectionClass = $this->fullname($className);
+        $projectionClass = $this->fqn($className);
         return array_values($this->linksOf(new $projectionClass($this->id($aggregate, $key))));
     }
 
@@ -166,7 +166,7 @@ class LinkActionsSpec extends Specification {
      * @return ClassLink[]
      */
     private function linksOfProjection($className) {
-        $projectionClass = $this->fullname($className);
+        $projectionClass = $this->fqn($className);
         return array_values($this->linksOf(new $projectionClass()));
     }
 

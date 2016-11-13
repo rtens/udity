@@ -1,0 +1,14 @@
+{
+  "methodCalls" : [
+    {
+      "class" : "\\rtens\\proto\\check\\DomainSpecification",
+      "method" : "when",
+      "position" : 0
+    },
+    {
+      "class" : "\\rtens\\proto\\check\\DomainSpecification",
+      "method" : "tryTo",
+      "position" : 0
+    }
+  ]
+}
