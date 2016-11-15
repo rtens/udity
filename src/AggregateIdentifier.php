@@ -1,7 +1,7 @@
 <?php
-namespace rtens\proto;
+namespace rtens\udity;
 
-use rtens\proto\utils\Str;
+use rtens\udity\utils\Str;
 
 /**
  * Identifies an aggregate by its name and a unique key.

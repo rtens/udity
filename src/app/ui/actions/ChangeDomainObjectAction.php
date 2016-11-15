@@ -1,8 +1,8 @@
 <?php
-namespace rtens\proto\app\ui\actions;
+namespace rtens\udity\app\ui\actions;
 
-use rtens\proto\Query;
-use rtens\proto\utils\Str;
+use rtens\udity\Query;
+use rtens\udity\utils\Str;
 
 class ChangeDomainObjectAction extends AggregateCommandAction {
 

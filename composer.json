@@ -1,5 +1,5 @@
 {
-  "name": "rtens/proto",
+  "name": "rtens/udity",
   "description": "Framework for prototyping event sourced web applications",
   "minimum-stability": "dev",
   "license": "LGPLv3",
@@ -19,12 +19,12 @@
   },
   "autoload": {
     "psr-4": {
-      "rtens\\proto\\": "src/"
+      "rtens\\udity\\": "src/"
     }
   },
   "autoload-dev": {
     "psr-4": {
-      "rtens\\proto\\": "spec/"
+      "rtens\\udity\\": "spec/"
     }
   }
 }

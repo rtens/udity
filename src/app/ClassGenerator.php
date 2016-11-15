@@ -1,10 +1,10 @@
 <?php
-namespace rtens\proto\app;
+namespace rtens\udity\app;
 
-use rtens\proto\AggregateIdentifier;
-use rtens\proto\domain\command\Aggregate;
-use rtens\proto\domain\objects\DomainObject;
-use rtens\proto\domain\objects\DomainObjectList;
+use rtens\udity\AggregateIdentifier;
+use rtens\udity\domain\command\Aggregate;
+use rtens\udity\domain\objects\DomainObject;
+use rtens\udity\domain\objects\DomainObjectList;
 
 class ClassGenerator {
 

@@ -1,13 +1,13 @@
 <?php
-namespace rtens\proto\app\ui\factories;
+namespace rtens\udity\app\ui\factories;
 
 use rtens\domin\Action;
 use rtens\domin\delivery\web\WebApplication;
-use rtens\proto\app\Application;
-use rtens\proto\app\ui\ActionFactory;
-use rtens\proto\app\ui\actions\AggregateCommandAction;
-use rtens\proto\domain\command\Aggregate;
-use rtens\proto\utils\Str;
+use rtens\udity\app\Application;
+use rtens\udity\app\ui\ActionFactory;
+use rtens\udity\app\ui\actions\AggregateCommandAction;
+use rtens\udity\domain\command\Aggregate;
+use rtens\udity\utils\Str;
 
 class AggregateActionFactory implements ActionFactory {
     /**

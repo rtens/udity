@@ -1,10 +1,10 @@
 <?php
-namespace rtens\proto\app\ui\fields;
+namespace rtens\udity\app\ui\fields;
 
 use rtens\domin\delivery\web\Element;
 use rtens\domin\delivery\web\WebField;
 use rtens\domin\Parameter;
-use rtens\proto\AggregateIdentifier;
+use rtens\udity\AggregateIdentifier;
 use watoki\reflect\type\ClassType;
 
 /**

@@ -1,9 +1,9 @@
 <?php
-namespace rtens\proto;
+namespace rtens\udity;
 
 use rtens\domin\delivery\web\WebApplication;
-use rtens\proto\app\Application;
-use rtens\proto\utils\Time;
+use rtens\udity\app\Application;
+use rtens\udity\utils\Time;
 use rtens\scrut\Assert;
 use watoki\factory\Factory;
 use watoki\karma\stores\EventStore;

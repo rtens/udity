@@ -1,13 +1,13 @@
 <?php
-namespace rtens\proto\check;
+namespace rtens\udity\check;
 
 use rtens\domin\delivery\web\WebApplication;
-use rtens\proto\app\Application;
-use rtens\proto\check\event\EventFactory;
-use rtens\proto\check\event\EventMatcher;
-use rtens\proto\check\event\MatchedEventsAssertion;
-use rtens\proto\Event;
-use rtens\proto\utils\Time;
+use rtens\udity\app\Application;
+use rtens\udity\check\event\EventFactory;
+use rtens\udity\check\event\EventMatcher;
+use rtens\udity\check\event\MatchedEventsAssertion;
+use rtens\udity\Event;
+use rtens\udity\utils\Time;
 use watoki\karma\stores\MemoryEventStore;
 
 class DomainSpecification {

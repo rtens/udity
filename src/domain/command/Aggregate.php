@@ -1,11 +1,11 @@
 <?php
-namespace rtens\proto\domain\command;
+namespace rtens\udity\domain\command;
 
-use rtens\proto\AggregateIdentifier;
-use rtens\proto\Command;
-use rtens\proto\CommandHandler;
-use rtens\proto\Event;
-use rtens\proto\utils\ArgumentFiller;
+use rtens\udity\AggregateIdentifier;
+use rtens\udity\Command;
+use rtens\udity\CommandHandler;
+use rtens\udity\Event;
+use rtens\udity\utils\ArgumentFiller;
 
 abstract class Aggregate implements CommandHandler {
     /**

@@ -1,5 +1,5 @@
 <?php
-namespace rtens\proto\app\ui;
+namespace rtens\udity\app\ui;
 use rtens\domin\Action;
 
 /**

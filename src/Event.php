@@ -1,7 +1,7 @@
 <?php
-namespace rtens\proto;
+namespace rtens\udity;
 
-use rtens\proto\utils\Time;
+use rtens\udity\utils\Time;
 
 /**
  * Something interesting that happened

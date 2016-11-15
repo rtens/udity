@@ -1,7 +1,7 @@
 <?php
-namespace rtens\proto\app\ui\actions;
+namespace rtens\udity\app\ui\actions;
 
-use rtens\proto\Command;
+use rtens\udity\Command;
 
 class SingletonCommandAction extends AggregateCommandAction {
 

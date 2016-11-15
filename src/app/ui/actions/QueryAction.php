@@ -1,12 +1,12 @@
 <?php
-namespace rtens\proto\app\ui\actions;
+namespace rtens\udity\app\ui\actions;
 
 use rtens\domin\Action;
 use rtens\domin\Parameter;
 use rtens\domin\reflection\types\TypeFactory;
-use rtens\proto\AggregateIdentifier;
-use rtens\proto\app\Application;
-use rtens\proto\Query;
+use rtens\udity\AggregateIdentifier;
+use rtens\udity\app\Application;
+use rtens\udity\Query;
 use watoki\reflect\MethodAnalyzer;
 use watoki\reflect\type\ClassType;
 

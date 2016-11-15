@@ -1,7 +1,7 @@
 <?php
-namespace rtens\proto\check\event;
+namespace rtens\udity\check\event;
 
-use rtens\proto\Event;
+use rtens\udity\Event;
 
 abstract class EventMatcher {
     private $payload = [];

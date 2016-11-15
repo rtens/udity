@@ -1,13 +1,13 @@
 <?php
-namespace rtens\proto\domain\objects;
+namespace rtens\udity\domain\objects;
 
-use rtens\proto\domain\command\Aggregate;
-use rtens\proto\AggregateIdentifier;
-use rtens\proto\Command;
-use rtens\proto\Event;
-use rtens\proto\Projection;
-use rtens\proto\utils\ArgumentFiller;
-use rtens\proto\utils\Str;
+use rtens\udity\domain\command\Aggregate;
+use rtens\udity\AggregateIdentifier;
+use rtens\udity\Command;
+use rtens\udity\Event;
+use rtens\udity\Projection;
+use rtens\udity\utils\ArgumentFiller;
+use rtens\udity\utils\Str;
 
 abstract class DomainObject extends Aggregate implements Projection {
 

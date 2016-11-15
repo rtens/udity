@@ -1,9 +1,9 @@
 <?php
-namespace rtens\proto;
+namespace rtens\udity;
 
 use rtens\domin\Parameter;
-use rtens\proto\domain\command\Singleton;
-use rtens\proto\domain\query\DefaultProjection;
+use rtens\udity\domain\command\Singleton;
+use rtens\udity\domain\query\DefaultProjection;
 use watoki\reflect\type\StringType;
 
 class ProjectEventsSpec extends Specification {

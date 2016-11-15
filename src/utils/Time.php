@@ -1,5 +1,5 @@
 <?php
-namespace rtens\proto\utils;
+namespace rtens\udity\utils;
 
 class Time {
     private static $frozen;

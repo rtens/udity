@@ -1,5 +1,5 @@
 <?php
-namespace rtens\proto;
+namespace rtens\udity;
 
 /**
  * A Projection receives all Events that were ever recorded to infer something interesting from them

@@ -1,8 +1,8 @@
 <?php
-namespace rtens\proto\check;
+namespace rtens\udity\check;
 
 use rtens\domin\delivery\web\WebApplication;
-use rtens\proto\utils\Str;
+use rtens\udity\utils\Str;
 
 class MockAggregate {
     /**

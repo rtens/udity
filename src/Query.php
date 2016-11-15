@@ -1,5 +1,5 @@
 <?php
-namespace rtens\proto;
+namespace rtens\udity;
 
 /**
  * Queries return a value as response.

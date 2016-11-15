@@ -1,5 +1,5 @@
 <?php
-namespace rtens\proto;
+namespace rtens\udity;
 
 /**
  * A CommandHandler first receives Events to restore its state and then is asked to turn a Command into new Events

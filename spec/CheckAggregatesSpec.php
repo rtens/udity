@@ -1,9 +1,9 @@
 <?php
-namespace rtens\proto;
+namespace rtens\udity;
 
-use rtens\proto\check\DomainSpecification;
-use rtens\proto\check\event\Events;
-use rtens\proto\domain\command\Aggregate;
+use rtens\udity\check\DomainSpecification;
+use rtens\udity\check\event\Events;
+use rtens\udity\domain\command\Aggregate;
 
 class CheckAggregatesSpec extends CheckDomainSpecification {
 

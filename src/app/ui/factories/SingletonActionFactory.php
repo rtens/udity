@@ -1,8 +1,8 @@
 <?php
-namespace rtens\proto\app\ui\factories;
+namespace rtens\udity\app\ui\factories;
 
-use rtens\proto\app\ui\actions\SingletonCommandAction;
-use rtens\proto\domain\command\Singleton;
+use rtens\udity\app\ui\actions\SingletonCommandAction;
+use rtens\udity\domain\command\Singleton;
 
 class SingletonActionFactory extends AggregateActionFactory {
 

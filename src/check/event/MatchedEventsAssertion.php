@@ -1,8 +1,8 @@
 <?php
-namespace rtens\proto\check\event;
+namespace rtens\udity\check\event;
 
-use rtens\proto\check\FailedAssertion;
-use rtens\proto\Event;
+use rtens\udity\check\FailedAssertion;
+use rtens\udity\Event;
 
 class MatchedEventsAssertion {
     /**

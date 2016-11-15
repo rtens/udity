@@ -1,8 +1,8 @@
 <?php
-namespace rtens\proto\check\event;
+namespace rtens\udity\check\event;
 
-use rtens\proto\check\event\matchers\AnyEventMatcher;
-use rtens\proto\check\event\matchers\NamedEventMatcher;
+use rtens\udity\check\event\matchers\AnyEventMatcher;
+use rtens\udity\check\event\matchers\NamedEventMatcher;
 
 class Events {
 

@@ -1,13 +1,13 @@
 <?php
-namespace rtens\proto;
+namespace rtens\udity;
 
 use rtens\domin\delivery\web\WebField;
 use rtens\domin\Parameter;
-use rtens\proto\app\ui\fields\IdentifierEnumerationField;
-use rtens\proto\app\ui\fields\IdentifierField;
-use rtens\proto\domain\objects\DomainObject;
-use rtens\proto\domain\query\IdentifierOptionsList;
-use rtens\proto\utils\Str;
+use rtens\udity\app\ui\fields\IdentifierEnumerationField;
+use rtens\udity\app\ui\fields\IdentifierField;
+use rtens\udity\domain\objects\DomainObject;
+use rtens\udity\domain\query\IdentifierOptionsList;
+use rtens\udity\utils\Str;
 use watoki\reflect\type\ClassType;
 
 class SelectEntitiesFromIdentifierSpec extends Specification {

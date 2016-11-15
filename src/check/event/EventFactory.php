@@ -1,8 +1,8 @@
 <?php
-namespace rtens\proto\check\event;
+namespace rtens\udity\check\event;
 
-use rtens\proto\AggregateIdentifier;
-use rtens\proto\Event;
+use rtens\udity\AggregateIdentifier;
+use rtens\udity\Event;
 
 class EventFactory {
     /**

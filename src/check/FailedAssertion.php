@@ -1,5 +1,5 @@
 <?php
-namespace rtens\proto\check;
+namespace rtens\udity\check;
 
 class FailedAssertion extends \RuntimeException {
 

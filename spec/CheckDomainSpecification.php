@@ -1,7 +1,7 @@
 <?php
-namespace rtens\proto;
+namespace rtens\udity;
 
-use rtens\proto\check\DomainSpecification;
+use rtens\udity\check\DomainSpecification;
 
 abstract class CheckDomainSpecification extends Specification {
 

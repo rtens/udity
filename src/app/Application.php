@@ -1,13 +1,13 @@
 <?php
-namespace rtens\proto\app;
+namespace rtens\udity\app;
 
 use rtens\domin\delivery\web\WebApplication;
-use rtens\proto\app\ui\WebInterface;
-use rtens\proto\Command;
-use rtens\proto\domain\command\Aggregate;
-use rtens\proto\Projection;
-use rtens\proto\Query;
-use rtens\proto\utils\ArgumentFiller;
+use rtens\udity\app\ui\WebInterface;
+use rtens\udity\Command;
+use rtens\udity\domain\command\Aggregate;
+use rtens\udity\Projection;
+use rtens\udity\Query;
+use rtens\udity\utils\ArgumentFiller;
 use watoki\karma\Application as Karma;
 use watoki\karma\implementations\aggregates\GenericAggregateFactory;
 use watoki\karma\implementations\GenericApplication;

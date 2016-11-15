@@ -1,8 +1,8 @@
 <?php
-namespace rtens\proto\domain\query;
+namespace rtens\udity\domain\query;
 
-use rtens\proto\Event;
-use rtens\proto\Projection;
+use rtens\udity\Event;
+use rtens\udity\Projection;
 
 /**
  * Forwards Events to its Projection items

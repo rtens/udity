@@ -1,7 +1,7 @@
 <?php
-namespace rtens\proto\domain\command;
+namespace rtens\udity\domain\command;
 
-use rtens\proto\AggregateIdentifier;
+use rtens\udity\AggregateIdentifier;
 
 /**
  * An Aggregate without identity.

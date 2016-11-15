@@ -1,9 +1,9 @@
 <?php
-namespace rtens\proto;
+namespace rtens\udity;
 
 use rtens\domin\Parameter;
-use rtens\proto\domain\objects\DomainObject;
-use rtens\proto\domain\objects\DomainObjectList;
+use rtens\udity\domain\objects\DomainObject;
+use rtens\udity\domain\objects\DomainObjectList;
 use watoki\reflect\type\ClassType;
 
 class ProjectDomainObjectsSpec extends Specification {

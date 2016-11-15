@@ -1,14 +1,14 @@
 <?php
-namespace rtens\proto\app\ui\factories;
+namespace rtens\udity\app\ui\factories;
 
 use rtens\domin\Action;
 use rtens\domin\delivery\web\WebApplication;
-use rtens\proto\app\Application;
-use rtens\proto\app\ui\ActionFactory;
-use rtens\proto\app\ui\actions\QueryAction;
-use rtens\proto\domain\objects\DomainObject;
-use rtens\proto\domain\query\DefaultProjection;
-use rtens\proto\Projection;
+use rtens\udity\app\Application;
+use rtens\udity\app\ui\ActionFactory;
+use rtens\udity\app\ui\actions\QueryAction;
+use rtens\udity\domain\objects\DomainObject;
+use rtens\udity\domain\query\DefaultProjection;
+use rtens\udity\Projection;
 
 class ProjectionActionFactory implements ActionFactory {
     /**

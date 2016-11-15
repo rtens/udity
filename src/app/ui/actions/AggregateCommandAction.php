@@ -1,11 +1,11 @@
 <?php
-namespace rtens\proto\app\ui\actions;
+namespace rtens\udity\app\ui\actions;
 
 use rtens\domin\Action;
 use rtens\domin\Parameter;
 use rtens\domin\reflection\types\TypeFactory;
-use rtens\proto\app\Application;
-use rtens\proto\Command;
+use rtens\udity\app\Application;
+use rtens\udity\Command;
 use watoki\reflect\MethodAnalyzer;
 use watoki\reflect\type\ClassType;
 

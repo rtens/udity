@@ -1,16 +1,16 @@
 <?php
-namespace rtens\proto\app\ui\factories;
+namespace rtens\udity\app\ui\factories;
 
 use rtens\domin\Action;
 use rtens\domin\delivery\web\WebApplication;
-use rtens\proto\app\Application;
-use rtens\proto\app\ui\ActionFactory;
-use rtens\proto\app\ui\actions\AggregateCommandAction;
-use rtens\proto\app\ui\actions\ChangeDomainObjectAction;
-use rtens\proto\app\ui\actions\CreateDomainObjectAction;
-use rtens\proto\app\ui\actions\QueryAction;
-use rtens\proto\domain\objects\DomainObject;
-use rtens\proto\utils\Str;
+use rtens\udity\app\Application;
+use rtens\udity\app\ui\ActionFactory;
+use rtens\udity\app\ui\actions\AggregateCommandAction;
+use rtens\udity\app\ui\actions\ChangeDomainObjectAction;
+use rtens\udity\app\ui\actions\CreateDomainObjectAction;
+use rtens\udity\app\ui\actions\QueryAction;
+use rtens\udity\domain\objects\DomainObject;
+use rtens\udity\utils\Str;
 
 class DomainObjectActionFactory implements ActionFactory {
     /**

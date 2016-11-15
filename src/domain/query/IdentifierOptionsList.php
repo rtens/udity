@@ -1,7 +1,7 @@
 <?php
-namespace rtens\proto\domain\query;
+namespace rtens\udity\domain\query;
 
-use rtens\proto\Projection;
+use rtens\udity\Projection;
 
 interface IdentifierOptionsList extends Projection {
 

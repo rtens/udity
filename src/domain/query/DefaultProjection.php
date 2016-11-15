@@ -1,10 +1,10 @@
 <?php
-namespace rtens\proto\domain\query;
+namespace rtens\udity\domain\query;
 
-use rtens\proto\AggregateIdentifier;
-use rtens\proto\Event;
-use rtens\proto\Projection;
-use rtens\proto\utils\ArgumentFiller;
+use rtens\udity\AggregateIdentifier;
+use rtens\udity\Event;
+use rtens\udity\Projection;
+use rtens\udity\utils\ArgumentFiller;
 
 class DefaultProjection implements Projection {
 

@@ -1,11 +1,11 @@
 <?php
-namespace rtens\proto;
+namespace rtens\udity;
 
 use rtens\domin\delivery\web\renderers\link\types\ClassLink;
-use rtens\proto\app\ui\actions\AggregateCommandAction;
-use rtens\proto\domain\command\Aggregate;
-use rtens\proto\domain\objects\DomainObject;
-use rtens\proto\domain\query\DefaultProjection;
+use rtens\udity\app\ui\actions\AggregateCommandAction;
+use rtens\udity\domain\command\Aggregate;
+use rtens\udity\domain\objects\DomainObject;
+use rtens\udity\domain\query\DefaultProjection;
 
 class LinkActionsSpec extends Specification {
 

@@ -1,5 +1,5 @@
 <?php
-namespace rtens\proto;
+namespace rtens\udity;
 
 /**
  * Commands are turned into Events by CommandHandlers.

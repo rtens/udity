@@ -1,19 +1,19 @@
 <?php
-namespace rtens\proto\app\ui;
+namespace rtens\udity\app\ui;
 
 use rtens\domin\delivery\web\renderers\link\types\ClassLink;
 use rtens\domin\delivery\web\WebApplication;
 use rtens\domin\reflection\GenericAction;
-use rtens\proto\AggregateIdentifier;
-use rtens\proto\app\Application;
-use rtens\proto\app\ui\factories\AggregateActionFactory;
-use rtens\proto\app\ui\factories\DomainObjectActionFactory;
-use rtens\proto\app\ui\factories\ProjectionActionFactory;
-use rtens\proto\app\ui\factories\SingletonActionFactory;
-use rtens\proto\app\ui\fields\IdentifierEnumerationField;
-use rtens\proto\app\ui\fields\IdentifierField;
-use rtens\proto\domain\objects\DomainObject;
-use rtens\proto\utils\Str;
+use rtens\udity\AggregateIdentifier;
+use rtens\udity\app\Application;
+use rtens\udity\app\ui\factories\AggregateActionFactory;
+use rtens\udity\app\ui\factories\DomainObjectActionFactory;
+use rtens\udity\app\ui\factories\ProjectionActionFactory;
+use rtens\udity\app\ui\factories\SingletonActionFactory;
+use rtens\udity\app\ui\fields\IdentifierEnumerationField;
+use rtens\udity\app\ui\fields\IdentifierField;
+use rtens\udity\domain\objects\DomainObject;
+use rtens\udity\utils\Str;
 use watoki\reflect\PropertyReader;
 use watoki\reflect\type\ClassType;
 

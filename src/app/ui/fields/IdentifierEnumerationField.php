@@ -1,12 +1,12 @@
 <?php
-namespace rtens\proto\app\ui\fields;
+namespace rtens\udity\app\ui\fields;
 
 use rtens\domin\delivery\web\Element;
 use rtens\domin\Parameter;
-use rtens\proto\AggregateIdentifier;
-use rtens\proto\app\Application;
-use rtens\proto\domain\query\IdentifierOptionsList;
-use rtens\proto\Query;
+use rtens\udity\AggregateIdentifier;
+use rtens\udity\app\Application;
+use rtens\udity\domain\query\IdentifierOptionsList;
+use rtens\udity\Query;
 
 /**
  * Drop-down selection for AggregateIdentifier. Can be disabled.

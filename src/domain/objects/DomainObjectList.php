@@ -1,11 +1,11 @@
 <?php
-namespace rtens\proto\domain\objects;
+namespace rtens\udity\domain\objects;
 
-use rtens\proto\domain\query\IdentifierOptionsList;
-use rtens\proto\domain\query\ProjectionList;
-use rtens\proto\Event;
-use rtens\proto\Projection;
-use rtens\proto\utils\Str;
+use rtens\udity\domain\query\IdentifierOptionsList;
+use rtens\udity\domain\query\ProjectionList;
+use rtens\udity\Event;
+use rtens\udity\Projection;
+use rtens\udity\utils\Str;
 
 abstract class DomainObjectList extends ProjectionList implements IdentifierOptionsList {
 
