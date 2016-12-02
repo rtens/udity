@@ -1,7 +1,6 @@
 <?php
 namespace rtens\udity\check\event;
 
-use rtens\udity\AggregateIdentifier;
 use rtens\udity\Event;
 
 class EventFactory {
@@ -13,12 +12,24 @@ class EventFactory {
      * @var mixed[]
      */
     private $payload = [];
+    /**
+     * @var string
+     */
+    private $aggregateClass;
+    /**
+     * @var string
+     */
+    private $aggregateKey;
 
     /**
      * @param string $name
+     * @param string $aggregateClass
+     * @param string $aggregateKey
      */
-    public function __construct($name) {
+    public function __construct($name, $aggregateClass, $aggregateKey) {
         $this->name = $name;
+        $this->aggregateClass = $aggregateClass;
+        $this->aggregateKey = $aggregateKey;
     }
 
     public function with($key, $value) {
@@ -26,7 +37,8 @@ class EventFactory {
         return $this;
     }
 
-    public function makeEvent(AggregateIdentifier $identifier) {
-        return new Event($identifier, $this->name, $this->payload);
+    public function makeEvent() {
+        $identifierClass = $this->aggregateClass . 'Identifier';
+        return new Event(new $identifierClass($this->aggregateKey), $this->name, $this->payload);
     }
 }

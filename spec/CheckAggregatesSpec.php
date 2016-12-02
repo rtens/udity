@@ -117,9 +117,10 @@ class CheckAggregatesSpec extends CheckDomainSpecification {
         ');
 
         $this->shouldPass(function (DomainSpecification $a) {
-            $a->given('Bared', 'foo')->with('said', 'One');
-            $a->given('Bared', 'bar')->with('said', 'Two');
-            $a->given('Bared', 'foo')->with('said', 'Three');
+            $a->given('Bared', $this->fqn('Foo'))->with('said', 'Zero');
+            $a->given('Bared', $this->fqn('Foo'), 'foo')->with('said', 'One');
+            $a->given('Bared', $this->fqn('Foo'), 'bar')->with('said', 'Two');
+            $a->given('Bared', $this->fqn('Foo'), 'foo')->with('said', 'Three');
 
             $a->when($this->fqn('Foo'), 'foo')->handleBar();
             $a->then(Events::named('Bared')->with('said', 'OneThree'))->shouldBeAppended();

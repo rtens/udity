@@ -6,6 +6,7 @@ use rtens\udity\app\Application;
 use rtens\udity\check\event\EventFactory;
 use rtens\udity\check\event\EventMatcher;
 use rtens\udity\check\event\MatchedEventsAssertion;
+use rtens\udity\check\projection\MockProjection;
 use rtens\udity\Event;
 use rtens\udity\utils\Time;
 use watoki\karma\stores\MemoryEventStore;
@@ -28,6 +29,10 @@ class DomainSpecification {
      * @var null|\Exception
      */
     private $caught;
+    /**
+     * @var null|object
+     */
+    private $projection;
 
     public function __construct($domainClasses) {
         Time::freeze();
@@ -37,11 +42,12 @@ class DomainSpecification {
 
     /**
      * @param $event
+     * @param string $aggregateClass
      * @param string $aggregateKey
      * @return EventFactory
      */
-    public function given($event, $aggregateKey = self::DEFAULT_KEY) {
-        $mock = new EventFactory($event);
+    public function given($event, $aggregateClass, $aggregateKey = self::DEFAULT_KEY) {
+        $mock = new EventFactory($event, $aggregateClass, $aggregateKey);
         $this->events[$aggregateKey][] = $mock;
         return $mock;
     }
@@ -52,7 +58,7 @@ class DomainSpecification {
      * @return object
      */
     public function when($aggregate, $identifierKey = self::DEFAULT_KEY) {
-        $factory = $this->prepare($aggregate);
+        $factory = $this->prepare();
         $identifierClass = $aggregate . 'Identifier';
 
         return new MockAggregate(
@@ -67,7 +73,7 @@ class DomainSpecification {
      * @return object
      */
     public function tryTo($aggregate, $identifierKey = self::DEFAULT_KEY) {
-        $factory = $this->prepare($aggregate);
+        $factory = $this->prepare();
         $identifierClass = $aggregate . 'Identifier';
 
         return new MockAggregate(
@@ -91,20 +97,17 @@ class DomainSpecification {
     }
 
     /**
-     * @param $aggregate
      * @return \watoki\factory\Factory
      */
-    private function prepare($aggregate) {
+    private function prepare() {
         $factory = WebApplication::init(function (WebApplication $ui) {
             (new Application($this->eventStore))
                 ->run($ui, $this->domainClasses);
         });
 
-        $identifierClass = $aggregate . 'Identifier';
         foreach ($this->events as $key => $events) {
-            $identifier = new $identifierClass($key);
             foreach ($events as $event) {
-                $this->eventStore->append($event->makeEvent($identifier), $key);
+                $this->eventStore->append($event->makeEvent(), $key);
             }
         }
 
@@ -119,5 +122,26 @@ class DomainSpecification {
         } else if ($this->caught->getMessage() != $message) {
             throw new FailedAssertion("Failed with '{$this->caught->getMessage()}' instead of '$message'");
         }
+    }
+
+    public function whenProject($projectionClass) {
+        $factory = $this->prepare();
+
+        $actionId = (new \ReflectionClass($projectionClass))->getShortName();
+
+        /** @var WebApplication $ui */
+        $ui = $factory->getInstance(WebApplication::class);
+        $this->projection = $ui->actions->getAction($actionId)->execute([]);
+    }
+
+    /**
+     * @param string $projectionClass
+     * @return object|MockProjection
+     */
+    public function thenProjected($projectionClass) {
+        if (!is_a($this->projection, $projectionClass)) {
+            throw new FailedAssertion("Projection is not an instance of $projectionClass");
+        }
+        return new MockProjection($this->projection);
     }
 }

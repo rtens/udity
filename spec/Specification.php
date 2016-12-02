@@ -93,6 +93,11 @@ abstract class Specification {
     protected function define($className, $extends, $body = '', $implements = null) {
         $fullName = $this->fqn($className);
 
+        if ((new \ReflectionClass($extends))->isInterface()) {
+            $implements = $extends;
+            $extends = \stdClass::class;
+        }
+
         $this->domainClasses[] = $fullName;
         $this->domainClasses[] = $extends;
 
