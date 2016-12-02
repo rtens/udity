@@ -3,7 +3,7 @@ namespace rtens\udity\check;
 
 use watoki\karma\stores\EventStore;
 
-class NoisyEventStore implements EventStore {
+class NosyEventStore implements EventStore {
     /**
      * @var EventStore
      */

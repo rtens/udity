@@ -13,7 +13,7 @@ use watoki\karma\stores\MemoryEventStore;
 class DomainSpecification {
     const DEFAULT_KEY = 'key';
     /**
-     * @var NoisyEventStore
+     * @var NosyEventStore
      */
     private $eventStore;
     /**
@@ -31,7 +31,7 @@ class DomainSpecification {
 
     public function __construct($domainClasses) {
         Time::freeze();
-        $this->eventStore = new NoisyEventStore(new MemoryEventStore());
+        $this->eventStore = new NosyEventStore(new MemoryEventStore());
         $this->domainClasses = $domainClasses;
     }
 
