@@ -35,10 +35,21 @@ class SelectEntitiesFromIdentifierSpec extends Specification {
         $this->assert($field->inflate($this->parameter('Foo'), ['key' => 'one']), $this->id('Foo', 'one'));
 
         $rendered = $field->render($this->parameter('Foo', 'that'), null);
-        $this->assert($rendered, '<input class="form-control" type="text" name="that[key]" value=""/>');
+        $this->assert->contains($rendered, '<input class="form-control" type="text" name="that[key]" value=""/>');
 
         $rendered = $field->render($this->parameter('Foo', 'that'), $this->id('one'));
         $this->assert->contains($rendered, 'value="one"');
+    }
+
+    function noOptionsDisabled() {
+        $this->define('FooIdentifier', AggregateIdentifier::class);
+
+        $field = $this->getIdentifierField('Foo');
+        $field->inflate($this->parameter('Foo', 'that'), ['key' => 'one', 'fix' => true]);
+
+        $rendered = $field->render($this->parameter('Foo', 'that'), $this->id('Foo', 'one'));
+        $this->assert->contains($rendered, 'name="" value="one" disabled="disabled"');
+        $this->assert->contains($rendered, '<input type="hidden" name="that[key]" value="one"/>');
     }
 
     function disableIdentifierField() {
@@ -48,7 +59,10 @@ class SelectEntitiesFromIdentifierSpec extends Specification {
         $field->inflate($this->parameter('Foo', 'that'), ['key' => 'one', 'fix' => true]);
 
         $this->assert->contains($field->render($this->parameter('Foo', 'that'), $this->id('Foo', 'one')),
-            'disabled="disabled"');
+            '<input type="hidden" name="that[key]" value="one"/>');
+
+        $this->assert->contains($field->render($this->parameter('Foo', 'that'), $this->id('Foo', 'one')),
+            'name="" disabled="disabled"');
         $this->assert->not()->contains($field->render($this->parameter('Foo', 'this'), $this->id('Foo', 'one')),
             'disabled="disabled"');
         $this->assert->not()->contains($field->render($this->parameter('Foo', 'that'), $this->id('Foo', 'two')),
@@ -66,7 +80,7 @@ class SelectEntitiesFromIdentifierSpec extends Specification {
 
         $this->assert->isInstanceOf($field, IdentifierEnumerationField::class);
         $rendered = $field->render($this->parameter('Foo'), $this->id('Foo'));
-        $this->assert->contains($rendered, '<select name="bla[key]" class="form-control">');
+        $this->assert->contains($rendered, '<select class="form-control" name="bla[key]">');
         $this->assert->contains($rendered, '<option value="foo">bar</option>');
     }
 

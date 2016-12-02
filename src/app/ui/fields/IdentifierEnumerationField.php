@@ -38,16 +38,22 @@ class IdentifierEnumerationField extends IdentifierField {
      * @return string
      */
     public function render(Parameter $parameter, $value) {
+        $elements = [];
         $attributes = [
+            'class' => 'form-control',
             'name' => $parameter->getName() . '[key]',
-            'class' => 'form-control'
         ];
 
         if ($this->isDisabled($parameter, $value)) {
+            $elements[] = $this->hiddenElement($value, $attributes['name']);
+
             $attributes['disabled'] = 'disabled';
+            $attributes['name'] = null;
         }
 
-        return (string)new Element('select', $attributes, $this->renderOptions($value));
+        $elements[] = new Element('select', $attributes, $this->renderOptions($value));
+
+        return (string)new Element('div', [], $elements);
     }
 
     private function renderOptions(AggregateIdentifier $value = null) {

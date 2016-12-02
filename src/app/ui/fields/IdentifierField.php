@@ -57,6 +57,7 @@ class IdentifierField implements WebField {
      * @return string
      */
     public function render(Parameter $parameter, $value) {
+        $elements = [];
         $attributes = [
             'class' => 'form-control',
             'type' => 'text',
@@ -69,10 +70,15 @@ class IdentifierField implements WebField {
         }
 
         if ($this->isDisabled($parameter, $value)) {
+            $elements[] = $this->hiddenElement($value, $attributes['name']);
+
             $attributes['disabled'] = 'disabled';
+            $attributes['name'] = null;
         }
 
-        return (string)new Element('input', $attributes);
+        $elements[] = new Element('input', $attributes);
+
+        return (string)new Element('div', [], $elements);
     }
 
     /**
@@ -85,6 +91,14 @@ class IdentifierField implements WebField {
 
     protected function isDisabled(Parameter $parameter, $value) {
         $param = (string)$parameter;
-        return array_key_exists($param, $this->disabled) && $this->disabled[$param] == $value;
+        return $value && array_key_exists($param, $this->disabled) && $this->disabled[$param] == $value;
+    }
+
+    protected function hiddenElement(AggregateIdentifier $value, $name) {
+        return new Element('input', [
+            'type' => 'hidden',
+            'name' => $name,
+            'value' => $value->getKey()
+        ]);
     }
 }
