@@ -67,12 +67,28 @@ class CheckAggregatesSpec extends CheckDomainSpecification {
             }
         ');
 
-        $this->shouldPass(function (DomainSpecification $a) {
-            $a->when($this->fqn('Foo'))->handleBar();
-            $a->then(Events::named('one')->with('foo', 'bar'))->shouldCount(1);
-            $a->then(Events::any()->with('foo', 'bar'))->shouldCount(2);
-            $a->then(Events::any()->with('foo', 'foo'))->shouldNotBeAppended();
-            $a->then(Events::any()->with('bar', 'bar'))->shouldNotBeAppended();
+        $this->shouldPass(function (DomainSpecification $spec) {
+            $spec->when($this->fqn('Foo'))->handleBar();
+            $spec->then(Events::named('one')->with('foo', 'bar'))->shouldCount(1);
+            $spec->then(Events::any()->with('foo', 'bar'))->shouldCount(2);
+            $spec->then(Events::any()->with('foo', 'foo'))->shouldNotBeAppended();
+            $spec->then(Events::any()->with('bar', 'bar'))->shouldNotBeAppended();
+        });
+    }
+
+    function matchIdentifier() {
+        $this->define('Foo', Aggregate::class, '
+            function handleBar() {
+                $this->recordThat("bared");          
+            }
+        ');
+
+        $this->shouldPass(function (DomainSpecification $spec) {
+            $spec->when($this->fqn('Foo'), 'one')->handleBar();
+
+            $spec->then(Events::named('bared'))->shouldCount(1);
+            $spec->then(Events::named('bared')->in('one'))->shouldCount(1);
+            $spec->then(Events::named('bared')->in('not one'))->shouldCount(0);
         });
     }
 
@@ -89,7 +105,7 @@ class CheckAggregatesSpec extends CheckDomainSpecification {
         }, 'Event was not appended');
     }
 
-    function withContext() {
+    function applyEventsFromContext() {
         $this->define('Foo', Aggregate::class, '
             private $said;
             function handleBar() {
@@ -101,11 +117,12 @@ class CheckAggregatesSpec extends CheckDomainSpecification {
         ');
 
         $this->shouldPass(function (DomainSpecification $a) {
-            $a->given('Bared')->with('said', 'One');
-            $a->given('Bared')->with('said', 'Two');
+            $a->given('Bared', 'foo')->with('said', 'One');
+            $a->given('Bared', 'bar')->with('said', 'Two');
+            $a->given('Bared', 'foo')->with('said', 'Three');
 
-            $a->when($this->fqn('Foo'))->handleBar();
-            $a->then(Events::named('Bared')->with('said', 'OneTwo'))->shouldBeAppended();
+            $a->when($this->fqn('Foo'), 'foo')->handleBar();
+            $a->then(Events::named('Bared')->with('said', 'OneThree'))->shouldBeAppended();
             $a->then(Events::any())->shouldCount(1);
         });
     }

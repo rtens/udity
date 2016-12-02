@@ -21,7 +21,7 @@ class DomainSpecification {
      */
     private $domainClasses;
     /**
-     * @var EventFactory[]
+     * @var EventFactory[][]
      */
     private $events = [];
     /**
@@ -37,35 +37,42 @@ class DomainSpecification {
 
     /**
      * @param $event
+     * @param string $aggregateKey
      * @return EventFactory
      */
-    public function given($event) {
+    public function given($event, $aggregateKey = self::DEFAULT_KEY) {
         $mock = new EventFactory($event);
-        $this->events[] = $mock;
+        $this->events[$aggregateKey][] = $mock;
         return $mock;
     }
 
     /**
      * @param string $aggregate
+     * @param string $identifierKey
      * @return object
      */
-    public function when($aggregate) {
+    public function when($aggregate, $identifierKey = self::DEFAULT_KEY) {
         $factory = $this->prepare($aggregate);
+        $identifierClass = $aggregate . 'Identifier';
 
         return new MockAggregate(
             new \ReflectionClass($aggregate),
+            new $identifierClass($identifierKey),
             $factory->getInstance(WebApplication::class));
     }
 
     /**
      * @param string $aggregate
+     * @param string $identifierKey
      * @return object
      */
-    public function tryTo($aggregate) {
+    public function tryTo($aggregate, $identifierKey = self::DEFAULT_KEY) {
         $factory = $this->prepare($aggregate);
+        $identifierClass = $aggregate . 'Identifier';
 
         return new MockAggregate(
             new \ReflectionClass($aggregate),
+            new $identifierClass($identifierKey),
             $factory->getInstance(WebApplication::class),
             function (\Exception $exception) {
                 $this->caught = $exception;
@@ -94,9 +101,11 @@ class DomainSpecification {
         });
 
         $identifierClass = $aggregate . 'Identifier';
-        foreach ($this->events as $event) {
-            $identifier = new $identifierClass(self::DEFAULT_KEY);
-            $this->eventStore->append($event->makeEvent($identifier), self::DEFAULT_KEY);
+        foreach ($this->events as $key => $events) {
+            $identifier = new $identifierClass($key);
+            foreach ($events as $event) {
+                $this->eventStore->append($event->makeEvent($identifier), $key);
+            }
         }
 
         $this->eventStore->startRecording();
