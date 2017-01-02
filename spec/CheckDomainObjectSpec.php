@@ -1,6 +1,7 @@
 <?php
 namespace rtens\udity;
 
+use rtens\scrut\failures\IncompleteTestFailure;
 use rtens\udity\check\DomainSpecification;
 use rtens\udity\check\event\Events;
 use rtens\udity\domain\objects\DomainObject;
@@ -83,6 +84,17 @@ class CheckDomainObjectSpec extends CheckDomainSpecification {
         $this->shouldPass(function (DomainSpecification $a) {
             $a->given($this->fqn('Foo'))->didBar('uno');
             $a->when($this->fqn('Foo'))->doCheck();
+        });
+    }
+
+    function projectObject() {
+        throw new IncompleteTestFailure('TBD');
+
+        $this->define('Foo', DomainObject::class);
+
+        $this->shouldPass(function (DomainSpecification $a) {
+            $a->whenProject($this->fqn('Foo'), 'bar');
+            $a->thenProjected('')->getIdentifier()->shouldEqual('bar');
         });
     }
 }
