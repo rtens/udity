@@ -58,6 +58,20 @@ class DomainSpecification {
     }
 
     /**
+     * @param string $domainObjectClass
+     * @param string $identifierKey
+     * @return object
+     */
+    public function given($domainObjectClass, $identifierKey = self::DEFAULT_KEY) {
+        return new FakeDomainObject(
+            $domainObjectClass,
+            $identifierKey,
+            function (FakeEventFactory $eventFactory) use ($identifierKey) {
+                $this->events[$identifierKey][] = $eventFactory;
+            });
+    }
+
+    /**
      * @param string $aggregate
      * @param string $identifierKey
      * @return object

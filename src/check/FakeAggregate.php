@@ -32,7 +32,13 @@ class FakeAggregate {
     }
 
     public function __call($method, $arguments) {
-        $command = Str::g($method)->after('handle');
+        $command = $method;
+
+        $methodString = Str::g($method);
+        if ($methodString->startsWith('handle')) {
+            $command = $methodString->after('handle');
+        }
+
         $actionId = $this->aggregate->getShortName() . '$' . $command;
 
         $action = $this->ui->actions->getAction($actionId);
