@@ -1,7 +1,7 @@
 <?php
 namespace rtens\udity\check\projection;
 
-class MockProjection {
+class FakeProjection {
     /**
      * @var object
      */

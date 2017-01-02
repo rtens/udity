@@ -1,12 +1,9 @@
 <?php
-namespace rtens\proto;
+namespace rtens\udity;
 
 use rtens\udity\check\DomainSpecification;
-use rtens\udity\CheckDomainSpecification;
 use rtens\udity\domain\command\Aggregate;
 use rtens\udity\domain\query\DefaultProjection;
-use rtens\udity\Event;
-use rtens\udity\Projection;
 
 class CheckProjectionsSpec extends CheckDomainSpecification {
 
@@ -49,8 +46,8 @@ class CheckProjectionsSpec extends CheckDomainSpecification {
         ');
 
         $this->shouldPass(function (DomainSpecification $spec) {
-            $spec->given('Any', $this->fqn('Bar'));
-            $spec->given('Other', $this->fqn('Bar'));
+            $spec->givenThat('Any', $this->fqn('Bar'));
+            $spec->givenThat('Other', $this->fqn('Bar'));
 
             $spec->whenProject($this->fqn('Foo'));
             $spec->thenProjected($this->fqn('Foo'))->currentCount()->shouldEqual(2);

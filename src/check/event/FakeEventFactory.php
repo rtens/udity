@@ -3,7 +3,7 @@ namespace rtens\udity\check\event;
 
 use rtens\udity\Event;
 
-class EventFactory {
+class FakeEventFactory {
     /**
      * @var string
      */

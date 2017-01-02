@@ -5,7 +5,7 @@ use rtens\domin\delivery\web\WebApplication;
 use rtens\udity\AggregateIdentifier;
 use rtens\udity\utils\Str;
 
-class MockAggregate {
+class FakeAggregate {
     /**
      * @var \ReflectionClass
      */
