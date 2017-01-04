@@ -8,20 +8,20 @@ use rtens\udity\domain\command\Aggregate;
 class CheckCommandOutcomeSpec extends CheckDomainSpecification {
 
     function unexpectedEvent() {
-        $this->define('Foo', Aggregate::class, '
+        $Foo = $this->define('Foo', Aggregate::class, '
             function handleBar() {
                 $this->recordThat("Bared");
             }
         ');
 
-        $this->shouldFail(function (DomainSpecification $spec) {
-            $spec->when($this->fqn('Foo'))->handleBar();
+        $this->shouldFail(function (DomainSpecification $spec) use ($Foo) {
+            $spec->when($Foo)->handleBar();
             $spec->then(Events::any())->shouldCount(0);
         }, 'Expected to match 0 events but got 1');
     }
 
     function matchEvents() {
-        $this->define('Foo', Aggregate::class, '
+        $Foo = $this->define('Foo', Aggregate::class, '
             function handleBar() {
                 $this->recordThat("One");
                 $this->recordThat("Two");
@@ -29,8 +29,8 @@ class CheckCommandOutcomeSpec extends CheckDomainSpecification {
             }
         ');
 
-        $this->shouldPass(function (DomainSpecification $spec) {
-            $spec->when($this->fqn('Foo'))->handleBar();
+        $this->shouldPass(function (DomainSpecification $spec) use ($Foo) {
+            $spec->when($Foo)->handleBar();
             $spec->then(Events::any())->shouldCount(3);
             $spec->then(Events::named('One'))->shouldCount(1);
             $spec->then(Events::named('Two'))->shouldCount(2);
@@ -41,15 +41,15 @@ class CheckCommandOutcomeSpec extends CheckDomainSpecification {
     }
 
     function matchPayload() {
-        $this->define('Foo', Aggregate::class, '
+        $Foo = $this->define('Foo', Aggregate::class, '
             function handleBar() {
                 $this->recordThat("one", ["foo" => "bar"]);            
                 $this->recordThat("two", ["foo" => "bar"]);            
             }
         ');
 
-        $this->shouldPass(function (DomainSpecification $spec) {
-            $spec->when($this->fqn('Foo'))->handleBar();
+        $this->shouldPass(function (DomainSpecification $spec) use ($Foo) {
+            $spec->when($Foo)->handleBar();
             $spec->then(Events::named('one')->with('foo', 'bar'))->shouldCount(1);
             $spec->then(Events::any()->with('foo', 'bar'))->shouldCount(2);
             $spec->then(Events::any()->with('foo', 'foo'))->shouldNotBeAppended();
@@ -58,14 +58,14 @@ class CheckCommandOutcomeSpec extends CheckDomainSpecification {
     }
 
     function matchIdentifier() {
-        $this->define('Foo', Aggregate::class, '
+        $Foo = $this->define('Foo', Aggregate::class, '
             function handleBar() {
                 $this->recordThat("bared");          
             }
         ');
 
-        $this->shouldPass(function (DomainSpecification $spec) {
-            $spec->when($this->fqn('Foo'), 'one')->handleBar();
+        $this->shouldPass(function (DomainSpecification $spec) use ($Foo) {
+            $spec->when($Foo, 'one')->handleBar();
 
             $spec->then(Events::named('bared'))->shouldCount(1);
             $spec->then(Events::named('bared')->in('one'))->shouldCount(1);
@@ -74,20 +74,20 @@ class CheckCommandOutcomeSpec extends CheckDomainSpecification {
     }
 
     function unexpectedPayload() {
-        $this->define('Foo', Aggregate::class, '
+        $Foo = $this->define('Foo', Aggregate::class, '
             function handleBar() {
                 $this->recordThat("one");            
             }
         ');
 
-        $this->shouldFail(function (DomainSpecification $a) {
-            $a->when($this->fqn('Foo'))->handleBar();
-            $a->then(Events::any()->with('foo', 'bar'))->shouldBeAppended();
+        $this->shouldFail(function (DomainSpecification $spec) use ($Foo) {
+            $spec->when($Foo)->handleBar();
+            $spec->then(Events::any()->with('foo', 'bar'))->shouldBeAppended();
         }, 'Event was not appended');
     }
 
     function expectFailure() {
-        $this->define('Foo', Aggregate::class, '
+        $Foo = $this->define('Foo', Aggregate::class, '
             function handleBar() {
                 throw new \Exception("Nope");
             }
@@ -95,19 +95,19 @@ class CheckCommandOutcomeSpec extends CheckDomainSpecification {
             }
         ');
 
-        $this->shouldPass(function (DomainSpecification $a) {
-            $a->tryTo($this->fqn('Foo'))->handleBar();
-            $a->thenShouldFailWith('Nope');
+        $this->shouldPass(function (DomainSpecification $spec) use ($Foo) {
+            $spec->tryTo($Foo)->handleBar();
+            $spec->thenShouldFailWith('Nope');
         });
 
-        $this->shouldFail(function (DomainSpecification $a) {
-            $a->tryTo($this->fqn('Foo'))->handleBar();
-            $a->thenShouldFailWith('Other');
+        $this->shouldFail(function (DomainSpecification $spec) use ($Foo) {
+            $spec->tryTo($Foo)->handleBar();
+            $spec->thenShouldFailWith('Other');
         }, "Failed with 'Nope' instead of 'Other'");
 
-        $this->shouldFail(function (DomainSpecification $a) {
-            $a->tryTo($this->fqn('Foo'))->handleBaz();
-            $a->thenShouldFailWith('Nope');
+        $this->shouldFail(function (DomainSpecification $spec) use ($Foo) {
+            $spec->tryTo($Foo)->handleBaz();
+            $spec->thenShouldFailWith('Nope');
         }, 'Did not fail');
     }
 }

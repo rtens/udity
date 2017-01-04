@@ -1,7 +1,6 @@
 <?php
 namespace rtens\udity;
 
-use rtens\scrut\failures\IncompleteTestFailure;
 use rtens\udity\check\DomainSpecification;
 use rtens\udity\check\event\Events;
 use rtens\udity\domain\objects\DomainObject;
@@ -9,45 +8,45 @@ use rtens\udity\domain\objects\DomainObject;
 class CheckDomainObjectSpec extends CheckDomainSpecification {
 
     function notACommand() {
-        $this->define('Foo', DomainObject::class);
+        $Foo = $this->define('Foo', DomainObject::class);
 
-        $this->shouldFail(function (DomainSpecification $spec) {
-            $spec->when($this->fqn('Foo'))->doBar();
+        $this->shouldFail(function (DomainSpecification $spec) use ($Foo) {
+            $spec->when($Foo)->doBar();
         }, 'Action [Foo$doBar] is not registered.');
     }
 
     function eventHandlerIsNotACommand() {
-        $this->define('Foo', DomainObject::class, '
+        $Foo = $this->define('Foo', DomainObject::class, '
             function didBar() {}');
 
-        $this->shouldFail(function (DomainSpecification $spec) {
-            $spec->when($this->fqn('Foo'))->didBar();
+        $this->shouldFail(function (DomainSpecification $spec) use ($Foo) {
+            $spec->when($Foo)->didBar();
         }, 'Action [Foo$didBar] is not registered.');
     }
 
     function recordEvent() {
-        $this->define('Foo', DomainObject::class, '
+        $Foo = $this->define('Foo', DomainObject::class, '
             function doBar() {}
         ');
 
-        $this->shouldPass(function (DomainSpecification $spec) {
-            $spec->when($this->fqn('Foo'))->doBar();
+        $this->shouldPass(function (DomainSpecification $spec) use ($Foo) {
+            $spec->when($Foo)->doBar();
             $spec->then(Events::named('DidBar'))->shouldCount(1);
         });
     }
 
     function eventHandlerInfersACommand() {
-        $this->define('Foo', DomainObject::class, '
+        $Foo = $this->define('Foo', DomainObject::class, '
             function didBar() {}');
 
-        $this->shouldPass(function (DomainSpecification $spec) {
-            $spec->when($this->fqn('Foo'))->doBar();
+        $this->shouldPass(function (DomainSpecification $spec) use ($Foo) {
+            $spec->when($Foo)->doBar();
             $spec->then(Events::named('DidBar'))->shouldCount(1);
         });
     }
 
     function applyEventsFromContext() {
-        $this->define('Foo', DomainObject::class, '
+        $Foo = $this->define('Foo', DomainObject::class, '
             private $that;
             function didBar($that) {
                 $this->that .= $that;
@@ -59,18 +58,18 @@ class CheckDomainObjectSpec extends CheckDomainSpecification {
             }
         ');
 
-        $this->shouldPass(function (DomainSpecification $a) {
-            $a->given($this->fqn('Foo'))->didBar('Zero');
-            $a->given($this->fqn('Foo'), 'foo')->didBar('One');
-            $a->given($this->fqn('Foo'), 'bar')->didBar('Two');
-            $a->given($this->fqn('Foo'), 'foo')->didBar('Three');
+        $this->shouldPass(function (DomainSpecification $spec) use ($Foo) {
+            $spec->given($Foo)->didBar('Zero');
+            $spec->given($Foo, 'foo')->didBar('One');
+            $spec->given($Foo, 'bar')->didBar('Two');
+            $spec->given($Foo, 'foo')->didBar('Three');
 
-            $a->when($this->fqn('Foo'), 'foo')->doCheck();
+            $spec->when($Foo, 'foo')->doCheck();
         });
     }
 
     function optionalParameters() {
-        $this->define('Foo', DomainObject::class, '
+        $Foo = $this->define('Foo', DomainObject::class, '
             function didBar($one, $two = "optional") {
                 $this->optional = $two;
             }
@@ -81,20 +80,18 @@ class CheckDomainObjectSpec extends CheckDomainSpecification {
             }
         ');
 
-        $this->shouldPass(function (DomainSpecification $a) {
-            $a->given($this->fqn('Foo'))->didBar('uno');
-            $a->when($this->fqn('Foo'))->doCheck();
+        $this->shouldPass(function (DomainSpecification $spec) use ($Foo) {
+            $spec->given($Foo)->didBar('uno');
+            $spec->when($Foo)->doCheck();
         });
     }
 
     function projectObject() {
-        throw new IncompleteTestFailure('TBD');
+        $Foo = $this->define('Foo', DomainObject::class);
 
-        $this->define('Foo', DomainObject::class);
-
-        $this->shouldPass(function (DomainSpecification $a) {
-            $a->whenProject($this->fqn('Foo'), 'bar');
-            $a->thenProjected('')->getIdentifier()->shouldEqual('bar');
+        $this->shouldPass(function (DomainSpecification $a) use ($Foo) {
+            $a->whenProjectObject($Foo, 'bar');
+            $a->thenAssert()->equals($a->projection($Foo)->getIdentifier()->getKey(), 'bar');
         });
     }
 }

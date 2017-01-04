@@ -12,10 +12,10 @@
   "require": {
     "rtens/domin": "*",
     "watoki/curir": "*",
-    "watoki/karma": "*"
+    "watoki/karma": "*",
+    "rtens/scrut": "*"
   },
   "require-dev": {
-    "rtens/scrut": "*"
   },
   "autoload": {
     "psr-4": {

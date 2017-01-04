@@ -2,11 +2,11 @@
 namespace rtens\udity\check;
 
 use rtens\domin\delivery\web\WebApplication;
+use rtens\scrut\Assert;
 use rtens\udity\app\Application;
 use rtens\udity\check\event\FakeEventFactory;
 use rtens\udity\check\event\EventMatcher;
 use rtens\udity\check\event\MatchedEventsAssertion;
-use rtens\udity\check\projection\FakeProjection;
 use rtens\udity\Event;
 use rtens\udity\utils\Time;
 use watoki\factory\Factory;
@@ -140,25 +140,45 @@ class DomainSpecification {
         }
     }
 
-    public function whenProject($projectionClass) {
+    public function whenProjectObject($domainObjectClass, $key) {
         $factory = $this->prepare();
 
+        $identifierClass = $domainObjectClass . 'Identifier';
+        $parameters = [new $identifierClass($key)];
+
+        $this->whenProjectPrepared($domainObjectClass, $parameters, $factory);
+    }
+
+    public function whenProject($projectionClass, array $parameters = []) {
+        $factory = $this->prepare();
+        $this->whenProjectPrepared($projectionClass, $parameters, $factory);
+    }
+
+    private function whenProjectPrepared($projectionClass, array $parameters, Factory $factory) {
         $actionId = (new \ReflectionClass($projectionClass))->getShortName();
 
         /** @var WebApplication $ui */
         $ui = $factory->getInstance(WebApplication::class);
-        $this->projection = $ui->actions->getAction($actionId)->execute([]);
+        $this->projection = $ui->actions->getAction($actionId)->execute($parameters);
     }
 
     /**
-     * @param string $projectionClass
-     * @return object|FakeProjection
+     * @return Assert
      */
-    public function thenProjected($projectionClass) {
-        if (!is_a($this->projection, $projectionClass)) {
-            throw new FailedAssertion("Projection is not an instance of $projectionClass");
+    public function thenAssert() {
+        return new Assert();
+    }
+
+    /**
+     * @param string $class
+     * @return object
+     */
+    public function projection($class) {
+        if (!is_a($this->projection, $class)) {
+            throw new FailedAssertion("Projection is not an instance of $class");
         }
-        return new FakeProjection($this->projection);
+
+        return $this->projection;
     }
 
     private function init() {
