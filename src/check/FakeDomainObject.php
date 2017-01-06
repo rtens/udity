@@ -2,6 +2,7 @@
 namespace rtens\udity\check;
 
 use rtens\udity\check\event\FakeEventFactory;
+use rtens\udity\utils\Str;
 
 class FakeDomainObject {
     /**
@@ -24,6 +25,10 @@ class FakeDomainObject {
     }
 
     public function __call($method, $arguments) {
+        $methodString = Str::g($method);
+        if ($methodString->startsWith('do')) {
+            $method = 'did' . $methodString->after('do');
+        }
         $mock = new FakeEventFactory(ucfirst($method), $this->domainObject, $this->identifierKey);
 
         $reflectionMethod = new \ReflectionMethod($this->domainObject, $method);

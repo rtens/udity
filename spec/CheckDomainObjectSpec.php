@@ -62,7 +62,7 @@ class CheckDomainObjectSpec extends CheckDomainSpecification {
             $spec->given($Foo)->didBar('Zero');
             $spec->given($Foo, 'foo')->didBar('One');
             $spec->given($Foo, 'bar')->didBar('Two');
-            $spec->given($Foo, 'foo')->didBar('Three');
+            $spec->given($Foo, 'foo')->doBar('Three');
 
             $spec->when($Foo, 'foo')->doCheck();
         });
@@ -89,9 +89,9 @@ class CheckDomainObjectSpec extends CheckDomainSpecification {
     function projectObject() {
         $Foo = $this->define('Foo', DomainObject::class);
 
-        $this->shouldPass(function (DomainSpecification $a) use ($Foo) {
-            $a->whenProjectObject($Foo, 'bar');
-            $a->thenAssert()->equals($a->projection($Foo)->getIdentifier()->getKey(), 'bar');
+        $this->shouldPass(function (DomainSpecification $spec) use ($Foo) {
+            $spec->whenProjectObject($Foo, 'bar');
+            $spec->thenAssert()->equals($spec->projection($Foo)->getIdentifier()->getKey(), 'bar');
         });
     }
 }
