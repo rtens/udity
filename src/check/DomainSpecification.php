@@ -140,7 +140,7 @@ class DomainSpecification {
         }
     }
 
-    public function whenProjectObject($domainObjectClass, $key) {
+    public function whenProjectObject($domainObjectClass, $key = self::DEFAULT_KEY) {
         $factory = $this->prepare();
 
         $identifierClass = $domainObjectClass . 'Identifier';
