@@ -94,4 +94,17 @@ class CheckDomainObjectSpec extends CheckDomainSpecification {
             $spec->thenAssert()->equals($spec->projection($Foo)->getIdentifier()->getKey(), 'bar');
         });
     }
+
+    function createObject() {
+        $Foo = $this->define('Foo', DomainObject::class, '
+            function created($one) {
+                $this->one = $one;
+            }');
+
+        $this->shouldPass(function (DomainSpecification $spec) use ($Foo) {
+            $spec->given($Foo)->created('bar');
+            $spec->whenProjectObject($Foo);
+            $spec->thenAssert()->equals($spec->projection($Foo)->one, 'bar');
+        });
+    }
 }
