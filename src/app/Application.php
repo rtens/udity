@@ -18,6 +18,8 @@ use watoki\karma\stores\EventStore;
  * Maps Commands to CommandHandlers and Queries to Projections
  */
 class Application {
+    private static $loadedClassesCache;
+
     /**
      * @var Karma
      */
@@ -37,17 +39,21 @@ class Application {
     }
 
     public static function loadClasses($inFolder) {
-        $before = get_declared_classes();
+        if (!self::$loadedClassesCache) {
+            $before = get_declared_classes();
 
-        foreach (glob($inFolder . '/*') as $file) {
-            if (is_dir($file)) {
-                self::loadClasses($file);
-            } else if (strtolower(substr($file, -4)) == '.php') {
-                require_once $file;
+            foreach (glob($inFolder . '/*') as $file) {
+                if (is_dir($file)) {
+                    self::loadClasses($file);
+                } else if (strtolower(substr($file, -4)) == '.php') {
+                    require_once $file;
+                }
             }
+
+            self::$loadedClassesCache = array_diff(get_declared_classes(), $before);
         }
 
-        return array_diff(get_declared_classes(), $before);
+        return self::$loadedClassesCache;
     }
 
     /**
