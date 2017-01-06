@@ -29,7 +29,7 @@ class CheckProjectionsSpec extends CheckDomainSpecification {
 
         $this->shouldFail(function (DomainSpecification $spec) use ($Foo) {
             $spec->whenProject($Foo);
-            $spec->thenAssert()->equals($spec->projection($this->fqn('Foo'))->foo(), 'foo');
+            $spec->assert()->equals($spec->projection($this->fqn('Foo'))->foo(), 'foo');
         }, "NULL should equal 'foo'");
     }
 
@@ -50,7 +50,7 @@ class CheckProjectionsSpec extends CheckDomainSpecification {
             $spec->givenThat('Other', $Bar);
 
             $spec->whenProject($Foo);
-            $spec->thenAssert()->equals($spec->projection($Foo)->currentCount(), 2);
+            $spec->assert()->equals($spec->projection($Foo)->currentCount(), 2);
         });
     }
 
@@ -62,7 +62,7 @@ class CheckProjectionsSpec extends CheckDomainSpecification {
 
         $this->shouldPass(function (DomainSpecification $spec) use ($Foo) {
             $spec->whenProject($Foo, ['two' => 'Dos', 0 => 'Uno']);
-            $spec->thenAssert()->equals($spec->projection($Foo)->bar, 'UnoDos');
+            $spec->assert()->equals($spec->projection($Foo)->bar, 'UnoDos');
         });
     }
 }
