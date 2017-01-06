@@ -165,7 +165,7 @@ class DomainSpecification {
     /**
      * @return Assert
      */
-    public function thenAssert() {
+    public function assert() {
         return new Assert();
     }
 
