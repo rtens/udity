@@ -29,6 +29,14 @@ class IdentifierRenderer extends ObjectRenderer {
     }
 
     /**
+     * @param AggregateIdentifier $identifier
+     * @return string
+     */
+    protected function getCaption(AggregateIdentifier $identifier) {
+        return $identifier->getKey();
+    }
+
+    /**
      * @param object|AggregateIdentifier $value
      * @return mixed
      */
@@ -38,7 +46,7 @@ class IdentifierRenderer extends ObjectRenderer {
         }
 
         return (string)new Element('div', ['class' => 'alert alert-info', 'style' => 'padding: 10px; margin: 0'], [
-            $value->getKey(),
+            $this->getCaption($value),
             new Element('small', ['class' => 'pull-right'], $this->links->createDropDown($value))
         ]);
     }

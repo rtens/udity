@@ -13,6 +13,7 @@ use rtens\udity\app\ui\factories\ProjectionActionFactory;
 use rtens\udity\app\ui\factories\SingletonActionFactory;
 use rtens\udity\app\ui\fields\IdentifierEnumerationField;
 use rtens\udity\app\ui\fields\IdentifierField;
+use rtens\udity\app\ui\renderers\CaptionedIdentifierRenderer;
 use rtens\udity\app\ui\renderers\IdentifierRenderer;
 use rtens\udity\app\ui\renderers\ProjectionListRenderer;
 use rtens\udity\domain\objects\DomainObject;
@@ -193,7 +194,7 @@ class WebInterface {
 
             $listClass = Str::g($class)->before('Identifier') . 'List';
             if (in_array($listClass, $classes)) {
-                $this->ui->renderers->add(new IdentifierRenderer($this->ui->renderers, $this->ui->types, $linkPrinter));
+                $this->ui->renderers->add(new CaptionedIdentifierRenderer($this->app, $listClass, $this->ui->renderers, $this->ui->types, $linkPrinter));
             } else {
                 $this->ui->renderers->add(new IdentifierRenderer($this->ui->renderers, $this->ui->types, $linkPrinter));
             }
