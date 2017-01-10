@@ -149,6 +149,7 @@ class DomainSpecification {
         $parameters = [new $identifierClass($key)];
 
         $this->whenProjectPrepared($domainObjectClass, $parameters, $factory);
+        return $this;
     }
 
     public function whenProject($projectionClass, array $parameters = []) {
@@ -162,6 +163,16 @@ class DomainSpecification {
         /** @var WebApplication $ui */
         $ui = $factory->getInstance(WebApplication::class);
         $this->projection = $ui->actions->getAction($actionId)->execute($parameters);
+    }
+
+    /**
+     * @param mixed $value
+     * @param bool|mixed $expected
+     * @return $this
+     */
+    public function assertEquals($value, $expected = true) {
+        (new Assert())->equals($value, $expected);
+        return $this;
     }
 
     /**

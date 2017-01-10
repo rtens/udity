@@ -96,6 +96,15 @@ class CheckDomainObjectSpec extends CheckDomainSpecification {
         });
     }
 
+    function shortAssert() {
+        $Foo = $this->define('Foo', DomainObject::class);
+
+        $this->shouldToggle('bar', 'baz', function (DomainSpecification $spec, $toggle) use ($Foo) {
+            $spec->whenProjectObject($Foo, 'bar')
+                ->assertEquals($spec->projection($Foo)->getIdentifier()->getKey(), $toggle);
+        });
+    }
+
     function createObject() {
         $Foo = $this->define('Foo', DomainObject::class, '
             function created() {}');
