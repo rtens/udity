@@ -57,7 +57,7 @@ class ProjectDomainObjectsSpec extends Specification {
         $this->recordThat('Wrong', 'three', 'Created');
 
         /** @var DomainObjectList $objects */
-        $objects = $this->execute('ObjectList$all');
+        $objects = $this->execute('ObjectList');
 
         $this->assert(count($objects->getList()), 3);
         $this->assert(is_object($objects->getList()[0]));

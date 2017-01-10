@@ -53,7 +53,7 @@ class DomainObjectActionFactory implements ActionFactory {
         }
 
         $listClass = new \ReflectionClass($class->getName() . 'List');
-        $actions[$this->id($listClass, 'all')] = new QueryAction($this->app, $listClass, $this->ui->types);
+        $actions[$this->id($listClass)] = new QueryAction($this->app, $listClass, $this->ui->types);
 
         $actions = $this->buildActionsFromMethods($class, $actions);
 
@@ -79,7 +79,7 @@ class DomainObjectActionFactory implements ActionFactory {
         return $actions;
     }
 
-    private function id(\ReflectionClass $class, $command) {
+    private function id(\ReflectionClass $class, $command = null) {
         return $class->getShortName() . ($command ? '$' . $command : '');
     }
 

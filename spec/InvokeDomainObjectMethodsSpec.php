@@ -126,8 +126,7 @@ class InvokeDomainObjectMethodsSpec extends Specification {
 
         $this->runApp();
 
-        $this->assert->contains($this->actionIds(), 'FooList$all');
-        $this->assert->not()->contains($this->actionIds(), 'FooList');
+        $this->assert->contains($this->actionIds(), 'FooList');
         $this->assert->not()->contains($this->actionIds(), 'DomainObjectList');
         $this->assert->not()->contains($this->actionIds(), 'ProjectionList');
     }
