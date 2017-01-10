@@ -1,8 +1,8 @@
 <?php
-namespace rtens\udity;
+namespace rtens\udity\check;
 
 use rtens\scrut\failures\AssertionFailedFailure;
-use rtens\udity\check\DomainSpecification;
+use rtens\udity\Specification;
 
 abstract class CheckDomainSpecification extends Specification {
 

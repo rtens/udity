@@ -1,12 +1,15 @@
 <?php
-namespace rtens\udity;
+namespace rtens\udity\ui;
 
 use rtens\domin\delivery\web\WebField;
 use rtens\domin\Parameter;
+use rtens\udity\AggregateIdentifier;
 use rtens\udity\app\ui\fields\IdentifierEnumerationField;
 use rtens\udity\app\ui\fields\IdentifierField;
 use rtens\udity\domain\objects\DomainObject;
 use rtens\udity\domain\query\IdentifierOptionsList;
+use rtens\udity\Event;
+use rtens\udity\Specification;
 use rtens\udity\utils\Str;
 use watoki\reflect\type\ClassType;
 

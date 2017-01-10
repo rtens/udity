@@ -2,9 +2,9 @@
 namespace rtens\udity;
 
 use rtens\domin\delivery\web\WebApplication;
+use rtens\scrut\Assert;
 use rtens\udity\app\Application;
 use rtens\udity\utils\Time;
-use rtens\scrut\Assert;
 use watoki\factory\Factory;
 use watoki\karma\stores\EventStore;
 use watoki\karma\stores\MemoryEventStore;

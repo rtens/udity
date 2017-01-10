@@ -1,9 +1,13 @@
 <?php
-namespace rtens\udity;
+namespace rtens\udity\domain;
 
 use rtens\domin\Parameter;
+use rtens\udity\AggregateIdentifier;
 use rtens\udity\domain\command\Singleton;
 use rtens\udity\domain\query\DefaultProjection;
+use rtens\udity\Event;
+use rtens\udity\Projection;
+use rtens\udity\Specification;
 use watoki\reflect\type\StringType;
 
 class ProjectEventsSpec extends Specification {

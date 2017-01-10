@@ -1,10 +1,13 @@
 <?php
-namespace rtens\udity;
+namespace rtens\udity\domain;
 
 use rtens\domin\Parameter;
+use rtens\udity\AggregateIdentifier;
 use rtens\udity\app\ui\actions\AggregateCommandAction;
 use rtens\udity\domain\command\Aggregate;
 use rtens\udity\domain\command\Singleton;
+use rtens\udity\Event;
+use rtens\udity\Specification;
 use watoki\reflect\type\ClassType;
 
 class IdentifyAggregatesSpec extends Specification {

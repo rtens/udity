@@ -1,9 +1,9 @@
 <?php
-namespace rtens\udity;
+namespace rtens\udity\check;
 
-use rtens\udity\check\DomainSpecification;
 use rtens\udity\check\event\Events;
 use rtens\udity\domain\command\Aggregate;
+use rtens\udity\Event;
 
 class CheckCommandOutcomeSpec extends CheckDomainSpecification {
 

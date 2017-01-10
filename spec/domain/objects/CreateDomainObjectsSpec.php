@@ -1,8 +1,8 @@
 <?php
-namespace rtens\udity;
+namespace rtens\udity\domain\objects;
 
 use rtens\domin\Parameter;
-use rtens\udity\domain\objects\DomainObject;
+use rtens\udity\Specification;
 use watoki\reflect\type\StringType;
 
 class CreateDomainObjectsSpec extends Specification {

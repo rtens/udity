@@ -1,9 +1,9 @@
 <?php
-namespace rtens\udity;
+namespace rtens\udity\domain\objects;
 
 use rtens\udity\app\ui\actions\AggregateCommandAction;
-use rtens\udity\domain\objects\DomainObject;
-use rtens\udity\domain\objects\DomainObjectList;
+use rtens\udity\Event;
+use rtens\udity\Specification;
 
 class InvokeDomainObjectMethodsSpec extends Specification {
 

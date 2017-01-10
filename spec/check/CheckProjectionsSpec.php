@@ -1,9 +1,10 @@
 <?php
-namespace rtens\udity;
+namespace rtens\udity\check;
 
-use rtens\udity\check\DomainSpecification;
 use rtens\udity\domain\command\Aggregate;
 use rtens\udity\domain\query\DefaultProjection;
+use rtens\udity\Event;
+use rtens\udity\Projection;
 
 class CheckProjectionsSpec extends CheckDomainSpecification {
 
