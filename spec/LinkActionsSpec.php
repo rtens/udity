@@ -71,14 +71,14 @@ class LinkActionsSpec extends Specification {
 
         $this->assert->size($links, 2);
 
-        $this->assert($links[0]->actionId(), 'Foo');
-        $this->assert($links[0]->parameters(new $projection($this->id('Foo', 'one'))), [
-            'identifier' => ['key' => 'one', 'fix' => true],
+        $this->assert($links[0]->actionId(), 'Foo$doThat');
+        $this->assert($links[0]->parameters(new $projection($this->id('Foo', 'two'))), [
+            AggregateCommandAction::IDENTIFIER_KEY => ['key' => 'two', 'fix' => true],
         ]);
 
-        $this->assert($links[1]->actionId(), 'Foo$doThat');
-        $this->assert($links[1]->parameters(new $projection($this->id('Foo', 'two'))), [
-            AggregateCommandAction::IDENTIFIER_KEY => ['key' => 'two', 'fix' => true],
+        $this->assert($links[1]->actionId(), 'Foo');
+        $this->assert($links[1]->parameters(new $projection($this->id('Foo', 'one'))), [
+            'identifier' => ['key' => 'one', 'fix' => true],
         ]);
     }
 

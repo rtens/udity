@@ -3,6 +3,7 @@ namespace rtens\udity;
 
 use rtens\udity\app\ui\actions\AggregateCommandAction;
 use rtens\udity\domain\objects\DomainObject;
+use rtens\udity\domain\objects\DomainObjectList;
 
 class InvokeDomainObjectMethodsSpec extends Specification {
 
@@ -117,5 +118,17 @@ class InvokeDomainObjectMethodsSpec extends Specification {
         ]);
 
         $this->assert($object->did, 'that');
+    }
+
+    function ignoreListClasses() {
+        $this->define('Foo', DomainObject::class);
+        $this->define('FooList', DomainObjectList::class);
+
+        $this->runApp();
+
+        $this->assert->contains($this->actionIds(), 'FooList$all');
+        $this->assert->not()->contains($this->actionIds(), 'FooList');
+        $this->assert->not()->contains($this->actionIds(), 'DomainObjectList');
+        $this->assert->not()->contains($this->actionIds(), 'ProjectionList');
     }
 }

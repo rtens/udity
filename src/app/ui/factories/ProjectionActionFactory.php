@@ -7,8 +7,11 @@ use rtens\udity\app\Application;
 use rtens\udity\app\ui\ActionFactory;
 use rtens\udity\app\ui\actions\QueryAction;
 use rtens\udity\domain\objects\DomainObject;
+use rtens\udity\domain\objects\DomainObjectList;
 use rtens\udity\domain\query\DefaultProjection;
+use rtens\udity\domain\query\ProjectionList;
 use rtens\udity\Projection;
+use rtens\udity\utils\Str;
 
 class ProjectionActionFactory implements ActionFactory {
     /**
@@ -34,9 +37,18 @@ class ProjectionActionFactory implements ActionFactory {
      * @return bool
      */
     public function handles(\ReflectionClass $class) {
+        $aggregateClass = Str::g($class->getName())->before('List');
+
         return
             $class->isSubclassOf(Projection::class)
-            && !in_array($class->getName(), [DomainObject::class, DefaultProjection::class]);
+            && !in_array($class->getName(), [
+                DomainObject::class,
+                DefaultProjection::class,
+                DomainObjectList::class,
+                ProjectionList::class
+            ])
+            && (!class_exists($aggregateClass)
+                || !is_subclass_of($aggregateClass, DomainObject::class));
     }
 
     /**
