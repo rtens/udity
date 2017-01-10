@@ -37,6 +37,8 @@ class FakeAggregate {
         $methodString = Str::g($method);
         if ($methodString->startsWith('handle')) {
             $command = $methodString->after('handle');
+        } else if ($methodString->startsWith('did')) {
+            $command = 'do' . $methodString->after('did');
         } else if ($method == 'created') {
             $command = 'create';
         }

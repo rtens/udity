@@ -15,15 +15,6 @@ class CheckDomainObjectSpec extends CheckDomainSpecification {
         }, 'Action [Foo$doBar] is not registered.');
     }
 
-    function eventHandlerIsNotACommand() {
-        $Foo = $this->define('Foo', DomainObject::class, '
-            function didBar() {}');
-
-        $this->shouldFail(function (DomainSpecification $spec) use ($Foo) {
-            $spec->when($Foo)->didBar();
-        }, 'Action [Foo$didBar] is not registered.');
-    }
-
     function recordEvent() {
         $Foo = $this->define('Foo', DomainObject::class, '
             function doBar() {}
@@ -31,6 +22,16 @@ class CheckDomainObjectSpec extends CheckDomainSpecification {
 
         $this->shouldPass(function (DomainSpecification $spec) use ($Foo) {
             $spec->when($Foo)->doBar();
+            $spec->then(Events::named('DidBar'))->shouldCount(1);
+        });
+    }
+
+    function eventHandlerAsACommand() {
+        $Foo = $this->define('Foo', DomainObject::class, '
+            function didBar() {}');
+
+        $this->shouldPass(function (DomainSpecification $spec) use ($Foo) {
+            $spec->when($Foo)->didBar();
             $spec->then(Events::named('DidBar'))->shouldCount(1);
         });
     }
