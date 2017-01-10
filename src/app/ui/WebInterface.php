@@ -1,6 +1,7 @@
 <?php
 namespace rtens\udity\app\ui;
 
+use rtens\domin\delivery\web\renderers\link\LinkPrinter;
 use rtens\domin\delivery\web\renderers\link\types\ClassLink;
 use rtens\domin\delivery\web\WebApplication;
 use rtens\domin\reflection\GenericAction;
@@ -12,6 +13,7 @@ use rtens\udity\app\ui\factories\ProjectionActionFactory;
 use rtens\udity\app\ui\factories\SingletonActionFactory;
 use rtens\udity\app\ui\fields\IdentifierEnumerationField;
 use rtens\udity\app\ui\fields\IdentifierField;
+use rtens\udity\app\ui\renderers\ProjectionListRenderer;
 use rtens\udity\domain\objects\DomainObject;
 use rtens\udity\utils\Str;
 use watoki\reflect\PropertyReader;
@@ -60,6 +62,7 @@ class WebInterface {
         $this->registerIdentifierFields($domainClasses);
         $this->registerActions($domainClasses);
         $this->linkActions($domainClasses);
+        $this->registerRenderers();
     }
 
     private function registerActions(array $domainClasses) {
@@ -177,5 +180,11 @@ class WebInterface {
                 }
             }
         }
+    }
+
+    private function registerRenderers() {
+        $linkPrinter = new LinkPrinter($this->ui->links, $this->ui->actions, $this->ui->parser, $this->ui->token);
+
+        $this->ui->renderers->add(new ProjectionListRenderer($this->ui->renderers, $this->ui->types, $linkPrinter));
     }
 }
