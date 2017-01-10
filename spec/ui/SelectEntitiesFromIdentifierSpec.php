@@ -133,8 +133,9 @@ class SelectEntitiesFromIdentifierSpec extends Specification {
     private function getIdentifierField($class) {
         $parameter = $this->parameter($class);
         $this->runApp();
-        /** @noinspection PhpIncompatibleReturnTypeInspection */
-        return $this->domin->fields->getField($parameter);
+        /** @var WebField $field */
+        $field = $this->domin->fields->getField($parameter);
+        return $field;
     }
 
     /**

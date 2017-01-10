@@ -2,44 +2,48 @@
 namespace rtens\udity\app\ui\renderers;
 
 use rtens\domin\delivery\RendererRegistry;
+use rtens\domin\delivery\web\Element;
 use rtens\domin\delivery\web\renderers\link\LinkPrinter;
 use rtens\domin\delivery\web\renderers\ObjectRenderer;
-use rtens\domin\delivery\web\WebRenderer;
-use rtens\udity\domain\query\ProjectionList;
+use rtens\udity\AggregateIdentifier;
 use watoki\reflect\TypeFactory;
 
-class ProjectionListRenderer extends ObjectRenderer {
+class IdentifierRenderer extends ObjectRenderer {
     /**
      * @var RendererRegistry
      */
     private $renderers;
+    /**
+     * @var LinkPrinter
+     */
+    private $links;
 
     public function __construct(RendererRegistry $renderers, TypeFactory $types, LinkPrinter $links) {
         parent::__construct($renderers, $types, $links);
         $this->renderers = $renderers;
+        $this->links = $links;
     }
 
     public function handles($value) {
-        return $value instanceof ProjectionList;
+        return $value instanceof AggregateIdentifier;
     }
 
     /**
-     * @param object|ProjectionList $value
+     * @param object|AggregateIdentifier $value
      * @return mixed
      */
     public function render($value) {
-        return $this->renderers->getRenderer($value->getList())->render($value->getList());
+        if (method_exists($value, '__toString')) {
+            return (string)$value;
+        }
+
+        return (string)new Element('div', ['class' => 'alert alert-info', 'style' => 'padding: 10px; margin: 0'], [
+            $value->getKey(),
+            new Element('small', ['class' => 'pull-right'], $this->links->createDropDown($value))
+        ]);
     }
 
-    /**
-     * @param mixed|ProjectionList $value
-     * @return array|\rtens\domin\delivery\web\Element[]
-     */
     public function headElements($value) {
-        $renderer = $this->renderers->getRenderer($value->getList());
-        if ($renderer instanceof WebRenderer) {
-            return $renderer->headElements($value->getList());
-        }
         return [];
     }
 }

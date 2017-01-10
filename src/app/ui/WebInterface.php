@@ -13,6 +13,7 @@ use rtens\udity\app\ui\factories\ProjectionActionFactory;
 use rtens\udity\app\ui\factories\SingletonActionFactory;
 use rtens\udity\app\ui\fields\IdentifierEnumerationField;
 use rtens\udity\app\ui\fields\IdentifierField;
+use rtens\udity\app\ui\renderers\IdentifierRenderer;
 use rtens\udity\app\ui\renderers\ProjectionListRenderer;
 use rtens\udity\domain\objects\DomainObject;
 use rtens\udity\utils\Str;
@@ -62,7 +63,7 @@ class WebInterface {
         $this->registerIdentifierFields($domainClasses);
         $this->registerActions($domainClasses);
         $this->linkActions($domainClasses);
-        $this->registerRenderers();
+        $this->registerRenderers($domainClasses);
     }
 
     private function registerActions(array $domainClasses) {
@@ -88,9 +89,7 @@ class WebInterface {
 
     private function registerIdentifierFields(array $classes) {
         foreach ($classes as $class) {
-            $endsWith = Str::g($class)->endsWith('Identifier');
-            $is_subclass_of = is_subclass_of($class, AggregateIdentifier::class);
-            if (!$endsWith || !$is_subclass_of) {
+            if (!(Str::g($class)->endsWith('Identifier') && is_subclass_of($class, AggregateIdentifier::class))) {
                 continue;
             }
 
@@ -182,9 +181,23 @@ class WebInterface {
         }
     }
 
-    private function registerRenderers() {
+    private function registerRenderers($classes) {
         $linkPrinter = new LinkPrinter($this->ui->links, $this->ui->actions, $this->ui->parser, $this->ui->token);
 
         $this->ui->renderers->add(new ProjectionListRenderer($this->ui->renderers, $this->ui->types, $linkPrinter));
+
+        foreach ($classes as $class) {
+            if (!(Str::g($class)->endsWith('Identifier') && is_subclass_of($class, AggregateIdentifier::class))) {
+                continue;
+            }
+
+            $listClass = Str::g($class)->before('Identifier') . 'List';
+            if (in_array($listClass, $classes)) {
+                $this->ui->renderers->add(new IdentifierRenderer($this->ui->renderers, $this->ui->types, $linkPrinter));
+            } else {
+                $this->ui->renderers->add(new IdentifierRenderer($this->ui->renderers, $this->ui->types, $linkPrinter));
+            }
+        }
+
     }
 }
