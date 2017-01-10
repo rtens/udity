@@ -155,6 +155,7 @@ class DomainSpecification {
     public function whenProject($projectionClass, array $parameters = []) {
         $factory = $this->prepare();
         $this->whenProjectPrepared($projectionClass, $parameters, $factory);
+        return $this;
     }
 
     private function whenProjectPrepared($projectionClass, array $parameters, Factory $factory) {
