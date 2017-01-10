@@ -82,6 +82,24 @@ class HandleCommandsSpec extends Specification {
         $this->assert($this->recordedEvents()[0]->getPayload(), ['this' => 'AndThat']);
     }
 
+    function withDefaultArguments() {
+        $this->define('Root', Aggregate::class, '
+            function handleFoo($one = "uno", $two = "dos") {
+                $this->recordThat("This", ["one" => $one, "two" => $two]);
+            }
+        ');
+
+        $this->execute('Root$Foo', [
+            AggregateCommandAction::IDENTIFIER_KEY => $this->id('Root', 'baz')
+        ]);
+        $this->assert($this->recordedEvents()[0]->getPayload(), ['one' => 'uno', 'two' => 'dos']);
+
+        $this->assert($this->action('Root$Foo')->fill([]), [
+            'one' => 'uno',
+            'two' => 'dos'
+        ]);
+    }
+
     function applyEvents() {
         $this->define('Root', Aggregate::class, '
             function applyThat($two, \\' . Event::class . ' $e, $one) {

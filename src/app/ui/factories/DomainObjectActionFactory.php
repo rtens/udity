@@ -49,7 +49,7 @@ class DomainObjectActionFactory implements ActionFactory {
 
         if ($class->hasMethod('created')) {
             $actions[$this->id($class, 'create')] =
-                new CreateDomainObjectAction($this->app, $class->getMethod('created'), $this->ui->types);
+                new CreateDomainObjectAction($this->app, $class->getMethod('created'), $this->ui->types, $this->ui->parser);
         }
 
         $listClass = new \ReflectionClass($class->getName() . 'List');
@@ -67,7 +67,7 @@ class DomainObjectActionFactory implements ActionFactory {
             if ($methodName->startsWithButIsNot('set') && $method->getNumberOfParameters() == 1) {
                 $command = 'change' . $methodName->after('set');
                 $actions[$this->id($class, $command)] =
-                    new ChangeDomainObjectAction($this->app, $command, $method, $this->ui->types);
+                    new ChangeDomainObjectAction($this->app, $command, $method, $this->ui->types, $this->ui->parser);
 
             } else if ($methodName->startsWithButIsNot('do')) {
                 $this->addCommand($class, $method->getName(), $method, $actions);
@@ -84,7 +84,7 @@ class DomainObjectActionFactory implements ActionFactory {
     }
 
     private function addCommand(\ReflectionClass $class, $command, $method, &$actions) {
-        $action = new GenericAction(new AggregateCommandAction($this->app, $command, $method, $this->ui->types));
+        $action = new GenericAction(new AggregateCommandAction($this->app, $command, $method, $this->ui->types, $this->ui->parser));
         $action->setCaption(preg_replace("/^Do/", "", $action->caption()));
         $actions[$this->id($class, $command)] = $action;
     }

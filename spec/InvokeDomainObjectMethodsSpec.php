@@ -39,6 +39,22 @@ class InvokeDomainObjectMethodsSpec extends Specification {
         ]);
     }
 
+    function defaultArguments() {
+        $this->define('Foo', DomainObject::class, '
+            function doBar($baz = "baz") {}
+        ');
+
+        $this->execute('Foo$doBar', [
+            AggregateCommandAction::IDENTIFIER_KEY => $this->id('Foo', 'one')
+        ]);
+
+        $this->assert($this->recordedEvents(), [
+            new Event($this->id('Foo', 'one'), 'DidBar', [
+                'baz' => 'baz'
+            ])
+        ]);
+    }
+
     function fail() {
         $this->define('Foo', DomainObject::class, '
             function doBar($baz) {

@@ -15,6 +15,6 @@ class SingletonActionFactory extends AggregateActionFactory {
     }
 
     protected function buildCommandAction($command, \ReflectionMethod $method) {
-        return new SingletonCommandAction($this->app, $command, $method, $this->ui->types);
+        return new SingletonCommandAction($this->app, $command, $method, $this->ui->types, $this->ui->parser);
     }
 }

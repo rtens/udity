@@ -34,8 +34,13 @@ abstract class DomainObject extends Aggregate implements Projection {
             return $this->that($command, 'Changed' . $commandName->after('change'));
         } else if ($commandName->startsWith('do')) {
             if (method_exists($this, $command->getName())) {
-                ArgumentFiller::from($this, $command->getName())
-                    ->invoke($this, $command->getArguments());
+                $argumentFiller = ArgumentFiller::from($this, $command->getName());
+                $argumentFiller->invoke($this, $command->getArguments());
+
+                $command = new Command(
+                    $command->getAggregateIdentifier(),
+                    $command->getName(),
+                    $argumentFiller->fill($command->getArguments()));
             }
             return $this->that($command, 'Did' . $commandName->after('do'));
         } else {

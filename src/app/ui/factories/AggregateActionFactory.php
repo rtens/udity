@@ -54,7 +54,7 @@ class AggregateActionFactory implements ActionFactory {
      * @return AggregateCommandAction
      */
     protected function buildCommandAction($command, \ReflectionMethod $method) {
-        return new AggregateCommandAction($this->app, $command, $method, $this->ui->types);
+        return new AggregateCommandAction($this->app, $command, $method, $this->ui->types, $this->ui->parser);
     }
 
     /**

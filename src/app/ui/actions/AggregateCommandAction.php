@@ -1,18 +1,18 @@
 <?php
 namespace rtens\udity\app\ui\actions;
 
-use rtens\domin\Action;
 use rtens\domin\Parameter;
+use rtens\domin\reflection\CommentParser;
+use rtens\domin\reflection\StaticMethodAction;
 use rtens\domin\reflection\types\TypeFactory;
 use rtens\udity\app\Application;
 use rtens\udity\Command;
-use watoki\reflect\MethodAnalyzer;
 use watoki\reflect\type\ClassType;
 
 /**
  * Builds a Command from parameters inferred from a method
  */
-class AggregateCommandAction implements Action {
+class AggregateCommandAction extends StaticMethodAction {
     const IDENTIFIER_KEY = 'target';
     /**
      * @var Application
@@ -22,63 +22,25 @@ class AggregateCommandAction implements Action {
      * @var string
      */
     protected $name;
-    /**
-     * @var \ReflectionMethod
-     */
-    protected $method;
-    /**
-     * @var TypeFactory
-     */
-    private $types;
 
     /**
      * @param Application $app
      * @param string $name
      * @param \ReflectionMethod $method
      * @param TypeFactory $types
+     * @param CommentParser $parser
      */
-    public function __construct(Application $app, $name, \ReflectionMethod $method, TypeFactory $types) {
+    public function __construct(Application $app, $name, \ReflectionMethod $method, TypeFactory $types, CommentParser $parser) {
+        parent::__construct($method, $types, $parser);
         $this->app = $app;
         $this->name = $name;
-        $this->method = $method;
-        $this->types = $types;
     }
 
     /**
      * @return string
      */
     public function caption() {
-        return ucfirst(preg_replace('/(.)([A-Z0-9])/', '$1 $2', $this->name));
-    }
-
-    /**
-     * @return string|null
-     */
-    public function description() {
-        return null;
-    }
-
-    /**
-     * @return boolean True if the action modifies the state of the application
-     */
-    public function isModifying() {
-        return true;
-    }
-
-    /**
-     * @return Parameter[]
-     */
-    public function parameters() {
-        $parameters = $this->initParameters();
-
-
-        $analyzer = new MethodAnalyzer($this->method);
-        foreach ($this->method->getParameters() as $parameter) {
-            $type = $analyzer->getType($parameter, $this->types);
-            $parameters[] = (new Parameter($parameter->name, $type, !$parameter->isDefaultValueAvailable()));
-        }
-
-        return $parameters;
+        return $this->unCamelize($this->name);
     }
 
     /**
@@ -91,16 +53,6 @@ class AggregateCommandAction implements Action {
         return [
             new Parameter(self::IDENTIFIER_KEY, new ClassType($identifierClass), true)
         ];
-    }
-
-    /**
-     * Fills out partially available parameters
-     *
-     * @param array $parameters Available values indexed by name
-     * @return array Filled values indexed by name
-     */
-    public function fill(array $parameters) {
-        return $parameters;
     }
 
     /**
