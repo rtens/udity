@@ -45,7 +45,7 @@ class IdentifierRenderer extends ObjectRenderer {
             return (string)$value;
         }
 
-        return (string)new Element('div', ['class' => 'alert alert-info', 'style' => 'padding: 10px; margin: 0'], [
+        return (string)new Element('div', ['class' => 'alert alert-info'], [
             $this->getCaption($value),
             new Element('small', ['class' => 'pull-right'], $this->links->createDropDown($value))
         ]);
