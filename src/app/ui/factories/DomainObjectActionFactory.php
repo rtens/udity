@@ -84,8 +84,13 @@ class DomainObjectActionFactory implements ActionFactory {
     }
 
     private function addCommand(\ReflectionClass $class, $command, $method, &$actions) {
+        $actionId = $this->id($class, $command);
+        if (array_key_exists($actionId, $actions)) {
+            return;
+        }
+
         $action = new GenericAction(new AggregateCommandAction($this->app, $command, $method, $this->ui->types, $this->ui->parser));
         $action->setCaption(preg_replace("/^Do/", "", $action->caption()));
-        $actions[$this->id($class, $command)] = $action;
+        $actions[$actionId] = $action;
     }
 }
