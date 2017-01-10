@@ -102,6 +102,18 @@ class CheckDomainObjectSpec extends CheckDomainSpecification {
             }');
 
         $this->shouldPass(function (DomainSpecification $spec) use ($Foo) {
+            $spec->when($Foo, 'foo')->created('bar');
+            $spec->then(Events::named('Created'))->shouldCount(1);
+        });
+    }
+
+    function createdObject() {
+        $Foo = $this->define('Foo', DomainObject::class, '
+            function created($one) {
+                $this->one = $one;
+            }');
+
+        $this->shouldPass(function (DomainSpecification $spec) use ($Foo) {
             $spec->given($Foo)->created('bar');
             $spec->whenProjectObject($Foo);
             $spec->assert()->equals($spec->projection($Foo)->one, 'bar');

@@ -37,6 +37,8 @@ class FakeAggregate {
         $methodString = Str::g($method);
         if ($methodString->startsWith('handle')) {
             $command = $methodString->after('handle');
+        } else if ($method == 'created') {
+            $command = 'create';
         }
 
         $actionId = $this->aggregate->getShortName() . '$' . $command;
