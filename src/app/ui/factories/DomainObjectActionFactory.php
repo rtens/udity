@@ -3,6 +3,7 @@ namespace rtens\udity\app\ui\factories;
 
 use rtens\domin\Action;
 use rtens\domin\delivery\web\WebApplication;
+use rtens\domin\reflection\GenericAction;
 use rtens\udity\app\Application;
 use rtens\udity\app\ui\ActionFactory;
 use rtens\udity\app\ui\actions\AggregateCommandAction;
@@ -83,7 +84,8 @@ class DomainObjectActionFactory implements ActionFactory {
     }
 
     private function addCommand(\ReflectionClass $class, $command, $method, &$actions) {
-        $actions[$this->id($class, $command)] =
-            new AggregateCommandAction($this->app, $command, $method, $this->ui->types);
+        $action = new GenericAction(new AggregateCommandAction($this->app, $command, $method, $this->ui->types));
+        $action->setCaption(preg_replace("/^Do/", "", $action->caption()));
+        $actions[$this->id($class, $command)] = $action;
     }
 }
