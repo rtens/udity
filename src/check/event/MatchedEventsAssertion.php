@@ -32,4 +32,14 @@ class MatchedEventsAssertion {
     public function shouldNotBeAppended() {
         $this->shouldCount(0);
     }
+
+    public function should(callable $condition) {
+        $this->shouldBeAppended();
+
+        foreach ($this->events as $event) {
+            if (!$condition($event)) {
+                throw new FailedAssertion("Not all events match the condition");
+            }
+        }
+    }
 }

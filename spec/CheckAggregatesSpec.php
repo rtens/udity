@@ -26,6 +26,19 @@ class CheckAggregatesSpec extends CheckDomainSpecification {
         });
     }
 
+    function passParameters() {
+        $this->define('Foo', Aggregate::class, '
+            function handleBar($in) {
+                $this->recordThat($in);
+            }
+        ');
+
+        $this->shouldPass(function (DomainSpecification $spec) {
+            $spec->when($this->fqn('Foo'), 'foo')->handleBar('foo');
+            $spec->then(Events::named('foo'))->shouldBeAppended();
+        });
+    }
+
     function applyEventsFromContext() {
         $this->define('Foo', Aggregate::class, '
             private $said;
@@ -37,15 +50,15 @@ class CheckAggregatesSpec extends CheckDomainSpecification {
             }
         ');
 
-        $this->shouldPass(function (DomainSpecification $a) {
-            $a->givenThat('Bared', $this->fqn('Foo'))->with('said', 'Zero');
-            $a->givenThat('Bared', $this->fqn('Foo'), 'foo')->with('said', 'One');
-            $a->givenThat('Bared', $this->fqn('Foo'), 'bar')->with('said', 'Two');
-            $a->givenThat('Bared', $this->fqn('Foo'), 'foo')->with('said', 'Three');
+        $this->shouldPass(function (DomainSpecification $spec) {
+            $spec->givenThat('Bared', $this->fqn('Foo'))->with('said', 'Zero');
+            $spec->givenThat('Bared', $this->fqn('Foo'), 'foo')->with('said', 'One');
+            $spec->givenThat('Bared', $this->fqn('Foo'), 'bar')->with('said', 'Two');
+            $spec->givenThat('Bared', $this->fqn('Foo'), 'foo')->with('said', 'Three');
 
-            $a->when($this->fqn('Foo'), 'foo')->handleBar();
-            $a->then(Events::named('Bared')->with('said', 'OneThree'))->shouldBeAppended();
-            $a->then(Events::any())->shouldCount(1);
+            $spec->when($this->fqn('Foo'), 'foo')->handleBar();
+            $spec->then(Events::named('Bared')->with('said', 'OneThree'))->shouldBeAppended();
+            $spec->then(Events::any())->shouldCount(1);
         });
     }
 }

@@ -44,12 +44,10 @@ class FakeAggregate {
         $actionId = $this->aggregate->getShortName() . '$' . $command;
 
         $action = $this->ui->actions->getAction($actionId);
-        $parameters = [
-            'target' => $this->identifier
-        ];
+        $arguments['target'] = $this->identifier;
 
         try {
-            $action->execute($parameters);
+            $action->execute($arguments);
         } catch (\Exception $exception) {
             if (is_null($this->catcher)) {
                 throw $exception;

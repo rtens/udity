@@ -31,6 +31,7 @@ class CheckCommandOutcomeSpec extends CheckDomainSpecification {
 
         $this->shouldPass(function (DomainSpecification $spec) use ($Foo) {
             $spec->when($Foo)->handleBar();
+            $spec->then()->shouldCount(3);
             $spec->then(Events::any())->shouldCount(3);
             $spec->then(Events::named('One'))->shouldCount(1);
             $spec->then(Events::named('Two'))->shouldCount(2);
@@ -71,6 +72,47 @@ class CheckCommandOutcomeSpec extends CheckDomainSpecification {
             $spec->then(Events::named('bared')->in('one'))->shouldCount(1);
             $spec->then(Events::named('bared')->in('not one'))->shouldCount(0);
         });
+    }
+
+    function matchCondition() {
+        $Foo = $this->define('Foo', Aggregate::class, '
+            function handleBar() {
+                $this->recordThat("bared");          
+            }
+        ');
+
+        $this->shouldPass(function (DomainSpecification $spec) use ($Foo) {
+            $spec->when($Foo, 'one')->handleBar();
+
+            $spec->then()->should(function (Event $event) {
+                return $event->getName() == 'bared';
+            });
+        });
+    }
+
+    function failCondition() {
+        $Foo = $this->define('Foo', Aggregate::class, '
+            function handleBar($in) {
+                $this->recordThat($in);          
+            }
+        ');
+
+        $this->shouldFail(function (DomainSpecification $spec) use ($Foo) {
+            $spec->when($Foo)->handleBar("one");
+            $spec->when($Foo)->handleBar("two");
+
+            $spec->then()->should(function (Event $event) {
+                return $event->getName() == 'one';
+            });
+        }, 'Not all events match the condition');
+    }
+
+    function failConditionForNoEvents() {
+        $this->shouldFail(function (DomainSpecification $spec) {
+            $spec->then()->should(function () {
+                return true;
+            });
+        }, 'Event was not appended');
     }
 
     function unexpectedPayload() {

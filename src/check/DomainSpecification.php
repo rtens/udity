@@ -7,6 +7,7 @@ use rtens\udity\app\Application;
 use rtens\udity\check\event\FakeEventFactory;
 use rtens\udity\check\event\EventMatcher;
 use rtens\udity\check\event\MatchedEventsAssertion;
+use rtens\udity\check\event\matchers\AnyEventMatcher;
 use rtens\udity\Event;
 use rtens\udity\utils\Time;
 use watoki\factory\Factory;
@@ -105,10 +106,11 @@ class DomainSpecification {
     }
 
     /**
-     * @param EventMatcher $matcher
+     * @param EventMatcher|null $matcher defaults to AnyEventMatcher
      * @return MatchedEventsAssertion
      */
-    public function then(EventMatcher $matcher) {
+    public function then(EventMatcher $matcher = null) {
+        $matcher = $matcher ?: new AnyEventMatcher();
         return new MatchedEventsAssertion(array_filter($this->eventStore->recordedEvents(),
             function (Event $event) use ($matcher) {
                 return $matcher->matches($event);

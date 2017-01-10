@@ -97,9 +97,7 @@ class CheckDomainObjectSpec extends CheckDomainSpecification {
 
     function createObject() {
         $Foo = $this->define('Foo', DomainObject::class, '
-            function created($one) {
-                $this->one = $one;
-            }');
+            function created() {}');
 
         $this->shouldPass(function (DomainSpecification $spec) use ($Foo) {
             $spec->when($Foo, 'foo')->created('bar');
