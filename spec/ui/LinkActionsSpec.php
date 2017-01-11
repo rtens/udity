@@ -5,8 +5,10 @@ use rtens\domin\delivery\web\renderers\link\types\ClassLink;
 use rtens\udity\AggregateIdentifier;
 use rtens\udity\app\ui\actions\AggregateCommandAction;
 use rtens\udity\domain\command\Aggregate;
+use rtens\udity\domain\command\Singleton;
 use rtens\udity\domain\objects\DomainObject;
 use rtens\udity\domain\query\DefaultProjection;
+use rtens\udity\Projection;
 use rtens\udity\Specification;
 
 class LinkActionsSpec extends Specification {
@@ -150,6 +152,18 @@ class LinkActionsSpec extends Specification {
         $this->assert($this->linkAction($links[2])->caption(), 'Foo(b->two)');
         $this->assert($this->linkAction($links[3])->caption(), 'Foo(a->three)');
         $this->assert($this->linkAction($links[4])->caption(), 'Foo(c->three)');
+    }
+
+    function linkCommandsToSingletonProjection() {
+        $this->define('FooIdentifier', AggregateIdentifier::class);
+        $Foo = $this->define('Foo', Singleton::class, '
+            function handleBar() {}
+        ', Projection::class);
+
+        $links = $this->linksOf(new $Foo());
+
+        $this->assert->size($links, 1);
+        $this->assert($links[0]->actionId(), 'Foo$Bar');
     }
 
     /**
