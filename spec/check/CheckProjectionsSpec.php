@@ -1,10 +1,12 @@
 <?php
 namespace rtens\udity\check;
 
+use rtens\udity\AggregateIdentifier;
 use rtens\udity\domain\command\Aggregate;
 use rtens\udity\domain\query\DefaultProjection;
 use rtens\udity\Event;
 use rtens\udity\Projection;
+use rtens\udity\utils\Time;
 
 class CheckProjectionsSpec extends CheckDomainSpecification {
 
@@ -52,6 +54,29 @@ class CheckProjectionsSpec extends CheckDomainSpecification {
 
             $spec->whenProject($Foo);
             $spec->assert()->equals($spec->projection($Foo)->currentCount(), 2);
+        });
+    }
+
+    function timeEvents() {
+        $FooIdentifier = $this->define('FooIdentifier', AggregateIdentifier::class);
+        $Foo = $this->define('Foo', Aggregate::class, '
+            public $times = [];
+            function apply(\\' . Event::class . ' $event) {
+                $this->times[] = $event->getWhen();
+            }
+        ', Projection::class);
+
+        $this->shouldPass(function (DomainSpecification $spec) use ($Foo, $FooIdentifier) {
+            $spec->givenThat('First', $Foo)->at('12:00');
+            Time::freeze('13:00');
+            $spec->givenThat('Second', $Foo);
+            Time::freeze('14:00');
+
+            $spec->whenProject($Foo, [new $FooIdentifier('foo')]);
+            $spec->assert()->equals($spec->projection($Foo)->times, [
+                new \DateTimeImmutable('12:00'),
+                new \DateTimeImmutable('13:00')
+            ]);
         });
     }
 
