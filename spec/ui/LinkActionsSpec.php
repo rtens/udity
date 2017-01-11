@@ -154,6 +154,21 @@ class LinkActionsSpec extends Specification {
         $this->assert($this->linkAction($links[4])->caption(), 'Foo(c->three)');
     }
 
+    function nullableProperties() {
+        $this->define('Foo', Aggregate::class, '
+            function handleFoo() {}        
+        ');
+        $this->define('Bar', DefaultProjection::class, '
+            /** @var null|FooIdentifier */
+            public $one;
+        ');
+
+        $links = $this->linksOfProjection('Bar');
+
+        $this->assert->size($links, 1);
+        $this->assert($this->linkAction($links[0])->caption(), 'Foo(one)');
+    }
+
     function linkCommandsToSingletonProjection() {
         $this->define('FooIdentifier', AggregateIdentifier::class);
         $Foo = $this->define('Foo', Singleton::class, '

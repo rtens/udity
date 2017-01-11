@@ -11,7 +11,9 @@ use rtens\udity\app\Application;
 use rtens\udity\app\ui\WebInterfacePlugin;
 use rtens\udity\domain\objects\DomainObject;
 use watoki\reflect\PropertyReader;
+use watoki\reflect\Type;
 use watoki\reflect\type\ClassType;
+use watoki\reflect\type\NullableType;
 
 class LinkActionsPlugin implements WebInterfacePlugin {
     /**
@@ -57,16 +59,17 @@ class LinkActionsPlugin implements WebInterfacePlugin {
             $reader = new PropertyReader($this->ui->types, $class);
             foreach ($reader->readInterface() as $property) {
                 $type = $property->type();
-                if (!$property->canGet() || !($type instanceof ClassType)) {
+                if (!$property->canGet()) {
                     continue;
                 }
 
-                if (is_subclass_of($class, DomainObject::class) && $type->getClass() == AggregateIdentifier::class) {
+                $isIdentifier = $type instanceof ClassType && $type->getClass() == AggregateIdentifier::class;
+                if (is_subclass_of($class, DomainObject::class) && $isIdentifier) {
                     $type = new ClassType($class . 'Identifier');
                 }
 
-                if (is_subclass_of($type->getClass(), AggregateIdentifier::class)) {
-                    $identifierClass = $type->getClass();
+                $identifierClass = $this->determineIdentifierClass($type);
+                if ($identifierClass) {
                     $linkables[$identifierClass][$class][$property->name()] = function ($object) use ($property) {
                         /** @var AggregateIdentifier $identifier */
                         $identifier = $property->get($object);
@@ -95,9 +98,8 @@ class LinkActionsPlugin implements WebInterfacePlugin {
      */
     private function linkAction($linkables, $actionId, Action $action) {
         foreach ($action->parameters() as $parameter) {
-            $type = $parameter->getType();
-            if ($type instanceof ClassType && is_subclass_of($type->getClass(), AggregateIdentifier::class)) {
-                $identifierClass = $type->getClass();
+            $identifierClass = $this->determineIdentifierClass($parameter->getType());
+            if ($identifierClass) {
                 if (!array_key_exists($identifierClass, $linkables)) {
                     continue;
                 }
@@ -105,6 +107,16 @@ class LinkActionsPlugin implements WebInterfacePlugin {
                 $this->linkActionsToIdentifier($linkables, $actionId, $parameter, $identifierClass);
             }
         }
+    }
+
+    private function determineIdentifierClass(Type $type) {
+        if ($type instanceof NullableType) {
+            $type = $type->getType();
+        }
+        if ($type instanceof ClassType && is_subclass_of($type->getClass(), AggregateIdentifier::class)) {
+            return $type->getClass();
+        }
+        return null;
     }
 
     /**
