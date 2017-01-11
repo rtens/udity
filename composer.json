@@ -13,6 +13,7 @@
     "rtens/domin": "*",
     "watoki/curir": "*",
     "watoki/karma": "*",
+    "watoki/reflect": "*",
     "rtens/scrut": "*"
   },
   "require-dev": {
