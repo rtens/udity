@@ -10,6 +10,10 @@ use rtens\udity\utils\ArgumentFiller;
 use rtens\udity\utils\Str;
 
 abstract class DomainObject extends Aggregate implements Projection {
+    /**
+     * @var Event[]
+     */
+    private $recordedEvents = [];
 
     /**
      * @return AggregateIdentifier
@@ -48,7 +52,15 @@ abstract class DomainObject extends Aggregate implements Projection {
         }
     }
 
+    protected function recordThat($eventName, array $payload = []) {
+        $this->recordedEvents[] = new Event($this->getIdentifier(), $eventName, $payload);
+    }
+
     private function that(Command $command, $event) {
+        if ($this->recordedEvents) {
+            return $this->recordedEvents;
+        }
+
         return [
             new Event($command->getAggregateIdentifier(), $event, $command->getArguments())
         ];

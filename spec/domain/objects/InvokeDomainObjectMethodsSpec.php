@@ -94,6 +94,24 @@ class InvokeDomainObjectMethodsSpec extends Specification {
         ]);
     }
 
+    function recordCustomEvents() {
+        $this->define('Foo', DomainObject::class, '
+            function doFoo() {
+                $this->recordThat("NotFoo", ["one" => "uno"]);
+            }
+        ');
+
+        $this->execute('Foo$doFoo', [
+            AggregateCommandAction::IDENTIFIER_KEY => $this->id('Foo', 'foo')
+        ]);
+
+        $this->assert($this->recordedEvents(), [
+            new Event($this->id('Foo', 'foo'), 'NotFoo', [
+                'one' => 'uno'
+            ])
+        ]);
+    }
+
     function doAndDidMethods() {
         $this->define('Foo', DomainObject::class, '
             function doBar($baz) {}
