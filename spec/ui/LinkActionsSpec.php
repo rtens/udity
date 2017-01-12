@@ -87,6 +87,25 @@ class LinkActionsSpec extends Specification {
         ]);
     }
 
+    function linkDomainObjectToItselfWithExtendedType() {
+        $FooIdentifier = $this->define('FooIdentifier', AggregateIdentifier::class);
+        $this->define('Foo', DomainObject::class, '
+            /** @return AggregateIdentifier|\\' . $FooIdentifier . ' */
+            public function getIdentifier() {
+                return parent::getIdentifier();
+            }
+            public function getNotIdentifier() {
+                return "foo";
+            }
+            
+            function doThat() {}
+        ');
+
+        $links = $this->linksOfAggregate('Foo', 'Foo', 'one');
+
+        $this->assert->size($links, 2);
+    }
+
     function linkActionsToIdentifiers() {
         $this->define('Foo', Aggregate::class, '
             function handleBar() {}

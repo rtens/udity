@@ -14,6 +14,7 @@ use rtens\udity\domain\objects\DomainObject;
 use watoki\reflect\PropertyReader;
 use watoki\reflect\Type;
 use watoki\reflect\type\ClassType;
+use watoki\reflect\type\MultiType;
 use watoki\reflect\type\NullableType;
 
 class LinkActionsPlugin implements WebInterfacePlugin {
@@ -64,13 +65,12 @@ class LinkActionsPlugin implements WebInterfacePlugin {
                     continue;
                 }
 
-                $isIdentifier = $type instanceof ClassType && $type->getClass() == AggregateIdentifier::class;
-                if (is_subclass_of($class, DomainObject::class) && $isIdentifier) {
-                    $type = new ClassType($class . 'Identifier');
-                }
-
                 $identifierClass = $this->determineIdentifierClass($type);
                 if ($identifierClass) {
+                    if (is_subclass_of($class, DomainObject::class)) {
+                        $identifierClass = $class . 'Identifier';
+                    }
+
                     $linkables[$identifierClass][$class][$property->name()] = function ($object) use ($property) {
                         /** @var AggregateIdentifier $identifier */
                         $identifier = $property->get($object);
@@ -114,11 +114,22 @@ class LinkActionsPlugin implements WebInterfacePlugin {
     }
 
     private function determineIdentifierClass(Type $type) {
-        if ($type instanceof NullableType) {
-            $type = $type->getType();
+        $types = [$type];
+        if ($type instanceof MultiType) {
+            $types = $type->getTypes();
         }
-        if ($type instanceof ClassType && is_subclass_of($type->getClass(), AggregateIdentifier::class)) {
-            return $type->getClass();
+
+        foreach ($types as $type) {
+            if ($type instanceof NullableType) {
+                $type = $type->getType();
+            }
+
+            if ($type instanceof ClassType
+                && ($type->getClass() == AggregateIdentifier::class
+                    || is_subclass_of($type->getClass(), AggregateIdentifier::class))
+            ) {
+                return $type->getClass();
+            }
         }
         return null;
     }
