@@ -1,6 +1,7 @@
 <?php
 namespace rtens\udity\ui;
 
+use rtens\domin\delivery\web\renderers\link\Link;
 use rtens\domin\delivery\web\renderers\link\types\ClassLink;
 use rtens\udity\AggregateIdentifier;
 use rtens\udity\app\ui\actions\AggregateCommandAction;
@@ -102,6 +103,9 @@ class LinkActionsSpec extends Specification {
     }
 
     function multipleProperties() {
+        $this->define('FooIdentifier', AggregateIdentifier::class);
+        $this->define('BarIdentifier', AggregateIdentifier::class);
+
         $this->define('Foo', Aggregate::class, '
             function handleFoo() {}        
         ');
@@ -113,6 +117,11 @@ class LinkActionsSpec extends Specification {
             public $a;
             /** @var BarIdentifier */
             public $b;
+            
+            function __construct() {
+                $this->a = new FooIdentifier("foo");
+                $this->b = new BarIdentifier("bar");
+            }
         ');
 
         $links = $this->linksOfProjection('Baz');
@@ -141,6 +150,12 @@ class LinkActionsSpec extends Specification {
             public $b;
             /** @var MyIdentifier */
             public $c;
+            
+            function __construct() {
+                $this->a = new MyIdentifier("a");
+                $this->b = new YourIdentifier("b");
+                $this->c = new MyIdentifier("c");
+            }
         ');
 
         $links = $this->linksOfProjection('Bar');
@@ -155,6 +170,23 @@ class LinkActionsSpec extends Specification {
     }
 
     function nullableProperties() {
+        $FooIdentifier = $this->define('FooIdentifier', AggregateIdentifier::class);
+        $this->define('Foo', Aggregate::class, '
+            function handleFoo() {}        
+        ');
+        $this->define('Bar', DefaultProjection::class, '
+            /** @var null|FooIdentifier */
+            public $one;
+            function __construct() { $this->one = new \\' . $FooIdentifier . '("foo"); }
+        ');
+
+        $links = $this->linksOfProjection('Bar');
+
+        $this->assert->size($links, 1);
+        $this->assert($this->linkAction($links[0])->caption(), 'Foo(one)');
+    }
+
+    function doNotLinkToNull() {
         $this->define('Foo', Aggregate::class, '
             function handleFoo() {}        
         ');
@@ -164,9 +196,7 @@ class LinkActionsSpec extends Specification {
         ');
 
         $links = $this->linksOfProjection('Bar');
-
-        $this->assert->size($links, 1);
-        $this->assert($this->linkAction($links[0])->caption(), 'Foo(one)');
+        $this->assert->size($links, 0);
     }
 
     function linkCommandsToSingletonProjection() {
@@ -210,7 +240,7 @@ class LinkActionsSpec extends Specification {
         return $this->domin->links->getLinks($object);
     }
 
-    private function linkAction(ClassLink $link) {
+    private function linkAction(Link $link) {
         return $this->domin->actions->getAction($link->actionId());
     }
 }

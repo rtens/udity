@@ -2,7 +2,8 @@
 namespace rtens\udity\app\ui\plugins;
 
 use rtens\domin\Action;
-use rtens\domin\delivery\web\renderers\link\types\ClassLink;
+use rtens\domin\delivery\web\renderers\link\Link;
+use rtens\domin\delivery\web\renderers\link\types\GenericLink;
 use rtens\domin\delivery\web\WebApplication;
 use rtens\domin\Parameter;
 use rtens\domin\reflection\GenericAction;
@@ -73,6 +74,9 @@ class LinkActionsPlugin implements WebInterfacePlugin {
                     $linkables[$identifierClass][$class][$property->name()] = function ($object) use ($property) {
                         /** @var AggregateIdentifier $identifier */
                         $identifier = $property->get($object);
+                        if (!$identifier) {
+                            return null;
+                        }
                         return $identifier->getKey();
                     };
                 }
@@ -189,10 +193,14 @@ class LinkActionsPlugin implements WebInterfacePlugin {
      * @param string $class
      * @param callable $getter
      * @param string $linkId
-     * @return ClassLink
+     * @return Link
      */
     private function createLink(Parameter $parameter, $class, $getter, $linkId) {
-        return new ClassLink($class, $linkId,
+        return new GenericLink(
+            $linkId,
+            function ($object) use ($class, $getter) {
+                return is_a($object, $class) && $getter($object) != null;
+            },
             function ($object) use ($parameter, $getter) {
                 return [
                     $parameter->getName() => [
