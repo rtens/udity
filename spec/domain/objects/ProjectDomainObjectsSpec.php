@@ -42,29 +42,6 @@ class ProjectDomainObjectsSpec extends Specification {
         $this->assert($object->createdWith, 'BarBaz');
     }
 
-    function projectAll() {
-        $this->define('Object', DomainObject::class, '
-            function created($name) {
-                $this->name = $name;
-            }
-        ');
-
-        $this->recordThat('Object', 'one', 'Created', ['name' => 'One']);
-        $this->recordThat('Object', 'two', 'Created', ['name' => 'Two']);
-        $this->recordThat('Object', 'three', 'Created', ['name' => 'Three']);
-
-        $this->recordThat('Wrong', 'three', 'Created');
-
-        /** @var DomainObjectList $objects */
-        $objects = $this->execute('ObjectList');
-
-        $this->assert(count($objects->getList()), 3);
-        $this->assert(is_object($objects->getList()[0]));
-        $this->assert($objects->getList()[0]->name, 'One');
-        $this->assert($objects->getList()[1]->name, 'Two');
-        $this->assert($objects->getList()[2]->name, 'Three');
-    }
-
     function doNotRegisterDomainObjectItself() {
         $this->define('Foo', DomainObject::class);
 

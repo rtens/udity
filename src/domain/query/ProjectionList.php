@@ -7,7 +7,7 @@ use rtens\udity\Projection;
 /**
  * Forwards Events to its Projection items
  */
-abstract class ProjectionList implements Projection {
+abstract class ProjectionList extends DefaultProjection {
     /**
      * @var Projection[]
      */
@@ -40,6 +40,8 @@ abstract class ProjectionList implements Projection {
             $this->items[$key] = $this->createItem($event);
         }
         $this->items[$key]->apply($event);
+
+        parent::apply($event);
     }
 
     /**

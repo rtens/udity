@@ -55,6 +55,9 @@ class ProjectEventsSpec extends Specification {
         $this->define('Bar', \stdClass::class);
         $this->define('Baz', DefaultProjection::class, '
             public $applied = "";
+            function applyThat($one) {
+                $this->applied .= "Any:" . $one;
+            }
             function forFooApplyThat($one) {
                 $this->applied .= "Foo:" . $one;
             }
@@ -65,10 +68,10 @@ class ProjectEventsSpec extends Specification {
 
         $this->recordThat('Bar', 'bla', 'That', ['one']);
         $this->recordThat('Foo', 'bla', 'That', ['two']);
-        $this->recordThat('NotAClass', 'bla', 'That');
+        $this->recordThat('NotAClass', 'bla', 'That', ['three']);
 
         $result = $this->execute('Baz');
-        $this->assert($result->applied, 'Bar:oneFoo:two');
+        $this->assert($result->applied, 'Any:oneBar:oneAny:twoFoo:twoAny:three');
     }
 
     function injectEvent() {

@@ -137,15 +137,4 @@ class InvokeDomainObjectMethodsSpec extends Specification {
 
         $this->assert($object->did, 'that');
     }
-
-    function ignoreListClasses() {
-        $this->define('Foo', DomainObject::class);
-        $this->define('FooList', DomainObjectList::class);
-
-        $this->runApp();
-
-        $this->assert->contains($this->actionIds(), 'FooList');
-        $this->assert->not()->contains($this->actionIds(), 'DomainObjectList');
-        $this->assert->not()->contains($this->actionIds(), 'ProjectionList');
-    }
 }
