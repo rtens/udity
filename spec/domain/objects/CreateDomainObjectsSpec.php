@@ -52,4 +52,36 @@ class CreateDomainObjectsSpec extends Specification {
             new Parameter('two', new StringType(), true),
         ]);
     }
+
+    function actionFromHandler() {
+        $this->define('Foo', DomainObject::class, '
+            function create($one, $two = "default") {}
+            function created($one, $two) {}
+        ');
+
+        $this->execute('Foo$create', ['one' => 'uno']);
+        $this->assert(count($this->recordedEvents()), 1);
+        $this->assert($this->recordedEvents()[0]->getPayload(), [
+            'one' => 'uno',
+            'two' => 'default'
+        ]);
+    }
+
+    function prohibitCreation() {
+        $this->define('Foo', DomainObject::class, '
+            function create() {
+                throw new \Exception();
+            }
+        ');
+
+        try {
+            $caught = null;
+            $this->execute('Foo$create');
+        } catch (\Exception $exception) {
+            $caught = $exception;
+        }
+
+        $this->assert->not()->isNull($caught);
+        $this->assert(count($this->recordedEvents()), 0);
+    }
 }

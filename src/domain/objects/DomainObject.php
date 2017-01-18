@@ -29,31 +29,38 @@ abstract class DomainObject extends Aggregate implements Projection {
         return $this->getIdentifier()->getKey();
     }
 
+    protected function recordThat($eventName, array $payload = []) {
+        $this->recordedEvents[] = new Event($this->getIdentifier(), $eventName, $payload);
+    }
+
     public function handle(Command $command) {
         $commandName = Str::g($command->getName());
 
         if ($commandName->is('create')) {
-            return $this->that($command, 'Created');
+            return $this->executeCommand($command, 'Created');
         } else if ($commandName->startsWith('change')) {
-            return $this->that($command, 'Changed' . $commandName->after('change'));
+            $property = $commandName->after('change');
+            return $this->executeCommand($command, 'Changed' . $property, 'set' . $property);
         } else if ($commandName->startsWith('do')) {
-            if (method_exists($this, $command->getName())) {
-                $argumentFiller = ArgumentFiller::from($this, $command->getName());
-                $argumentFiller->invoke($this, $command->getArguments());
-
-                $command = new Command(
-                    $command->getAggregateIdentifier(),
-                    $command->getName(),
-                    $argumentFiller->fill($command->getArguments()));
-            }
-            return $this->that($command, 'Did' . $commandName->after('do'));
+            return $this->executeCommand($command, 'Did' . $commandName->after('do'));
         } else {
             return parent::handle($command);
         }
     }
 
-    protected function recordThat($eventName, array $payload = []) {
-        $this->recordedEvents[] = new Event($this->getIdentifier(), $eventName, $payload);
+    private function executeCommand(Command $command, $eventName, $methodName = null) {
+        $methodName = $methodName ?: $command->getName();
+
+        if (method_exists($this, $methodName)) {
+            $argumentFiller = ArgumentFiller::from($this, $methodName);
+            $argumentFiller->invoke($this, $command->getArguments());
+
+            $command = new Command(
+                $command->getAggregateIdentifier(),
+                $command->getName(),
+                $argumentFiller->fill($command->getArguments()));
+        }
+        return $this->that($command, $eventName);
     }
 
     private function that(Command $command, $event) {

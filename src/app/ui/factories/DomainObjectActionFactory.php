@@ -47,9 +47,15 @@ class DomainObjectActionFactory implements ActionFactory {
     public function buildActionsFrom(\ReflectionClass $class) {
         $actions = [];
 
-        if ($class->hasMethod('created')) {
+        if ($class->hasMethod('create')) {
+            $createMethod = $class->getMethod('create');
+        } else if ($class->hasMethod('created')) {
+            $createMethod = $class->getMethod('created');
+        }
+
+        if (isset($createMethod)) {
             $actions[$this->id($class, 'create')] =
-                new CreateDomainObjectAction($this->app, $class->getMethod('created'), $this->ui->types, $this->ui->parser);
+                new CreateDomainObjectAction($this->app, $createMethod, $this->ui->types, $this->ui->parser);
         }
 
         $listClass = new \ReflectionClass($class->getName() . 'List');

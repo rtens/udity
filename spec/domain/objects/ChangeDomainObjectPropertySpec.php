@@ -88,4 +88,41 @@ class ChangeDomainObjectPropertySpec extends Specification {
         ]);
         $this->assert->pass();
     }
+
+    function defaultValue() {
+        $this->define('Foo', DomainObject::class, '
+            function setBar($baz = "default") {}
+        ');
+
+        $this->execute('Foo$changeBar', [
+            AggregateCommandAction::IDENTIFIER_KEY => $this->id('Foo', 'one')
+        ]);
+
+        $this->assert($this->recordedEvents(), [
+            new Event($this->id('Foo', 'one'), 'ChangedBar', [
+                'baz' => 'default'
+            ])
+        ]);
+    }
+
+    function prohibitChange() {
+        $this->define('Foo', DomainObject::class, '
+            function setBar($baz) {
+                throw new \Exception();
+            }
+        ');
+
+        try {
+            $caught = null;
+            $this->execute('Foo$changeBar', [
+                AggregateCommandAction::IDENTIFIER_KEY => $this->id('Foo', 'one'),
+                'baz' => 'foo'
+            ]);
+        } catch (\Exception $exception) {
+            $caught = $exception;
+        }
+
+        $this->assert->not()->isNull($caught);
+        $this->assert($this->recordedEvents(), []);
+    }
 }
