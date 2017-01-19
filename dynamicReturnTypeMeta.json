@@ -1,32 +1,32 @@
 {
   "methodCalls" : [
     {
-      "class" : "\\rtens\\proto\\check\\DomainSpecification",
+      "class" : "\\rtens\\udity\\check\\DomainSpecification",
       "method" : "given",
       "position" : 0
     },
     {
-      "class" : "\\rtens\\proto\\check\\DomainSpecification",
+      "class" : "\\rtens\\udity\\check\\DomainSpecification",
       "method" : "when",
       "position" : 0
     },
     {
-      "class" : "\\rtens\\proto\\check\\DomainSpecification",
+      "class" : "\\rtens\\udity\\check\\DomainSpecification",
       "method" : "whenProject",
       "position" : 0
     },
     {
-      "class" : "\\rtens\\proto\\check\\DomainSpecification",
+      "class" : "\\rtens\\udity\\check\\DomainSpecification",
       "method" : "whenProjectObject",
       "position" : 0
     },
     {
-      "class" : "\\rtens\\proto\\check\\DomainSpecification",
+      "class" : "\\rtens\\udity\\check\\DomainSpecification",
       "method" : "tryTo",
       "position" : 0
     },
     {
-      "class" : "\\rtens\\proto\\check\\DomainSpecification",
+      "class" : "\\rtens\\udity\\check\\DomainSpecification",
       "method" : "projection",
       "position" : 0
     }
