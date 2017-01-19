@@ -28,8 +28,14 @@ class FakeDomainObject {
         $methodString = Str::g($method);
         if ($methodString->startsWith('do')) {
             $method = 'did' . $methodString->after('do');
+            $event = ucfirst($method);
+        } else if ($methodString->startsWith('set')) {
+            $event = 'Changed' . $methodString->after('set');
+        } else {
+            $event = ucfirst($method);
         }
-        $mock = new FakeEventFactory(ucfirst($method), $this->domainObject, $this->identifierKey);
+
+        $mock = new FakeEventFactory($event, $this->domainObject, $this->identifierKey);
 
         $reflectionMethod = new \ReflectionMethod($this->domainObject, $method);
         foreach ($reflectionMethod->getParameters() as $i => $parameter) {

@@ -126,4 +126,17 @@ class CheckDomainObjectSpec extends CheckDomainSpecification {
             $spec->assert()->equals($spec->projection($Foo)->one, 'bar');
         });
     }
+
+    function changeProperty() {
+        $Foo = $this->define('Foo', DomainObject::class, '
+            function setFoo($foo) {
+                $this->foo = $foo;
+            }');
+
+        $this->shouldPass(function (DomainSpecification $spec) use ($Foo) {
+            $spec->given($Foo)->setFoo('bar');
+            $foo = $spec->whenProjectObject($Foo);
+            $spec->assert()->equals($foo->foo, 'bar');
+        });
+    }
 }
