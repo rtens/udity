@@ -12,6 +12,16 @@
     },
     {
       "class" : "\\rtens\\proto\\check\\DomainSpecification",
+      "method" : "whenProject",
+      "position" : 0
+    },
+    {
+      "class" : "\\rtens\\proto\\check\\DomainSpecification",
+      "method" : "whenProjectObject",
+      "position" : 0
+    },
+    {
+      "class" : "\\rtens\\proto\\check\\DomainSpecification",
       "method" : "tryTo",
       "position" : 0
     },

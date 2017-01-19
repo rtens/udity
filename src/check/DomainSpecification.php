@@ -142,20 +142,28 @@ class DomainSpecification {
         }
     }
 
+    /**
+     * @param string $domainObjectClass
+     * @param string $key
+     * @return object
+     */
     public function whenProjectObject($domainObjectClass, $key = self::DEFAULT_KEY) {
         $factory = $this->prepare();
 
         $identifierClass = $domainObjectClass . 'Identifier';
         $parameters = [new $identifierClass($key)];
 
-        $this->whenProjectPrepared($domainObjectClass, $parameters, $factory);
-        return $this;
+        return $this->whenProjectPrepared($domainObjectClass, $parameters, $factory);
     }
 
+    /**
+     * @param string $projectionClass
+     * @param array $parameters
+     * @return object
+     */
     public function whenProject($projectionClass, array $parameters = []) {
         $factory = $this->prepare();
-        $this->whenProjectPrepared($projectionClass, $parameters, $factory);
-        return $this;
+        return $this->whenProjectPrepared($projectionClass, $parameters, $factory);
     }
 
     private function whenProjectPrepared($projectionClass, array $parameters, Factory $factory) {
@@ -164,6 +172,8 @@ class DomainSpecification {
         /** @var WebApplication $ui */
         $ui = $factory->getInstance(WebApplication::class);
         $this->projection = $ui->actions->getAction($actionId)->execute($parameters);
+
+        return $this->projection;
     }
 
     /**

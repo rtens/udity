@@ -99,8 +99,8 @@ class CheckDomainObjectSpec extends CheckDomainSpecification {
         $Foo = $this->define('Foo', DomainObject::class);
 
         $this->shouldToggle('bar', 'baz', function (DomainSpecification $spec, $toggle) use ($Foo) {
-            $spec->whenProjectObject($Foo, 'bar')
-                ->assertEquals($spec->projection($Foo)->getIdentifier()->getKey(), $toggle);
+            $foo = $spec->whenProjectObject($Foo, 'bar');
+            $spec->assertEquals($foo->getIdentifier()->getKey(), $toggle);
         });
     }
 
