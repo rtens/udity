@@ -174,6 +174,10 @@ class LinkActionsPlugin implements WebInterfacePlugin {
     private function registerLinkAction($actionId, Parameter $parameter, $property) {
         $linkId = $actionId . '$' . $property . '$' . $parameter->getName();
 
+        if (array_key_exists($linkId, $this->ui->actions->getAllActions())) {
+            return $linkId;
+        }
+
         $linkAction = new GenericAction($this->ui->actions->getAction($actionId));
         $linkAction->setCaption($this->createLinkActionCaption($parameter, $property, $linkAction));
 

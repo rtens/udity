@@ -49,6 +49,23 @@ class LinkActionsSpec extends Specification {
         $this->assert($this->linkAction($links[0])->caption(), 'Bar');
     }
 
+    function overlappingActions() {
+        $this->define('Foo', Aggregate::class, '
+            function handleBar() {}
+        ');
+        $this->define('One', DefaultProjection::class, '
+            /** @return FooIdentifier */
+            public function getFoo() { return new FooIdentifier("foo"); }
+        ');
+        $this->define('Two', DefaultProjection::class, '
+            /** @return FooIdentifier */
+            public function getFoo() { return new FooIdentifier("foo"); }
+        ');
+
+        $this->runApp();
+        $this->assert->pass();
+    }
+
     function linkQueryToProjection() {
         $this->define('FooIdentifier', AggregateIdentifier::class);
         $projection = $this->define('Bar', DefaultProjection::class, '
